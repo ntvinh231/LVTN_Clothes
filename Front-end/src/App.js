@@ -1,25 +1,30 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { Fragment } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { routes } from './routes';
+import DefaultComponent from './components/DefaultComponent/DefaultComponent';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+export default function App() {
+	return (
+		<div>
+			<Router>
+				<Routes>
+					{routes.map((route) => {
+						const Page = route.page;
+						const Layout = route.isShowHeader ? DefaultComponent : Fragment;
+						return (
+							<Route
+								key={Page} // Thêm key vào đây với giá trị là route.path hoặc một giá trị duy nhất khác
+								path={route.path}
+								element={
+									<Layout>
+										<Page />
+									</Layout>
+								}
+							/>
+						);
+					})}
+				</Routes>
+			</Router>
+		</div>
+	);
 }
-
-export default App;
