@@ -10,6 +10,6 @@ export const WrapperContainer = styled.div`
 export const WrapperTextLight = styled.span`
 	color: rgb(13, 92, 182);
 	font-size: 13px;
-	margin-bottom: 10px;
+	margin: 10px 0;
 	cursor: pointer;
 `;

@@ -1,7 +1,12 @@
 import { CustomSearch, WrapperHeader, WrapperHeaderAccount, WrapperHeaderCart, WrapperTextHeader } from './style';
 import { Col } from 'antd';
 import { UserOutlined, ShoppingCartOutlined } from '@ant-design/icons';
+import { useNavigate } from 'react-router-dom';
 const HeaderComponent = () => {
+	const navigate = useNavigate();
+	const handleNavigateLogin = () => {
+		navigate('/sign-in');
+	};
 	return (
 		<div>
 			<WrapperHeader id="header">
@@ -16,7 +21,7 @@ const HeaderComponent = () => {
 				</Col>
 				<WrapperHeaderAccount span={5} offset={2} style={{ cursor: 'pointer' }}>
 					<UserOutlined style={{ fontSize: '20px' }} />
-					<div>
+					<div onClick={handleNavigateLogin}>
 						<WrapperTextHeader>Đăng nhập/Đăng ký</WrapperTextHeader>
 					</div>
 				</WrapperHeaderAccount>
