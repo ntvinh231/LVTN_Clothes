@@ -1,11 +1,10 @@
-import React from 'react';
 import { CustomSearch, WrapperHeader, WrapperHeaderAccount, WrapperHeaderCart, WrapperTextHeader } from './style';
 import { Col } from 'antd';
 import { UserOutlined, ShoppingCartOutlined } from '@ant-design/icons';
 const HeaderComponent = () => {
 	return (
 		<div>
-			<WrapperHeader>
+			<WrapperHeader id="header">
 				<Col span={3} offset={2}>
 					<WrapperTextHeader>Hotline: 0379488746</WrapperTextHeader>
 				</Col>
