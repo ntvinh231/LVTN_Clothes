@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { WrapperNavbar } from './style';
-import { Col } from 'antd';
+import { WrapperNavbar, WrapperTextNavbar } from './style';
 
 const NavbarComponent = () => {
 	const [showNavbar, setShowNavbar] = useState(false);
@@ -30,10 +29,10 @@ const NavbarComponent = () => {
 				id="navbar"
 				style={{ top: showNavbar ? '0' : headerHeight, boxShadow: showNavbar ? '0 0 5px 1px rgba(0,0,0,0.4)' : ' ' }}
 			>
-				<Col span={6}>col-6</Col>
-				<Col span={6}>Trang Chủ</Col>
-				<Col span={6}>Sản phẩm</Col>
-				<Col span={6}>Sale</Col>
+				<WrapperTextNavbar span={6}>col-6</WrapperTextNavbar>
+				<WrapperTextNavbar span={6}>Trang Chủ</WrapperTextNavbar>
+				<WrapperTextNavbar span={6}>Sản phẩm</WrapperTextNavbar>
+				<WrapperTextNavbar span={6}>Sale</WrapperTextNavbar>
 			</WrapperNavbar>
 		</div>
 	);
