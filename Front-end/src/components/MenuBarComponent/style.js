@@ -3,8 +3,10 @@ import { Row } from 'antd';
 import styled from 'styled-components';
 
 export const WrapperMenuBar = styled(Row)`
+	font-family: 'Roboto', sans-serif;
+	text-transform: uppercase;
+	font-weight: 700;
 	position: fixed;
-	position: -webkit-sticky;
 	width: 100%;
 	background-color: #fff;
 	padding: 15px 110px;

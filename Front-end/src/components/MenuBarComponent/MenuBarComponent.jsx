@@ -38,7 +38,9 @@ const MenuBarComponent = () => {
 				<WrapperTextMenuBar onClick={handleNavigateHome} span={6}>
 					<Image src={logo} alt="slider" preview={false} width="180px" height="20px" />
 				</WrapperTextMenuBar>
-				<WrapperTextMenuBar span={6}>Sản phẩm</WrapperTextMenuBar>
+				<WrapperTextMenuBar onClick={() => navigate('/type')} span={6}>
+					Sản phẩm
+				</WrapperTextMenuBar>
 				<WrapperTextMenuBar span={6}>Sale</WrapperTextMenuBar>
 				<WrapperTextMenuBar span={6}>AAAAAA</WrapperTextMenuBar>
 			</WrapperMenuBar>

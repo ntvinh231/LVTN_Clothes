@@ -7,6 +7,7 @@ const HeaderComponent = () => {
 	const handleNavigateLogin = () => {
 		navigate('/sign-in');
 	};
+
 	return (
 		<div>
 			<WrapperHeader id="header">

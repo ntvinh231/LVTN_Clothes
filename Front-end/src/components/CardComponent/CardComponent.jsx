@@ -12,7 +12,7 @@ const CardComponent = () => {
 	return (
 		<Card
 			hoverable
-			style={{ width: 204, display: 'block' }}
+			style={{ width: 215, display: 'block' }}
 			bodyStyle={{ padding: '10px 15px' }}
 			cover={<img alt="example" src="https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png" />}
 		>

@@ -33,11 +33,19 @@ const SignInPage = () => {
 			style={{
 				display: 'flex',
 				justifyContent: 'center',
-				background: 'rgba(0,0,0,0.53)',
 				height: '100vh',
 			}}
 		>
-			<div style={{ width: '635px', height: '312px', borderRadius: '6px', background: '#fff', marginTop: '80px' }}>
+			<div
+				style={{
+					width: '635px',
+					height: '312px',
+					borderRadius: '6px',
+					background: '#fff',
+					marginTop: '80px',
+					boxShadow: '0 0 6px 0 rgba(0,0,0,0.3',
+				}}
+			>
 				<WrapperContainer>
 					<h1>Đăng nhập tài khoản</h1>
 					<InputForm style={{ marginBottom: '10px' }} placeholder="Email" onChange={handleOnChangeEmail}></InputForm>

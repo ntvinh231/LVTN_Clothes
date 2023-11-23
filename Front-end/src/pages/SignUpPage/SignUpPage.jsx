@@ -33,11 +33,19 @@ const SignUpPage = () => {
 			style={{
 				display: 'flex',
 				justifyContent: 'center',
-				background: 'rgba(0,0,0,0.53)',
 				height: '100vh',
 			}}
 		>
-			<div style={{ width: '635px', height: '350px', borderRadius: '6px', background: '#fff', marginTop: '80px' }}>
+			<div
+				style={{
+					width: '635px',
+					height: '350px',
+					borderRadius: '6px',
+					background: '#fff',
+					marginTop: '80px',
+					boxShadow: '0 0 6px 0 rgba(0,0,0,0.3',
+				}}
+			>
 				<WrapperContainer>
 					<h1>Đăng ký tài khoản</h1>
 					<InputForm style={{ marginBottom: '10px' }} placeholder="Email" onChange={handleOnChangeEmail}></InputForm>
@@ -95,7 +103,7 @@ const SignUpPage = () => {
 							transition: 'background 0.3s ease',
 							margin: '20px 0 10px',
 						}}
-						textButton={'Đăng Nhập'}
+						textButton={'Đăng Ký'}
 						styleTextButton={{ color: '#fff', fontSize: '15px', fontWeight: '700' }}
 					></ButtonComponent>
 					<p style={{ marginTop: '10px' }}>
