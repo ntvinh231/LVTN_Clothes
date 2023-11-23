@@ -2,7 +2,7 @@ import { Row } from 'antd';
 
 import styled from 'styled-components';
 
-export const WrapperNavbar = styled(Row)`
+export const WrapperMenuBar = styled(Row)`
 	position: fixed;
 	position: -webkit-sticky;
 	width: 100%;
@@ -15,9 +15,12 @@ export const WrapperNavbar = styled(Row)`
 	will-change: top; /* Thông báo cho trình duyệt biết phần tử sẽ thay đổi top */
 `;
 
-export const WrapperTextNavbar = styled.span`
+export const WrapperTextMenuBar = styled.span`
 	padding: 10px 30px;
 	color: #000000;
 	align-items: center;
 	cursor: pointer;
+	&:hover {
+		color: #0089ff;
+	}
 `;

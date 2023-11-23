@@ -4,7 +4,7 @@ import Slider from 'react-slick';
 const SliderComponent = ({ arrImages }) => {
 	const [marginTopSlider, setMaginTopSlider] = useState(0);
 	useEffect(() => {
-		const navbarHeight = document.getElementById('navbar').offsetHeight;
+		const navbarHeight = document.getElementById('MenuBar').offsetHeight;
 
 		// height navbar
 		setMaginTopSlider(navbarHeight);

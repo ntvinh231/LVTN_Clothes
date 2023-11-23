@@ -37,3 +37,11 @@ export const routes = [
 		isShowHeader: false,
 	},
 ];
+
+// export const ClothingDropdown = [
+// 	{
+// 		path: '*',
+// 		title: 'All'
+// 		page: NotFoundPage,
+// 	}
+// ]

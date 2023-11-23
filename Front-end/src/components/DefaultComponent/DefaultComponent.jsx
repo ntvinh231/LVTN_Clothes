@@ -1,11 +1,11 @@
 import React from 'react';
 import HeaderComponent from '../HeaderComponent/HeaderComponent';
-import NavbarComponent from '../NavbarComponent/NavbarComponent';
+import MenuBarComponent from '../MenuBarComponent/MenuBarComponent';
 const DefaultComponent = ({ children }) => {
 	return (
 		<div>
 			<HeaderComponent></HeaderComponent>
-			<NavbarComponent></NavbarComponent>
+			<MenuBarComponent></MenuBarComponent>
 			{children}
 		</div>
 	);
