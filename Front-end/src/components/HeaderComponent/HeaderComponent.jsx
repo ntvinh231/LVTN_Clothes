@@ -1,5 +1,5 @@
 import { CustomSearch, WrapperHeader, WrapperHeaderAccount, WrapperHeaderCart, WrapperTextHeader } from './style';
-import { Col } from 'antd';
+import { Badge, Col } from 'antd';
 import { UserOutlined, ShoppingCartOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 const HeaderComponent = () => {
@@ -27,7 +27,9 @@ const HeaderComponent = () => {
 					</div>
 				</WrapperHeaderAccount>
 				<WrapperHeaderCart style={{ cursor: 'pointer' }}>
-					<ShoppingCartOutlined style={{ fontSize: '20px' }} />
+					<Badge count={4} size="small">
+						<ShoppingCartOutlined style={{ fontSize: '20px', color: ' #cccccc' }} />
+					</Badge>
 					<div>
 						<WrapperTextHeader>Giỏ hàng</WrapperTextHeader>
 					</div>
