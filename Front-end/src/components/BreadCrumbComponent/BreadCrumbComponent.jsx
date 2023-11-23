@@ -8,11 +8,10 @@ const BreadCrumbComponent = () => {
 	useEffect(() => {
 		switch (location.pathname) {
 			case '/type':
+			case '/product-detail':
 				setBreadCrumb('Danh mục');
 				break;
 			case '/sign-in':
-				setBreadCrumb('Tài khoản');
-				break;
 			case '/sign-up':
 				setBreadCrumb('Tài khoản');
 				break;
