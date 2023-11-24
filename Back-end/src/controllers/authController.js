@@ -8,25 +8,28 @@ import { uploadSingleFile } from '../service/fileService.js';
 
 export const signUp = async (req, res, next) => {
 	try {
-		const userValidationSchema = joi
-			.object({
-				name: joi.string().min(3).max(30).required(),
-				email: joi.string().email(),
-				password: joi.string().pattern(new RegExp('^[a-zA-Z0-9]{3,30}$')).required(),
-				password_confirm: joi.ref('password'),
-				phone: joi.string(),
-				address: joi.string(),
-				avatar: joi.string(),
-				role: joi.string().default('user'),
-				list_favorite: joi.array().items(joi.string()),
-			})
-			.with('password', 'password_confirm');
+		const userValidationSchema = joi.object({
+			name: joi.string().min(3).max(30).required(),
+			email: joi.string().email(),
+			password: joi.string().pattern(new RegExp('^[a-zA-Z0-9]{3,30}$')).required(),
+			confirmPassword: joi.string(),
+			phone: joi.string(),
+			address: joi.string(),
+			avatar: joi.string(),
+			role: joi.string().default('user'),
+			list_favorite: joi.array().items(joi.string()),
+		});
+
 		const validatedData = await userValidationSchema.validateAsync(req.body);
-		if (!validatedData.name || !validatedData.email || !validatedData.password || !validatedData.password_confirm) {
+		if (!validatedData.name || !validatedData.email || !validatedData.password || !validatedData.confirmPassword) {
 			return next(httpError(400, 'The input is required'));
 		}
 		const existingUser = await User.findOne({ email: validatedData.email });
-		if (existingUser) return next(httpError(409, 'Email already exists'));
+		if (existingUser) return next(httpError(400, 'Email already exists'));
+		if (validatedData.password != validatedData.confirmPassword) {
+			console.log('not match');
+			return next(httpError(400, 'Passwords do not match '));
+		}
 		const newUser = await User.create(validatedData);
 		sendToken(newUser.id, 201, res);
 	} catch (error) {
@@ -43,6 +46,7 @@ export const signIn = async (req, res, next) => {
 		});
 		const validatedData = await userValidationSchema.validateAsync(req.body);
 		const user = await User.findOne({ email: validatedData.email }).select('+password').select('+role');
+
 		if (!user || !(await bcrypt.compare(validatedData.password, user.password)))
 			return next(httpError(400, 'Incorrect Email or Password'));
 		sendToken(user.id, 201, res);

@@ -23,9 +23,8 @@ export const sendToken = (payload, code, res) => {
 
 	res.cookie('jwt', tokens.accessToken, cookieOptions);
 	res.status(code).json({
-		status: code,
-		statusCode: 'sucess',
-		access_token: tokens.accessToken,
-		refresh_token: tokens.refreshToken,
+		statusCode: code,
+		statusMessage: 'sucess',
+		Message: 'Login Success',
 	});
 };
