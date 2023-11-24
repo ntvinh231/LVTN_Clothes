@@ -18,6 +18,7 @@ const userSchema = new mongoose.Schema({
 	},
 	list_favorite: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product', select: false }],
 	refreshToken: String,
+	accessToken: String,
 });
 
 userSchema.pre('save', async function (next) {

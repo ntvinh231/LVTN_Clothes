@@ -22,6 +22,9 @@ export const signUp = async (req, res, next) => {
 			})
 			.with('password', 'password_confirm');
 		const validatedData = await userValidationSchema.validateAsync(req.body);
+		if (!validatedData.name || !validatedData.email || !validatedData.password || !validatedData.password_confirm) {
+			return next(httpError(400, 'The input is required'));
+		}
 		const existingUser = await User.findOne({ email: validatedData.email });
 		if (existingUser) return next(httpError(409, 'Email already exists'));
 		const newUser = await User.create(validatedData);
@@ -39,11 +42,10 @@ export const signIn = async (req, res, next) => {
 			password: joi.string().pattern(new RegExp('^[a-zA-Z0-9]{3,30}$')).required(),
 		});
 		const validatedData = await userValidationSchema.validateAsync(req.body);
-		const user = await User.findOne({ email: validatedData.email }).select('+password');
+		const user = await User.findOne({ email: validatedData.email }).select('+password').select('+role');
 		if (!user || !(await bcrypt.compare(validatedData.password, user.password)))
 			return next(httpError(400, 'Incorrect Email or Password'));
-		// console.log(req.user);
-		sendToken(user.id, 200, res);
+		sendToken(user.id, 201, res);
 	} catch (error) {
 		console.log(error);
 		return next(httpError(400, error));
@@ -103,3 +105,46 @@ export const updateUser = async (req, res, next) => {
 		return next(httpError(400, error));
 	}
 };
+
+export const loggout = async (req, res, next) => {
+	if (!req.cookies.jwt) return next(httpError(401, 'You are not logged in.'));
+	res.clearCookie('jwt');
+	return res.status(200).json({
+		status: 200,
+		statusMessage: 'success',
+		message: 'Logged out successfully',
+	});
+};
+
+export const getAllUser = async (req, res, next) => {
+	try {
+		const allUSer = await User.find({});
+		return res.status(200).json({
+			status: 200,
+			statusMessage: 'success',
+			data: allUSer,
+		});
+	} catch (error) {
+		return next(httpError(400, 'error'));
+	}
+};
+
+export const getDetailsUser = async (req, res) => {
+	try {
+		const userId = req.params.id;
+		if (!userId) {
+			return next(httpError(400, 'UserId is required'));
+		}
+		const user = await User.findOne({ _id: userId });
+		if (user === null) {
+			return next(httpError(404, 'The user is not defined'));
+		}
+		return res.status(200).json({
+			status: 200,
+			statusMessage: 'success',
+			data: user,
+		});
+	} catch (error) {}
+};
+
+export const refreshToken = async (req, res, next) => {};
