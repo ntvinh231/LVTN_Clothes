@@ -7,6 +7,7 @@ import {
 	WrapperPriceText,
 	WrapperReportText,
 } from './style';
+import imageProduct from '../../assets/images/test.webp';
 
 const CardComponent = () => {
 	return (
@@ -14,7 +15,7 @@ const CardComponent = () => {
 			hoverable
 			style={{ width: 215, display: 'block' }}
 			bodyStyle={{ padding: '10px 15px' }}
-			cover={<img alt="example" src="https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png" />}
+			cover={<img alt="example" src={imageProduct} />}
 		>
 			<StyleNameProduct title="Áo Polo Radiate Positivity">Áo Polo Radiate Positivity</StyleNameProduct>
 			<WrapperReportText>

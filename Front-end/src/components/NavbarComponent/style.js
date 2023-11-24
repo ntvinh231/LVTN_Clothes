@@ -21,4 +21,5 @@ export const WrapperContent = styled.div`
 	/* align-items: center; */
 	flex-direction: column;
 	gap: 12px;
+	cursor: pointer;
 `;
