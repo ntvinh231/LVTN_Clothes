@@ -2,8 +2,10 @@ import { CustomSearch, WrapperHeader, WrapperHeaderAccount, WrapperHeaderCart, W
 import { Badge, Col } from 'antd';
 import { UserOutlined, ShoppingCartOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 const HeaderComponent = () => {
 	const navigate = useNavigate();
+	const user = useSelector((state) => state.user);
 	const handleNavigateLogin = () => {
 		navigate('/sign-in');
 	};
@@ -22,9 +24,13 @@ const HeaderComponent = () => {
 				</Col>
 				<WrapperHeaderAccount span={5} offset={2} style={{ cursor: 'pointer' }}>
 					<UserOutlined style={{ fontSize: '20px' }} />
-					<div onClick={handleNavigateLogin}>
-						<WrapperTextHeader>Đăng nhập/Đăng ký</WrapperTextHeader>
-					</div>
+					{user?.name ? (
+						<div>{user.name}</div>
+					) : (
+						<div onClick={handleNavigateLogin}>
+							<WrapperTextHeader>Đăng nhập/Đăng ký</WrapperTextHeader>
+						</div>
+					)}
 				</WrapperHeaderAccount>
 				<WrapperHeaderCart style={{ cursor: 'pointer' }}>
 					<Badge count={4} size="small">
