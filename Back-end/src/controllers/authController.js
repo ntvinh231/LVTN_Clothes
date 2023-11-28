@@ -1,7 +1,7 @@
 import User from '../models/User.js';
-import jwt from 'jsonwebtoken';
+
 import joi from 'joi';
-import { generateTokens, sendToken } from '../middleware/sendToken.js';
+import { JWTRefreshTokenService, generateTokens, sendToken } from '../middleware/sendToken.js';
 import httpError from 'http-errors';
 import bcrypt from 'bcrypt';
 import { uploadSingleFile } from '../service/fileService.js';
@@ -27,11 +27,12 @@ export const signUp = async (req, res, next) => {
 		const existingUser = await User.findOne({ email: validatedData.email });
 		if (existingUser) return next(httpError(400, 'Email already exists'));
 		if (validatedData.password != validatedData.confirmPassword) {
-			console.log('not match');
 			return next(httpError(400, 'Passwords do not match '));
 		}
 		const newUser = await User.create(validatedData);
-		sendToken(newUser.id, 201, res);
+
+		const response = await generateTokens(newUser.id);
+		sendToken(response, 201, res);
 	} catch (error) {
 		console.log(error);
 		return next(httpError(400, error));
@@ -49,7 +50,9 @@ export const signIn = async (req, res, next) => {
 
 		if (!user || !(await bcrypt.compare(validatedData.password, user.password)))
 			return next(httpError(400, 'Incorrect Email or Password'));
-		sendToken(user.id, 201, res);
+
+		const response = await generateTokens(user.id, res);
+		sendToken(response, 201, res, req);
 	} catch (error) {
 		console.log(error);
 		return next(httpError(400, error));
@@ -136,6 +139,7 @@ export const getAllUser = async (req, res, next) => {
 export const getDetailsUser = async (req, res) => {
 	try {
 		const userId = req.params.id;
+
 		if (!userId) {
 			return next(httpError(400, 'UserId is required'));
 		}
@@ -151,4 +155,19 @@ export const getDetailsUser = async (req, res) => {
 	} catch (error) {}
 };
 
-export const refreshToken = async (req, res, next) => {};
+export const refreshToken = async (req, res, next) => {
+	try {
+		if (!req.cookies.jwtR) {
+			res.status(200).json({
+				statusCode: 200,
+				statusMessage: 'ERR',
+				Message: 'The token is required',
+			});
+		}
+		const response = await JWTRefreshTokenService(req.cookies.jwtR, res, next);
+		res.status(200).json(response);
+	} catch (error) {
+		console.log(error);
+		return httpError(404, error);
+	}
+};

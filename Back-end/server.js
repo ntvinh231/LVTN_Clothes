@@ -8,44 +8,57 @@ import cookieParser from 'cookie-parser';
 import AppError from './src/util/appError.js';
 import httpError from 'http-errors';
 import fileUpload from 'express-fileupload';
-const app = express();
-app.use(cors());
-app.use((req, res, next) => {
-	res.header('Access-Control-Allow-Origin', '*');
-	res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
-	res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-	next();
-});
-dotenv.config();
 
-const port = process.env.PORT || 8888;
-const hostname = process.env.HOST_NAME;
-//config file upload
+const app = express();
 app.use(fileUpload({ createParentPath: true }));
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+dotenv.config();
+
+const port = process.env.PORT || 8888;
+const hostname = process.env.HOST_NAME;
+
+// Sử dụng cors() một lần với tùy chọn
+const corsOptions = {
+	origin: 'http://localhost:3000',
+	credentials: true, //access-control-allow-credentials:true
+	optionSuccessStatus: 200,
+};
+app.use(cors(corsOptions));
+
+app.get('/', (req, res) => {
+	res.setHeader('Access-Control-Allow-Origin', '*');
+	res.setHeader('Access-Control-Allow-Credentials', 'true');
+	res.setHeader('Access-Control-Max-Age', '1800');
+	res.setHeader('Access-Control-Allow-Headers', 'content-type');
+	res.setHeader('Access-Control-Allow-Methods', 'PUT, POST, GET, DELETE, PATCH, OPTIONS');
+});
+
+//config file upload
 
 app.use('/api/user', userRouter);
 app.use('/api', productRouter);
-//404 handler and pass to errror handler
+
+//404 handler and pass to error handler
 app.all('*', (req, res, next) => {
 	return next(httpError(404, `Can't find ${req.originalUrl} on this server!`));
 });
+
 //error handler
 app.use((error, req, res, next) => {
 	res.status(error.status || 500);
 	let statusMessage;
 	if (error.status >= 200 && error.status < 300) {
-		statusMessage = 'Success'; // Mã lỗi 2xx thường là thành công
+		statusMessage = 'Success';
 	} else if (error.status >= 300 && error.status < 400) {
-		statusMessage = 'Redirection'; // Mã lỗi 3xx thường là chuyển hướng
+		statusMessage = 'Redirection';
 	} else if (error.status >= 400 && error.status < 500) {
-		statusMessage = 'Failed'; // Mã lỗi 4xx thường là lỗi từ phía người dùng
+		statusMessage = 'Failed';
 	} else if (error.status >= 500 && error.status < 600) {
-		statusMessage = 'Error'; // Mã lỗi 5xx thường là lỗi từ phía máy chủ
+		statusMessage = 'Error';
 	} else {
-		statusMessage = 'Unknown'; // Trường hợp không xác định
+		statusMessage = 'Unknown';
 	}
 	return res.json({
 		statusCode: error.status,
@@ -53,6 +66,7 @@ app.use((error, req, res, next) => {
 		message: error.message,
 	});
 });
+
 (async () => {
 	try {
 		// test connection

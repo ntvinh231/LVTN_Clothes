@@ -16,7 +16,7 @@ const isLoggedIn = async (req, res, next) => {
 		req.user = currentUser;
 		next();
 	} else {
-		return next(httpError(401, 'You are not logged in! Please log in to get access'));
+		return next(httpError(401, 'You are not logged in! Please log in to get access22'));
 	}
 };
 
