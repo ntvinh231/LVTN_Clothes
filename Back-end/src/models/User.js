@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
+import mongoose_delete from 'mongoose-delete';
 
 const userSchema = new mongoose.Schema({
 	name: String,
@@ -14,6 +15,7 @@ const userSchema = new mongoose.Schema({
 	avatar: String,
 	role: {
 		type: String,
+		enum: ['user', 'admin'],
 		select: false,
 	},
 	list_favorite: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product', select: false }],
@@ -35,6 +37,7 @@ userSchema.methods.isPasswordChanged = function (jwtTimeStamp) {
 	return false;
 };
 
+userSchema.plugin(mongoose_delete, { overrideMethods: 'all' });
 const User = mongoose.model('User', userSchema);
 
 export default User;

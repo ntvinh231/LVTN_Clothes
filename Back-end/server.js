@@ -38,7 +38,7 @@ app.get('/', (req, res) => {
 //config file upload
 
 app.use('/api/user', userRouter);
-app.use('/api', productRouter);
+app.use('/api/product', productRouter);
 
 //404 handler and pass to error handler
 app.all('*', (req, res, next) => {

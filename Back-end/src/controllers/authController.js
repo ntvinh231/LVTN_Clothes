@@ -51,6 +51,7 @@ export const signIn = async (req, res, next) => {
 		if (!user || !(await bcrypt.compare(validatedData.password, user.password)))
 			return next(httpError(400, 'Incorrect Email or Password'));
 
+		req.user = user;
 		const response = await generateTokens(user.id, res);
 		sendToken(response, 201, res, req);
 	} catch (error) {
