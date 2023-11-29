@@ -1,6 +1,5 @@
 import jwt from 'jsonwebtoken';
 import { promisify } from 'util';
-import httpError from 'http-errors';
 
 export const generateTokens = (payload) => {
 	const accessToken = jwt.sign({ payload }, process.env.JWT_ACCESS_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN });
@@ -17,13 +16,12 @@ export const generateTokens = (payload) => {
 export const sendToken = (response, code, res, req) => {
 	const { refreshToken, accessToken } = response;
 
-	const cookieOptions = {
-		expires: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 1000),
-		secure: true,
+	const CookieOptions = {
+		secure: false,
 		httpOnly: true,
 	};
-	res.cookie('jwt', accessToken, cookieOptions);
-	res.cookie('jwtR', refreshToken, cookieOptions);
+	res.cookie('jwt', accessToken, CookieOptions);
+	res.cookie('jwtR', refreshToken, CookieOptions);
 	return res.status(code).json({
 		statusCode: code,
 		statusMessage: 'sucess',
@@ -36,7 +34,7 @@ export const JWTRefreshTokenService = async (token, res, next) => {
 	try {
 		const cookieOptions = {
 			expires: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 1000),
-			secure: true,
+			secure: false,
 			httpOnly: true,
 		};
 		const decoded = await promisify(jwt.verify)(token, process.env.JWT_REFRESH_SECRET);

@@ -9,11 +9,6 @@ const authMiddle = async (req, res, next) => {
 			const decoded = await promisify(jwt.verify)(req.cookies.jwt, process.env.JWT_ACCESS_SECRET);
 
 			const currentUser = await User.findById(decoded.payload).select('+role');
-			// if (currentUser.role == 'admin' }} currentUser.id == ) {
-			// 	;
-			// 	next();
-			// }
-
 			next();
 		} catch (error) {
 			return next(httpError(404, 'The authencation'));

@@ -4,12 +4,18 @@ import mongoose_delete from 'mongoose-delete';
 
 const userSchema = new mongoose.Schema({
 	name: String,
-	email: String,
+	email: {
+		type: String,
+		select: false,
+	},
 	password: {
 		type: String,
 		select: false,
 	},
-	passwordChangedAt: Date,
+	passwordChangedAt: {
+		type: Date,
+		select: false,
+	},
 	phone: String,
 	address: String,
 	avatar: String,

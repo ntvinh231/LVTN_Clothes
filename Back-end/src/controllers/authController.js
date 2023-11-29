@@ -56,7 +56,6 @@ export const signIn = async (req, res, next) => {
 		sendToken(response, 201, res, req);
 	} catch (error) {
 		console.log(error);
-		return next(httpError(400, error));
 	}
 };
 
@@ -159,14 +158,14 @@ export const getDetailsUser = async (req, res) => {
 export const refreshToken = async (req, res, next) => {
 	try {
 		if (!req.cookies.jwtR) {
-			res.status(200).json({
+			return res.status(200).json({
 				statusCode: 200,
 				statusMessage: 'ERR',
 				Message: 'The token is required',
 			});
 		}
 		const response = await JWTRefreshTokenService(req.cookies.jwtR, res, next);
-		res.status(200).json(response);
+		return res.status(200).json(response);
 	} catch (error) {
 		console.log(error);
 		return httpError(404, error);
