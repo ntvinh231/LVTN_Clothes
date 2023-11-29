@@ -6,12 +6,13 @@ import apq from 'api-query-params';
 export const getProduct = async (req, res, next) => {
 	try {
 		let page = req.query.page;
-		const { filter, limit } = apq(req.query);
+		const { filter, limit, sort } = apq(req.query);
 		delete filter.page;
 		const totalProduct = await Product.count();
-		const filterData = filter.id ? { _id: filter.id } : {};
+		const filterData = filter.id ? { _id: filter.id } : filter;
 		const offset = limit * (page - 1);
-		const product = await Product.find(filterData).limit(limit).skip(offset);
+		const product = await Product.find(filterData).limit(limit).skip(offset).sort(sort);
+		console.log(filterData);
 		if (product.length == 0) {
 			return res.status(404).json({
 				statusCode: 404,
