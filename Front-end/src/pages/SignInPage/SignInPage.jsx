@@ -25,14 +25,14 @@ const SignInPage = () => {
 
 	useEffect(() => {
 		if (data?.statusCode === 201) {
-			Message.success();
-			navigate('/');
+			Message.success('Đăng nhập thành công');
 			localStorage.setItem('accessToken', JSON.stringify(data?.accessToken));
 			if (data?.accessToken) {
 				const decoded = jwtDecode(data?.accessToken);
 
 				if (decoded?.payload) {
 					handleGetDetailsUser(decoded?.payload, data?.accessToken);
+					navigate('/');
 				}
 			}
 		}

@@ -1,9 +1,59 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { routes } from './routes';
 import DefaultComponent from './components/DefaultComponent/DefaultComponent';
+import { isJsonString } from './util';
+import { jwtDecode } from 'jwt-decode';
+import { useDispatch } from 'react-redux';
+import * as UserService from './service/UserService';
+import { updateUser } from './redux/slice/userSlide';
+import Cookies from 'js-cookie';
 
 export default function App() {
+	const dispatch = useDispatch();
+	useEffect(() => {
+		const { storageData, decoded } = handleDecoded();
+
+		if (decoded?.payload) {
+			handleGetDetailsUser(decoded?.payload, storageData);
+		}
+	}, []);
+
+	UserService.axiosJWT.interceptors.request.use(async (config) => {
+		try {
+			const cookieOptions = {
+				httpOnly: true,
+				secure: false,
+			};
+			const currentTime = new Date();
+			const { decoded } = handleDecoded();
+			if (decoded?.exp < currentTime.getTime() / 1000) {
+				const data = await UserService.refreshToken();
+				config.headers['token'] = `Bearer ${data?.accessToken}`;
+				// Lưu access token vào cookie
+				Cookies.set('jwt', data?.accessToken, cookieOptions);
+			}
+			return config;
+		} catch (error) {
+			console.log(error);
+		}
+	});
+
+	const handleDecoded = () => {
+		let storageData = localStorage.getItem('accessToken');
+		let decoded;
+		if (storageData && isJsonString(storageData)) {
+			storageData = JSON.parse(storageData);
+			decoded = jwtDecode(storageData);
+		}
+		return { decoded, storageData };
+	};
+
+	const handleGetDetailsUser = async (id, token) => {
+		const res = await UserService.getDetailsUser(id, token);
+		dispatch(updateUser({ ...res?.data, accessToken: token }));
+	};
+
 	return (
 		<div>
 			<Router>
