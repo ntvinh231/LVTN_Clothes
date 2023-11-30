@@ -114,8 +114,8 @@ export const updateUser = async (req, res, next) => {
 };
 
 export const loggout = async (req, res, next) => {
-	if (!req.cookies.jwt) return next(httpError(401, 'You are not logged in.'));
 	res.clearCookie('jwt');
+	res.clearCookie('jwtR');
 	return res.status(200).json({
 		status: 200,
 		statusMessage: 'success',

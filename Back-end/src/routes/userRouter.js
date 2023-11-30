@@ -15,9 +15,9 @@ import authMiddle from '../middleware/authMiddle.js';
 router.post('/refresh-token', refreshToken);
 router.post('/signup', signUp);
 router.post('/signin', signIn);
+router.post('/loggout', loggout);
 router.use(isLoggedIn);
 router.post('/update', updateUser);
-router.get('/loggout', loggout);
 router.get('/getAll', authMiddle, getAllUser);
 router.get('/details/:id', authMiddle, getDetailsUser);
 
