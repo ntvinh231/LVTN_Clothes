@@ -59,57 +59,72 @@ export const signIn = async (req, res, next) => {
 	}
 };
 
+const isValidEmail = (email) => {
+	return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+};
 export const updateUser = async (req, res, next) => {
 	try {
-		const ValidationSchema = joi
-			.object({
-				name: joi
-					.string()
-					.max(25)
-					.pattern(/^[a-zA-Z0-9\s]*$/)
-					.required(),
-				newPassword: joi.string().pattern(new RegExp('^[a-zA-Z0-9]{3,30}$')),
-				newPassword_confirm: joi.ref('newPassword'),
-				address: joi.string(),
-				phone: joi.string(),
-				avatar: joi.string(),
-			})
-			.with('newPassword', 'newPassword_confirm');
+		const data = req.body;
+		if (!data.name || !data.phone || !data.email) {
+			return res.status(200).json({
+				statusCode: 400,
+				statusMessage: 'success',
+				message: 'Name, phone, and email are required.',
+			});
+		}
+		if (!data.name) {
+			return res.status(200).json({
+				statusCode: 400,
+				statusMessage: 'success',
+				message: 'Name is required',
+			});
+		} else if (data.name.length > 25) {
+			return res.status(200).json({
+				statusCode: 400,
+				statusMessage: 'success',
+				message: 'Name must not exceed 25 characters',
+			});
+		}
 
-		const validatedData = await ValidationSchema.validateAsync(req.body);
-		const user = await User.findByIdAndUpdate({ _id: req.user.id }, validatedData, {
-			new: true, // trả về dữ liệu mới sau khi cập nhật thay vì dữ liệu cũ
-			runValidators: true, // bảo rằng dữ liệu mới cập nhật đáp ứng ràng buộc trong model .
+		if (data.email && !isValidEmail(data.email)) {
+			return res.status(200).json({
+				statusCode: 400,
+				statusMessage: 'success',
+				message: 'Invalid email address',
+			});
+		}
+
+		const user = await User.findByIdAndUpdate({ _id: req.user.id }, data, {
+			new: true,
+			runValidators: true,
 		});
-		let imgName;
-		if (!req.files || Object.keys(req.files).length == 0) {
-			//do nothing
-		} else {
-			imgName = await uploadSingleFile(req.files.avatar, req, res, next);
+
+		if (req.files && Object.keys(req.files).length > 0) {
+			const imgName = await uploadSingleFile(req.files.avatar, req, res, next);
 			user.avatar = imgName.path;
 			await user.save();
 		}
-		if (validatedData.newPassword) {
-			user.password = validatedData.newPassword;
-			user.passwordConfirm = validatedData.newPassword_confirm;
-			validatedData.newPassword = undefined;
-			validatedData.newPassword_confirm = undefined;
-			await user.save();
-		}
-		if (!user) return next(httpError(401, 'You are not logged in! Please log in to get access'));
 
-		let data = {
-			validatedData,
-			imgName,
-		};
+		if (!user) {
+			return next(httpError(401, 'You are not logged in! Please log in to get access'));
+		}
+
 		return res.status(200).json({
 			statusCode: 200,
 			statusMessage: 'success',
-			data,
+			data: {
+				validatedData: req.body,
+				imgName: user.avatar,
+			},
 		});
 	} catch (error) {
 		console.log(error);
-		return next(httpError(400, error));
+		return res.status(500).json({
+			statusCode: 500,
+			statusMessage: 'Internal Server Error',
+			error: error.message,
+			message: 'An internal server error occurred',
+		});
 	}
 };
 
