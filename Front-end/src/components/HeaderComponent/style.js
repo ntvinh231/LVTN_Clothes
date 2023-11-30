@@ -1,6 +1,7 @@
 import { Row } from 'antd';
 import Search from 'antd/es/input/Search';
 import styled from 'styled-components';
+import Loading from '../LoadingComponent/Loading';
 export const WrapperHeader = styled(Row)`
 	position: relative;
 	padding: 15px 10px;
@@ -13,7 +14,7 @@ export const WrapperTextHeader = styled.span`
 	font-size: 13px;
 	color: #cccccc;
 	font-weight: 400;
-	text-align: left;
+
 	align-items: center;
 	padding-left: 10px;
 	font-family: 'Roboto', sans-serif;
@@ -35,12 +36,11 @@ export const CustomSearch = styled(Search)`
 `;
 
 export const WrapperHeaderAccount = styled.div`
-	display: flex;
+	display: inline-flex;
 	align-items: center;
 	font-size: 13px;
 	color: #cccccc;
 	font-weight: 400;
-	margin-left: 40px;
 `;
 
 export const WrapperHeaderCart = styled.div`
@@ -50,4 +50,11 @@ export const WrapperHeaderCart = styled.div`
 	color: #cccccc;
 	font-weight: 400;
 	margin-left: 30px;
+`;
+
+export const WrapperContentPopup = styled.p`
+	cursor: pointer;
+	&:hover {
+		color: #0089ff;
+	}
 `;

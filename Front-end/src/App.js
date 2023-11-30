@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { routes } from './routes';
 import DefaultComponent from './components/DefaultComponent/DefaultComponent';
@@ -8,15 +8,18 @@ import { useDispatch } from 'react-redux';
 import * as UserService from './service/UserService';
 import { updateUser } from './redux/slice/userSlide';
 import Cookies from 'js-cookie';
+import Loading from './components/LoadingComponent/Loading';
 
 export default function App() {
 	const dispatch = useDispatch();
+	const [isLoading, setIsLoading] = useState(false);
 	useEffect(() => {
+		setIsLoading(true);
 		const { storageData, decoded } = handleDecoded();
-
 		if (decoded?.payload) {
 			handleGetDetailsUser(decoded?.payload, storageData);
 		}
+		setIsLoading(false);
 	}, []);
 
 	UserService.axiosJWT.interceptors.request.use(async (config) => {
@@ -41,7 +44,7 @@ export default function App() {
 
 	const handleDecoded = () => {
 		let storageData = localStorage.getItem('accessToken');
-		let decoded;
+		let decoded = {};
 		if (storageData && isJsonString(storageData)) {
 			storageData = JSON.parse(storageData);
 			decoded = jwtDecode(storageData);
@@ -56,25 +59,27 @@ export default function App() {
 
 	return (
 		<div>
-			<Router>
-				<Routes>
-					{routes.map((route) => {
-						const Page = route.page;
-						const Layout = route.isShowHeader ? DefaultComponent : Fragment;
-						return (
-							<Route
-								key={Page} // Thêm key vào đây với giá trị là route.path hoặc một giá trị duy nhất khác
-								path={route.path}
-								element={
-									<Layout>
-										<Page />
-									</Layout>
-								}
-							/>
-						);
-					})}
-				</Routes>
-			</Router>
+			<Loading isLoading={isLoading}>
+				<Router>
+					<Routes>
+						{routes.map((route) => {
+							const Page = route.page;
+							const Layout = route.isShowHeader ? DefaultComponent : Fragment;
+							return (
+								<Route
+									key={Page} // Thêm key vào đây với giá trị là route.path hoặc một giá trị duy nhất khác
+									path={route.path}
+									element={
+										<Layout>
+											<Page />
+										</Layout>
+									}
+								/>
+							);
+						})}
+					</Routes>
+				</Router>
+			</Loading>
 		</div>
 	);
 }
