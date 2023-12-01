@@ -2,6 +2,7 @@ import joi from 'joi';
 import httpError from 'http-errors';
 import Product from '../models/Product.js';
 import apq from 'api-query-params';
+import { JWTRefreshTokenService } from '../middleware/sendToken.js';
 
 export const getProduct = async (req, res, next) => {
 	try {
@@ -12,7 +13,6 @@ export const getProduct = async (req, res, next) => {
 		const filterData = filter.id ? { _id: filter.id } : filter;
 		const offset = limit * (page - 1);
 		const product = await Product.find(filterData).limit(limit).skip(offset).sort(sort);
-		console.log(filterData);
 		if (product.length == 0) {
 			return res.status(404).json({
 				statusCode: 404,
@@ -43,6 +43,7 @@ export const createProduct = async (req, res, next) => {
 			price: joi.number(),
 			description: joi.string(),
 			collections_id: joi.string(),
+			discount: joi.number(),
 		});
 
 		const validatedData = await productValidationSchema.validateAsync(req.body);
@@ -52,7 +53,8 @@ export const createProduct = async (req, res, next) => {
 			!validatedData.image ||
 			!validatedData.price ||
 			!validatedData.description ||
-			!validatedData.collections_id
+			!validatedData.collections_id ||
+			!validatedData.discount
 		) {
 			return next(httpError(400, 'The input is required'));
 		}
@@ -74,7 +76,7 @@ export const createProduct = async (req, res, next) => {
 export const updateProduct = async (req, res, next) => {
 	try {
 		const id = req.params.id;
-		const { name, image, price, description, collections_id } = req.body;
+		const { name, image, price, description, collections_id, discount } = req.body;
 		if (!id) {
 			return res.status(200).json({
 				statusCode: 200,
@@ -94,7 +96,7 @@ export const updateProduct = async (req, res, next) => {
 		}
 		let result = await Product.findByIdAndUpdate(
 			id,
-			{ name, image, price, description, collections_id },
+			{ name, image, price, description, collections_id, discount },
 			{
 				new: true, // trả về dữ liệu mới sau khi cập nhật thay vì dữ liệu cũ
 				runValidators: true, // bảo rằng dữ liệu mới cập nhật đáp ứng ràng buộc trong model .

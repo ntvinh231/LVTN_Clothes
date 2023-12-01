@@ -50,11 +50,7 @@ export const JWTRefreshTokenService = async (token, res, next) => {
 
 		const accessToken = await generateAccessTokens(payload);
 		res.cookie('jwt', accessToken, cookieOptions);
-		return res.status(200).json({
-			status: 'ok',
-			message: 'success',
-			accessToken,
-		});
+		return { status: 'ok', message: 'success', accessToken };
 	} catch (error) {
 		console.log(error);
 		return res.status(200).json({

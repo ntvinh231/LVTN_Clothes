@@ -7,6 +7,7 @@ const productSchema = new mongoose.Schema({
 	price: Number,
 	description: String,
 	collections_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Collections', required: true },
+	discount: Number,
 });
 
 productSchema.plugin(mongoose_delete, { overrideMethods: 'all' });

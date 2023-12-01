@@ -167,7 +167,7 @@ export const getDetailsUser = async (req, res) => {
 		if (!userId) {
 			return next(httpError(400, 'UserId is required'));
 		}
-		const user = await User.findOne({ _id: userId });
+		const user = await User.findOne({ _id: userId }).select('+role');
 		if (user === null) {
 			return next(httpError(404, 'The user is not defined'));
 		}
@@ -189,7 +189,7 @@ export const refreshToken = async (req, res, next) => {
 			});
 		}
 		const response = await JWTRefreshTokenService(req.cookies.jwtR, res, next);
-		return res.status(200).json(response);
+		res.status(200).json(response);
 	} catch (error) {
 		console.log(error);
 		return httpError(404, error);
