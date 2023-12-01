@@ -1,27 +1,35 @@
 import jwt from 'jsonwebtoken';
 import { promisify } from 'util';
 
-export const generateTokens = (payload) => {
+export const generateAccessTokens = (payload) => {
 	const accessToken = jwt.sign({ payload }, process.env.JWT_ACCESS_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN });
+
+	return accessToken;
+};
+
+export const generateRefreshToken = (payload) => {
 	const refreshToken = jwt.sign({ payload }, process.env.JWT_REFRESH_SECRET, {
 		expiresIn: process.env.JWT_REFRESH_IN,
 	});
 
+	return refreshToken;
+};
+
+export const generateTokens = (payload) => {
+	const accessToken = generateAccessTokens(payload);
+	const refreshToken = generateRefreshToken(payload);
 	return {
 		accessToken,
 		refreshToken,
 	};
 };
 
-export const sendToken = (response, code, res, req) => {
-	const { refreshToken, accessToken } = response;
-
+export const sendToken = (accessToken, code, res, req) => {
 	const CookieOptions = {
 		secure: false,
 		httpOnly: true,
 	};
 	res.cookie('jwt', accessToken, CookieOptions);
-	res.cookie('jwtR', refreshToken, CookieOptions);
 	return res.status(code).json({
 		statusCode: code,
 		statusMessage: 'sucess',
@@ -40,13 +48,12 @@ export const JWTRefreshTokenService = async (token, res, next) => {
 
 		const { payload } = decoded;
 
-		const tokens = await generateTokens(payload);
-		res.cookie('jwt', tokens.accessToken, cookieOptions);
-
-		res.status(200).json({
+		const accessToken = await generateAccessTokens(payload);
+		res.cookie('jwt', accessToken, cookieOptions);
+		return res.status(200).json({
 			status: 'ok',
 			message: 'success',
-			accessToken: tokens.accessToken,
+			accessToken,
 		});
 	} catch (error) {
 		console.log(error);

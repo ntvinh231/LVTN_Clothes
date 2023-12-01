@@ -5,7 +5,7 @@ import { promisify } from 'util';
 
 const isLoggedIn = async (req, res, next) => {
 	try {
-		if (req.cookies.jwt) {
+		if (req.cookies.jwtR) {
 			const decoded = await promisify(jwt.verify)(req.cookies.jwt, process.env.JWT_ACCESS_SECRET);
 			//3. Check if user still exists
 			const currentUser = await User.findById(decoded.payload).select('+role');
@@ -17,10 +17,19 @@ const isLoggedIn = async (req, res, next) => {
 			req.user = currentUser;
 			next();
 		} else {
-			return next(httpError(401, 'You are not logged in! Please log in to get access'));
+			return res.status(200).json({
+				statusCode: 401,
+				statusMessage: 'success',
+				message: 'You are not logged in! Please log in to get access',
+			});
 		}
 	} catch (error) {
 		console.log(error);
+		return res.status(200).json({
+			statusCode: 401,
+			statusMessage: 'success',
+			message: error,
+		});
 	}
 };
 

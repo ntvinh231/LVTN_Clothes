@@ -52,8 +52,17 @@ export const signIn = async (req, res, next) => {
 			return next(httpError(400, 'Incorrect Email or Password'));
 
 		req.user = user;
-		const response = await generateTokens(user.id, res);
-		sendToken(response, 201, res, req);
+		const response = await generateTokens(user.id);
+
+		const { refreshToken, accessToken } = response;
+		res.cookie('jwtR', refreshToken, {
+			httpOnly: true,
+			secure: false,
+			sameSite: 'strict',
+			path: '/',
+		});
+
+		sendToken(accessToken, 201, res, req);
 	} catch (error) {
 		console.log(error);
 	}
@@ -99,11 +108,11 @@ export const updateUser = async (req, res, next) => {
 			runValidators: true,
 		});
 
-		if (req.files && Object.keys(req.files).length > 0) {
-			const imgName = await uploadSingleFile(req.files.avatar, req, res, next);
-			user.avatar = imgName.path;
-			await user.save();
-		}
+		// if (req.files && Object.keys(req.files).length > 0) {
+		// 	const imgName = await uploadSingleFile(req.files.avatar, req, res, next);
+		// 	user.avatar = imgName.path;
+		// 	await user.save();
+		// }
 
 		if (!user) {
 			return next(httpError(401, 'You are not logged in! Please log in to get access'));

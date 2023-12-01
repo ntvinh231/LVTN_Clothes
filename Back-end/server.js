@@ -5,15 +5,16 @@ import userRouter from './src/routes/userRouter.js';
 import productRouter from './src/routes/productRouter.js';
 import connection from './src/database/connection.js';
 import cookieParser from 'cookie-parser';
-import AppError from './src/util/appError.js';
 import httpError from 'http-errors';
 import fileUpload from 'express-fileupload';
 
 const app = express();
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true }));
 app.use(fileUpload({ createParentPath: true }));
 app.use(cookieParser());
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+
 dotenv.config();
 
 const port = process.env.PORT || 8888;
