@@ -3,6 +3,10 @@ import { createSlice } from '@reduxjs/toolkit';
 const initialState = {
 	name: '',
 	email: '',
+	phone: '',
+	address: '',
+	avatar: '',
+	id: '',
 	accessToken: '',
 };
 
@@ -12,15 +16,32 @@ export const userSlide = createSlice({
 	reducers: {
 		// Login
 		updateUser: (state, action) => {
-			const { name, email, accessToken } = action.payload;
-			state.name = name || email;
+			const {
+				name = '',
+				email = '',
+				phone = '',
+				address = '',
+				avatar = '',
+				_id = '',
+				accessToken = '',
+			} = action.payload;
+
+			state.name = name;
 			state.email = email;
+			state.phone = phone;
+			state.address = address;
+			state.avatar = avatar;
+			state.id = _id;
 			state.accessToken = accessToken;
 		},
 		// Loggout
 		resetUser: (state) => {
 			state.name = '';
 			state.email = '';
+			state.phone = '';
+			state.address = '';
+			state.avatar = '';
+			state.id = '';
 			state.accessToken = '';
 		},
 	},

@@ -34,6 +34,7 @@ export default function App() {
 				const data = await UserService.refreshToken();
 				config.headers['token'] = `Bearer ${data?.accessToken}`;
 				// Lưu access token vào cookie
+
 				Cookies.set('jwt', data?.accessToken, cookieOptions);
 			}
 			return config;
@@ -54,6 +55,7 @@ export default function App() {
 
 	const handleGetDetailsUser = async (id, token) => {
 		const res = await UserService.getDetailsUser(id, token);
+
 		dispatch(updateUser({ ...res?.data, accessToken: token }));
 	};
 

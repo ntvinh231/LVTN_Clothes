@@ -24,23 +24,26 @@ const SignInPage = () => {
 	const { data, isLoading } = mutation;
 
 	useEffect(() => {
-		if (data?.statusCode === 201) {
-			Message.success('Đăng nhập thành công');
-			localStorage.setItem('accessToken', JSON.stringify(data?.accessToken));
-			if (data?.accessToken) {
-				const decoded = jwtDecode(data?.accessToken);
-
-				if (decoded?.payload) {
-					handleGetDetailsUser(decoded?.payload, data?.accessToken);
-					navigate('/');
+		const fetchData = async () => {
+			if (data?.statusCode === 201) {
+				Message.success('Đăng nhập thành công');
+				localStorage.setItem('accessToken', JSON.stringify(data?.accessToken));
+				if (data?.accessToken) {
+					const decoded = jwtDecode(data?.accessToken);
+					if (decoded?.payload) {
+						await handleGetDetailsUser(decoded?.payload, data?.accessToken);
+					}
 				}
 			}
-		}
+		};
+
+		fetchData();
 	}, [data?.statusCode]);
 
 	const handleGetDetailsUser = async (id, token) => {
 		const res = await UserService.getDetailsUser(id, token);
-		dispatch(updateUser({ ...res?.data, accessToken: token }));
+		await dispatch(updateUser({ ...res?.data, accessToken: token }));
+		navigate('/');
 	};
 
 	const handleShowPassword = () => {

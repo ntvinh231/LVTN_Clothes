@@ -52,3 +52,12 @@ export const loggoutUser = async () => {
 		console.log(error);
 	}
 };
+
+export const updateUser = async (data) => {
+	try {
+		const res = await axiosJWT.post(`${process.env.REACT_APP_API_URL}/user/update`, data);
+		return res.data;
+	} catch (error) {
+		console.log(error);
+	}
+};
