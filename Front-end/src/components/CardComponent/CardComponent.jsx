@@ -1,6 +1,7 @@
 import { Card } from 'antd';
 import React from 'react';
 import {
+	CardImage,
 	StyleNameProduct,
 	WrapperComparePriceText,
 	WrapperDiscountText,
@@ -8,21 +9,34 @@ import {
 	WrapperReportText,
 } from './style';
 import imageProduct from '../../assets/images/test.webp';
+import { useNavigate } from 'react-router-dom';
 
-const CardComponent = () => {
+const CardComponent = (props) => {
+	const navigate = useNavigate();
+	const { description, image, name, price, discount } = props;
+	const handleCard = () => {
+		navigate('/product-detail');
+	};
 	return (
 		<Card
+			onClick={handleCard}
 			hoverable
-			style={{ width: 215, display: 'block' }}
-			bodyStyle={{ padding: '10px 15px' }}
-			cover={<img alt="example" src={imageProduct} />}
+			headStyle={{ width: '200px', height: '200px' }}
+			style={{ width: 200 }}
+			bodyStyle={{ padding: '15px 20px' }}
+			cover={<CardImage alt={name} src={image} />}
 		>
-			<StyleNameProduct title="Áo Polo Radiate Positivity">Áo Polo Radiate Positivity</StyleNameProduct>
+			<StyleNameProduct
+				title="Áo Polo Radiate Positivity"
+				style={{ textDecoration: 'none', color: '#000000', fontWeight: 'bold' }}
+			>
+				Áo Polo Radiate {name}
+			</StyleNameProduct>
 			<WrapperReportText>
-				<WrapperPriceText>315,000₫</WrapperPriceText>
+				<WrapperPriceText>{price}</WrapperPriceText>
 				<div style={{ display: 'flex', alignItems: 'center' }}>
-					<WrapperComparePriceText>350,000₫</WrapperComparePriceText>
-					<WrapperDiscountText>-10%</WrapperDiscountText>
+					<WrapperComparePriceText>{price}</WrapperComparePriceText>
+					<WrapperDiscountText>{discount || -10}%</WrapperDiscountText>
 				</div>
 			</WrapperReportText>
 		</Card>

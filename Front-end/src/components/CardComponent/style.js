@@ -47,3 +47,8 @@ export const WrapperDiscountText = styled.div`
 	font-weight: 500;
 	margin-left: 5px;
 `;
+export const CardImage = styled.img`
+	height: 200px;
+	width: 100%;
+	object-fit: cover;
+`;

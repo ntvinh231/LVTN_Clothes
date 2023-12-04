@@ -8,6 +8,7 @@ const initialState = {
 	avatar: '',
 	id: '',
 	accessToken: '',
+	role: 'user',
 };
 
 export const userSlide = createSlice({
@@ -24,6 +25,7 @@ export const userSlide = createSlice({
 				avatar = '',
 				_id = '',
 				accessToken = '',
+				role = '',
 			} = action.payload;
 
 			state.name = name;
@@ -33,6 +35,7 @@ export const userSlide = createSlice({
 			state.avatar = avatar;
 			state.id = _id;
 			state.accessToken = accessToken;
+			state.role = role;
 		},
 		// Loggout
 		resetUser: (state) => {
@@ -43,6 +46,7 @@ export const userSlide = createSlice({
 			state.avatar = '';
 			state.id = '';
 			state.accessToken = '';
+			state.role = 'user';
 		},
 	},
 });

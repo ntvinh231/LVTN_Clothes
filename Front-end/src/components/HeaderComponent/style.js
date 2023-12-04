@@ -1,7 +1,7 @@
-import { Row } from 'antd';
+import { Popover, Row } from 'antd';
 import Search from 'antd/es/input/Search';
 import styled from 'styled-components';
-import Loading from '../LoadingComponent/Loading';
+
 export const WrapperHeader = styled(Row)`
 	position: relative;
 	padding: 15px 10px;
@@ -36,6 +36,14 @@ export const CustomSearch = styled(Search)`
 `;
 
 export const WrapperHeaderAccount = styled.div`
+	display: inline-flex;
+	align-items: center;
+	font-size: 13px;
+	color: #cccccc;
+	font-weight: 400;
+`;
+
+export const WrapperAccount = styled(Popover)`
 	display: inline-flex;
 	align-items: center;
 	font-size: 13px;

@@ -4,14 +4,17 @@ import { routes } from './routes';
 import DefaultComponent from './components/DefaultComponent/DefaultComponent';
 import { isJsonString } from './util';
 import { jwtDecode } from 'jwt-decode';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import * as UserService from './service/UserService';
+import * as ProductService from './service/ProductService';
+
 import { updateUser } from './redux/slice/userSlide';
 import Cookies from 'js-cookie';
 import Loading from './components/LoadingComponent/Loading';
 
 export default function App() {
 	const dispatch = useDispatch();
+	const user = useSelector((state) => state.user);
 	const [isLoading, setIsLoading] = useState(false);
 	useEffect(() => {
 		setIsLoading(true);
@@ -43,6 +46,26 @@ export default function App() {
 		}
 	});
 
+	ProductService.axiosJWTC.interceptors.request.use(async (config) => {
+		try {
+			const cookieOptions = {
+				httpOnly: true,
+				secure: false,
+			};
+			const currentTime = new Date();
+			const { decoded } = handleDecoded();
+			if (decoded?.exp < currentTime.getTime() / 1000) {
+				const data = await ProductService.refreshToken();
+				config.headers['token'] = `Bearer ${data?.accessToken}`;
+				// Lưu access token vào cookie
+				Cookies.set('jwt', data?.accessToken, cookieOptions);
+			}
+			return config;
+		} catch (error) {
+			console.log(error);
+		}
+	});
+
 	const handleDecoded = () => {
 		let storageData = localStorage.getItem('accessToken');
 		let decoded = {};
@@ -55,7 +78,6 @@ export default function App() {
 
 	const handleGetDetailsUser = async (id, token) => {
 		const res = await UserService.getDetailsUser(id, token);
-
 		dispatch(updateUser({ ...res?.data, accessToken: token }));
 	};
 
@@ -66,11 +88,12 @@ export default function App() {
 					<Routes>
 						{routes.map((route) => {
 							const Page = route.page;
+							const isCheckAuth = !route.isPrivate || (user && route.isAccessible ? route.isAccessible(user) : true);
 							const Layout = route.isShowHeader ? DefaultComponent : Fragment;
 							return (
 								<Route
 									key={Page} // Thêm key vào đây với giá trị là route.path hoặc một giá trị duy nhất khác
-									path={route.path}
+									path={isCheckAuth ? route.path : ''}
 									element={
 										<Layout>
 											<Page />

@@ -56,7 +56,7 @@ const ProfilePage = () => {
 	}, [data?.statusCode]);
 
 	const handleGetDetailsUser = async (id, token) => {
-		const res = await UserService.getDetailsUser(id, token);
+		const res = await UserService.getDetailsUser(id);
 		dispatch(updateUser({ ...res?.data, accessToken: token }));
 	};
 	const handleOnChangeName = (value) => {

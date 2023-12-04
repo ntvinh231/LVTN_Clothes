@@ -7,8 +7,8 @@ const NavbarComponent = () => {
 	const renderContent = (type, options) => {
 		switch (type) {
 			case 'text':
-				return options.map((option) => {
-					return <WrapperTextValue>{option}</WrapperTextValue>;
+				return options.map((option, id) => {
+					return <WrapperTextValue key={id}>{option}</WrapperTextValue>;
 				});
 			case 'checkbox':
 				return (
@@ -17,13 +17,17 @@ const NavbarComponent = () => {
 						onChange={onChange}
 					>
 						{options.map((option) => {
-							return <Checkbox value={option.value}>{option.label}</Checkbox>;
+							return (
+								<Checkbox key={option.value} value={option.value}>
+									{option.label}
+								</Checkbox>
+							);
 						})}
 					</Checkbox.Group>
 				);
 			case 'price':
-				return options.map((option) => {
-					return <WrapperTextValue>{option}</WrapperTextValue>;
+				return options.map((option, id) => {
+					return <WrapperTextValue key={id}>{option}</WrapperTextValue>;
 				});
 			default:
 				return {};

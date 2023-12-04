@@ -17,15 +17,6 @@ const TypeProductPage = () => {
 					<CardComponent></CardComponent>
 					<CardComponent></CardComponent>
 					<CardComponent></CardComponent>
-					<CardComponent></CardComponent>
-					<CardComponent></CardComponent>
-					<CardComponent></CardComponent>
-					<CardComponent></CardComponent>
-					<CardComponent></CardComponent>
-					<CardComponent></CardComponent>
-					<CardComponent></CardComponent>
-					<CardComponent></CardComponent>
-					<CardComponent></CardComponent>
 					<Pagination
 						style={{
 							textAlign: 'center',

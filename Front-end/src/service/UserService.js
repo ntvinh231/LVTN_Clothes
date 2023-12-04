@@ -33,6 +33,16 @@ export const getDetailsUser = async (id, accessToken) => {
 	}
 };
 
+export const getAllUser = async () => {
+	try {
+		const res = await axiosJWT.get(`${process.env.REACT_APP_API_URL}/user/getAll`);
+
+		return res.data;
+	} catch (error) {
+		return error?.response;
+	}
+};
+
 export const refreshToken = async () => {
 	try {
 		const res = await axios.post(`${process.env.REACT_APP_API_URL}/user/refresh-token`, {
