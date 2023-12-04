@@ -149,7 +149,7 @@ export const loggout = async (req, res, next) => {
 
 export const getAllUser = async (req, res, next) => {
 	try {
-		const allUSer = await User.find({});
+		const allUSer = await User.find({}).select('+role');
 		return res.status(200).json({
 			status: 200,
 			statusMessage: 'success',

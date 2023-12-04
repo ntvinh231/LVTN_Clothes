@@ -41,6 +41,8 @@ export const createProduct = async (req, res, next) => {
 			name: joi.string().required(),
 			image: joi.string().required(),
 			price: joi.number(),
+			size: joi.string(),
+			quantity: joi.string(),
 			description: joi.string(),
 			collections_id: joi.string(),
 			discount: joi.number(),
@@ -54,7 +56,8 @@ export const createProduct = async (req, res, next) => {
 			!validatedData.price ||
 			!validatedData.description ||
 			!validatedData.collections_id ||
-			!validatedData.discount
+			!validatedData.size ||
+			!validatedData.quantity
 		) {
 			return next(httpError(400, 'The input is required'));
 		}

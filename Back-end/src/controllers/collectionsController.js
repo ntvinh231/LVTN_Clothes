@@ -5,7 +5,7 @@ import Collections from '../models/Collections.js';
 export const getCollections = async (req, res, next) => {
 	try {
 		const filterData = req.query.id ? { _id: req.query.id } : {};
-		const collections = await Collections.find(filterData);
+		const collections = await Collections.find(filterData).populate('list_product');
 		return res.status(200).json({
 			statusCode: 200,
 			statusMessage: 'success',
@@ -21,7 +21,6 @@ export const createCollectionsController = async (req, res, next) => {
 	try {
 		const productValidationSchema = joi.object({
 			collections_name: joi.string().required(),
-			list_product: joi.array().items(joi.string()),
 		});
 
 		const validatedData = await productValidationSchema.validateAsync(req.body);

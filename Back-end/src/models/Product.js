@@ -3,11 +3,13 @@ import mongoose_delete from 'mongoose-delete';
 
 const productSchema = new mongoose.Schema({
 	name: String,
-	image: String,
 	price: Number,
+	size: String,
 	description: String,
-	collections_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Collections', required: true },
+	quantity: Number,
 	discount: Number,
+	image: String,
+	collections_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Collections', required: true },
 });
 
 productSchema.plugin(mongoose_delete, { overrideMethods: 'all' });

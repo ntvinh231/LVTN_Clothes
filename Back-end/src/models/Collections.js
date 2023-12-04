@@ -3,7 +3,14 @@ import mongoose_delete from 'mongoose-delete';
 
 const collectionsSchema = new mongoose.Schema({
 	collections_name: String,
-	list_product: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
+});
+
+collectionsSchema.set('toJSON', { virtuals: true });
+collectionsSchema.set('toObject', { virtuals: true });
+collectionsSchema.virtual('list_product', {
+	ref: 'Product',
+	localField: '_id',
+	foreignField: 'collections_id',
 });
 
 collectionsSchema.plugin(mongoose_delete, { overrideMethods: 'all' });
