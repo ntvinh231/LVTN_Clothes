@@ -142,3 +142,28 @@ export const deleteProduct = async (req, res, next) => {
 		return next(httpError(500, error));
 	}
 };
+
+export const deleteManyProduct = async (req, res, next) => {
+	try {
+		const { ids } = req.body;
+
+		if (!ids) {
+			return res.status(200).json({
+				statusCode: 400,
+				statusMessage: 'failed',
+				message: 'The product is required',
+			});
+		}
+
+		let result = await Product.delete({ _id: { $in: ids } });
+
+		return res.status(200).json({
+			statusCode: 200,
+			statusMessage: 'success',
+			data: result,
+		});
+	} catch (error) {
+		console.log(error);
+		return next(httpError(500, error));
+	}
+};
