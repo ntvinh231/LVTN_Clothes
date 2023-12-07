@@ -16,6 +16,7 @@ const AdminUser = () => {
 	const dataRole = ['user', 'admin'];
 
 	const currentUser = useSelector((state) => state.user);
+
 	const [isModalOpenDelete, setIsModalOpenDelete] = useState(false);
 	const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 	const [rowSelected, setRowSelected] = useState('');
@@ -194,7 +195,11 @@ const AdminUser = () => {
 		{
 			title: 'Name',
 			dataIndex: 'name',
-			render: (text) => <a>{text}</a>,
+			render: (text, record) => (
+				<span>
+					<a>{`${text} ${record.key === currentUser.id ? '(Current user)' : ''}`}</a>
+				</span>
+			),
 			...getColumnSearchProps('name'),
 			sorter: (a, b) => a.name.length - b.name.length,
 		},
@@ -238,9 +243,9 @@ const AdminUser = () => {
 	];
 
 	const dataTable =
-		users?.data?.length &&
-		users?.data
-			?.filter((user) => user._id !== currentUser.id)
+		Array.isArray(users?.data) &&
+		users.data
+			.filter((user) => user.role !== 'superadmin')
 			.map((user) => ({
 				key: user._id,
 				...user,
@@ -258,8 +263,12 @@ const AdminUser = () => {
 	const mutationUpdateUser = useMutation({
 		mutationFn: async (data) => {
 			try {
-				const res = await UserService.updateUserForAdmin(data.id, data);
-				return res;
+				if (currentUser.role === 'superadmin') {
+					return await UserService.updateUserForAdmin(data.id, data);
+				} else {
+					const { role, ...dataWithoutRole } = data;
+					return await UserService.updateUserForAdmin(data.id, dataWithoutRole);
+				}
 			} catch (error) {
 				console.log(error);
 			}
@@ -375,30 +384,31 @@ const AdminUser = () => {
 						>
 							<InputComponent value={stateUserDetails.email} onChange={handleOnChangeDetails} name="email" />
 						</Form.Item>
-
-						<Form.Item
-							label="Role"
-							name="role"
-							rules={[
-								{
-									required: true,
-									message: 'Please select role!',
-								},
-							]}
-						>
-							<Select
-								style={{ width: '100%' }}
-								dropdownStyle={{ maxHeight: '300px' }}
-								showSearch
-								placeholder="Select a role"
-								optionFilterProp="children"
-								onChange={onChange}
-								filterOption={filterOption}
-								options={OPTIONS}
-								dropdownRender={(menu) => <div style={{ width: '100%' }}>{menu}</div>}
-								notFoundContent={dataRole && dataRole.length !== 0 ? <Spin size="large" /> : null}
-							/>
-						</Form.Item>
+						{currentUser && currentUser.role === 'superadmin' && (
+							<Form.Item
+								label="Role"
+								name="role"
+								rules={[
+									{
+										required: true,
+										message: 'Please select role!',
+									},
+								]}
+							>
+								<Select
+									style={{ width: '100%' }}
+									dropdownStyle={{ maxHeight: '300px' }}
+									showSearch
+									placeholder="Select a role"
+									optionFilterProp="children"
+									onChange={onChange}
+									filterOption={filterOption}
+									options={OPTIONS}
+									dropdownRender={(menu) => <div style={{ width: '100%' }}>{menu}</div>}
+									notFoundContent={<Spin size="large" />}
+								/>
+							</Form.Item>
+						)}
 						<Form.Item
 							label="Address"
 							name="address"

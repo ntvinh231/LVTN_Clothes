@@ -3,7 +3,7 @@ import React from 'react';
 import Loading from '../LoadingComponent/Loading';
 
 const TableComponent = (props) => {
-	const { selectionType = 'checkbox', dataTable = [], columns = [], isLoading = false } = props;
+	const { selectionType = 'checkbox', dataTable = [], columns = [], isLoading = false, currentUser = '' } = props;
 
 	const rowSelection = {
 		onChange: (selectedRowKeys, selectedRows) => {

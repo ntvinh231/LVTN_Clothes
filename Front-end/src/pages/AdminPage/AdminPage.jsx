@@ -13,17 +13,12 @@ const AdminPage = () => {
 	const [marginTopAdminPage, setMarginTopAdminPage] = useState('');
 
 	const items = [
-		getItem('Quản lý người dùng', 'rootUser', <MailOutlined />, [
-			getItem('Thông tin người dùng', 'user'),
-			getItem('Đổi mật khẩu', 'userChangePassword'),
-		]),
+		getItem('Quản lý người dùng', 'rootUser', <MailOutlined />, [getItem('Thông tin người dùng', 'user')]),
 		getItem('Quản lý sản phẩm', 'rootProduct', <AppstoreOutlined />, [
 			getItem('Thông tin sản phẩm', 'product'),
 			getItem('Thông tin loại', 'productCollection'),
 		]),
 	];
-
-	const rootSubMenuKeys = ['rootUser', 'rootProduct'];
 
 	const [keySelected, setKeySelected] = useState('');
 

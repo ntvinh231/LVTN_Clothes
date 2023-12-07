@@ -44,9 +44,10 @@ const HeaderComponent = ({ isHiddentSearch = false, isHiddenCart = false }) => {
 	const content = user?.email ? (
 		<div>
 			<WrapperContentPopup onClick={() => navigate('/profile-user')}>Thông tin người dùng</WrapperContentPopup>
-			{user.role === 'admin' && (
-				<WrapperContentPopup onClick={() => navigate('/system/admin')}>Quản lý hệ thống</WrapperContentPopup>
-			)}
+			{user.role === 'admin' ||
+				(user.role === 'superadmin' && (
+					<WrapperContentPopup onClick={() => navigate('/system/admin')}>Quản lý hệ thống</WrapperContentPopup>
+				))}
 			<WrapperContentPopup onClick={handleLogout}>Đăng xuất</WrapperContentPopup>
 		</div>
 	) : null;
