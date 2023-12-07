@@ -204,11 +204,7 @@ const AdminUser = () => {
 		{
 			title: 'Name',
 			dataIndex: 'name',
-			render: (text, record) => (
-				<span>
-					<a>{`${text} ${record.key === currentUser.id ? '(Current user)' : ''}`}</a>
-				</span>
-			),
+			render: (text) => <a>{text}</a>,
 			...getColumnSearchProps('name'),
 			sorter: (a, b) => a.name.length - b.name.length,
 		},
@@ -255,10 +251,15 @@ const AdminUser = () => {
 		Array.isArray(users?.data) &&
 		users.data
 			.filter((user) => user.role !== 'superadmin')
-			.map((user) => ({
-				key: user._id,
-				...user,
-			}));
+			.map((user) => {
+				const { key, name, ...dataWithoutRole } = user;
+				return {
+					key: user._id,
+					name: user._id === currentUser.id ? `${user.name} (Current user)` : user.name,
+					...dataWithoutRole,
+				};
+			})
+			.sort((a, b) => (a.key === currentUser.id ? -1 : b.key === currentUser.id ? 1 : 0));
 
 	const handleSearch = (selectedKeys, confirm, dataIndex) => {
 		confirm();

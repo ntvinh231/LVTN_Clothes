@@ -7,7 +7,7 @@ import {
 	WrapperHeaderCart,
 	WrapperTextHeader,
 } from './style';
-import { Badge, Col, Popover } from 'antd';
+import { Badge, Col } from 'antd';
 import { UserOutlined, ShoppingCartOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
@@ -44,10 +44,12 @@ const HeaderComponent = ({ isHiddentSearch = false, isHiddenCart = false }) => {
 	const content = user?.email ? (
 		<div>
 			<WrapperContentPopup onClick={() => navigate('/profile-user')}>Thông tin người dùng</WrapperContentPopup>
-			{user.role === 'admin' ||
-				(user.role === 'superadmin' && (
-					<WrapperContentPopup onClick={() => navigate('/system/admin')}>Quản lý hệ thống</WrapperContentPopup>
-				))}
+			{user.role === 'admin' || user.role === 'superadmin' ? (
+				<WrapperContentPopup onClick={() => navigate('/system/admin')}>Quản lý hệ thống</WrapperContentPopup>
+			) : (
+				<></>
+			)}
+
 			<WrapperContentPopup onClick={handleLogout}>Đăng xuất</WrapperContentPopup>
 		</div>
 	) : null;
