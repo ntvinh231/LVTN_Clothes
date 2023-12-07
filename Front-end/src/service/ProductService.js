@@ -83,3 +83,12 @@ export const deleteProduct = async (id) => {
 		console.log(error);
 	}
 };
+
+export const deleteManyProduct = async (data) => {
+	try {
+		const res = await axiosJWTC.delete(`${process.env.REACT_APP_API_URL}/product/delete-many`, { data });
+		return res.data;
+	} catch (error) {
+		console.log(error);
+	}
+};

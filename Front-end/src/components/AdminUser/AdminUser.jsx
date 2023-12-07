@@ -29,10 +29,8 @@ const AdminUser = () => {
 		address: '',
 		phone: '',
 	});
-
 	//Form
 	const [form] = Form.useForm();
-
 	const handleOnChangeDetails = (e) => {
 		setStateUserDetails({
 			...stateUserDetails,
@@ -49,6 +47,17 @@ const AdminUser = () => {
 				queryUser.refetch();
 			},
 		});
+	};
+
+	const handleDeleteManyUser = (ids) => {
+		mutationDeleteManyUser.mutate(
+			{ ids },
+			{
+				onSettled: () => {
+					queryUser.refetch();
+				},
+			}
+		);
 	};
 
 	//Update
@@ -286,23 +295,47 @@ const AdminUser = () => {
 			}
 		},
 	});
+
+	//DeleteMany
+	const mutationDeleteManyUser = useMutation({
+		mutationFn: async (ids) => {
+			try {
+				const res = await UserService.deleteManyUser(ids);
+				return res;
+			} catch (error) {
+				console.log(error);
+			}
+		},
+	});
+
 	const { data: dataUpdate, isLoading: isLoadingUpdate, isSuccess: isSuccessUpdate } = mutationUpdateUser;
 	const { data: dataDelete, isLoading: isLoadingDelete, isSuccess: isSuccessDelete } = mutationDeleteUser;
-
+	const { data: dataDeleteMany, isLoading: isLoadingDeleteMany } = mutationDeleteManyUser;
+	//update
 	useEffect(() => {
-		if (dataUpdate?.statusCode === 200 && dataUpdate?.statusMessage === 'success') {
+		if (dataUpdate?.statusMessage === 'success') {
 			message.success('Cập nhật thành công');
-			handleCancelDrawer();
-		} else if (dataUpdate?.statusCode === 400 || dataUpdate?.statusMessage === 'failed') {
+			handleCancelDrawer(false);
+		} else if (dataUpdate?.statusMessage === 'failed' || dataUpdate?.statusCode === 400) {
 			message.error(dataUpdate?.message);
 		}
-	}, [isSuccessUpdate, dataDelete?.statusMessage]);
+	}, [dataUpdate?.statusMessage]);
 
+	//deleteMany
 	useEffect(() => {
-		if (dataUpdate?.statusCode === 200 && dataDelete?.statusMessage === 'success') {
+		if (dataDeleteMany?.statusMessage === 'success') {
+			message.success('Xóa thành công');
+		} else if (dataDeleteMany?.statusMessage === 'failed' || dataDeleteMany?.statusCode === 400) {
+			message.error(dataDeleteMany?.message);
+		}
+	}, [dataDeleteMany?.statusMessage]);
+
+	//delete
+	useEffect(() => {
+		if (dataDelete?.statusCode === 200 && dataDelete?.statusMessage === 'success') {
 			message.success('Xóa thành công');
 			handleCancelDelete();
-		} else if (dataUpdate?.statusCode === 400 || dataUpdate?.statusMessage === 'failed') {
+		} else if (dataDelete?.statusCode === 400 || dataDelete?.statusMessage === 'failed') {
 			message.error('Xóa thất bại');
 		}
 	}, [isSuccessDelete, dataDelete?.statusMessage]);
@@ -323,6 +356,7 @@ const AdminUser = () => {
 			<WrapperHeader>Quản lý người dùng</WrapperHeader>
 			<div style={{ marginTop: '20px' }}>
 				<TableComponent
+					handleDeleteMany={handleDeleteManyUser}
 					dataTable={dataTable}
 					columns={columns}
 					isLoading={isLoading}
@@ -343,7 +377,8 @@ const AdminUser = () => {
 			>
 				<Loading isLoading={isLoadingDetails || isLoadingUpdate}>
 					<Form
-						name="basic"
+						form={form}
+						name="AdminUser"
 						labelCol={{
 							span: 5,
 						}}
@@ -357,8 +392,7 @@ const AdminUser = () => {
 							remember: true,
 						}}
 						onFinish={onFinishUpdate}
-						autoComplete="on"
-						form={form}
+						autoComplete="off"
 					>
 						<Form.Item
 							label="Name"

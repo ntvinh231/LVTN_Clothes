@@ -39,7 +39,8 @@ const AdminProduct = () => {
 		image: '',
 		collections_id: '',
 	});
-
+	//Form
+	const [form] = Form.useForm();
 	//Select
 	const fetchCollectionProduct = async () => {
 		const res = await ProductService.getCollectionProduct();
@@ -54,7 +55,7 @@ const AdminProduct = () => {
 		}
 	);
 	const dataCollection = collectionProduct?.data;
-	const OPTIONS = dataCollection
+	const OPTIONS = Array.isArray(dataCollection)
 		? dataCollection.map((item) => ({
 				value: item._id,
 				label: item.collections_name,
@@ -86,17 +87,16 @@ const AdminProduct = () => {
 			}
 		},
 	});
-	const { data, isLoading: isLoadingCreate, isSuccess } = mutationProduct;
-	//Form
-	const [form] = Form.useForm();
+	const { data, isLoading: isLoadingCreate } = mutationProduct;
+
 	useEffect(() => {
-		if (isSuccess && data?.statusMessage === 'success') {
+		if (data?.statusMessage === 'success' && data?.statusCode === 200) {
 			message.success('Thêm thành công');
 			handleCancel();
-		} else if (data?.status === 400 && data?.data.statusMessage !== 'success') {
-			message.error('Thêm thất bại');
+		} else if (data?.data && data?.data?.statusCode === 400) {
+			message.error(data?.data?.message);
 		}
-	}, [isSuccess]);
+	}, [data?.statusCode, data?.data?.statusCode]);
 
 	const handleOnChange = (e) => {
 		setStateProduct({
@@ -122,6 +122,17 @@ const AdminProduct = () => {
 		});
 	};
 
+	const handleDeleteManyProduct = (ids) => {
+		mutationDeleteManyProduct.mutate(
+			{ ids },
+			{
+				onSettled: () => {
+					queryProduct.refetch();
+				},
+			}
+		);
+	};
+
 	//Create
 	const handleCancel = () => {
 		setIsModalOpen(false);
@@ -144,6 +155,7 @@ const AdminProduct = () => {
 			},
 		});
 		setStateProduct({
+			...stateProduct,
 			image: '',
 		});
 	};
@@ -389,9 +401,30 @@ const AdminProduct = () => {
 			}
 		},
 	});
+
+	//Delete-many
+	const mutationDeleteManyProduct = useMutation({
+		mutationFn: async (ids) => {
+			try {
+				const res = await ProductService.deleteManyProduct(ids);
+				return res;
+			} catch (error) {
+				console.log(error);
+			}
+		},
+	});
+
 	const { data: dataUpdate, isLoading: isLoadingUpdate, isSuccess: isSuccessUpdate } = mutationUpdateProduct;
 	const { data: dataDelete, isLoading: isLoadingDelete, isSuccess: isSuccessDelete } = mutationDeleteProduct;
+	const { data: dataDeleteMany, isLoading: isLoadingDeleteMany } = mutationDeleteManyProduct;
 
+	useEffect(() => {
+		if (dataDeleteMany?.statusMessage === 'success') {
+			message.success('Xóa thành công');
+		} else if (dataDeleteMany?.statusMessage === 'failed' || dataDeleteMany?.statusCode === 400) {
+			message.error(dataDeleteMany?.message);
+		}
+	}, [dataDeleteMany?.statusMessage]);
 	useEffect(() => {
 		if (dataUpdate?.statusMessage === 'success') {
 			message.success('Cập nhật thành công');
@@ -438,6 +471,7 @@ const AdminProduct = () => {
 			</div>
 			<div style={{ marginTop: '20px' }}>
 				<TableComponent
+					handleDeleteMany={handleDeleteManyProduct}
 					dataTable={dataTable}
 					columns={columns}
 					isLoading={isLoading}
@@ -460,7 +494,7 @@ const AdminProduct = () => {
 			>
 				<Loading isLoading={isLoadingCreate}>
 					<Form
-						name="basic"
+						name="AdminProduct"
 						labelCol={{
 							span: 5,
 						}}
@@ -634,7 +668,7 @@ const AdminProduct = () => {
 			>
 				<Loading isLoading={isLoadingDetails || isLoadingUpdate}>
 					<Form
-						name="basic"
+						name="AdminProduct2"
 						labelCol={{
 							span: 5,
 						}}
@@ -648,7 +682,7 @@ const AdminProduct = () => {
 							remember: true,
 						}}
 						onFinish={onFinishUpdate}
-						autoComplete="on"
+						autoComplete="off"
 						form={form}
 					>
 						<Form.Item

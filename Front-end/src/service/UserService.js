@@ -85,7 +85,16 @@ export const updateUserForAdmin = async (id, data) => {
 
 export const deleteUser = async (id) => {
 	try {
-		const res = await axios.delete(`${process.env.REACT_APP_API_URL}/user/delete/${id}`);
+		const res = await axiosJWT.delete(`${process.env.REACT_APP_API_URL}/user/delete/${id}`);
+		return res.data;
+	} catch (error) {
+		console.log(error);
+	}
+};
+
+export const deleteManyUser = async (data) => {
+	try {
+		const res = await axiosJWT.delete(`${process.env.REACT_APP_API_URL}/user/delete-many`, { data });
 		return res.data;
 	} catch (error) {
 		console.log(error);
