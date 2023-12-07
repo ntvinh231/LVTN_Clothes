@@ -79,7 +79,6 @@ export const createProduct = async (req, res, next) => {
 export const updateProduct = async (req, res, next) => {
 	try {
 		const id = req.params.id;
-		const { name, image, price, description, collections_id, discount } = req.body;
 		if (!id) {
 			return res.status(200).json({
 				statusCode: 200,
@@ -97,14 +96,10 @@ export const updateProduct = async (req, res, next) => {
 				message: 'The product is not defined',
 			});
 		}
-		let result = await Product.findByIdAndUpdate(
-			id,
-			{ name, image, price, description, collections_id, discount },
-			{
-				new: true, // trả về dữ liệu mới sau khi cập nhật thay vì dữ liệu cũ
-				runValidators: true, // bảo rằng dữ liệu mới cập nhật đáp ứng ràng buộc trong model .
-			}
-		);
+		let result = await Product.findByIdAndUpdate(id, req.body, {
+			new: true, // trả về dữ liệu mới sau khi cập nhật thay vì dữ liệu cũ
+			runValidators: true, // bảo rằng dữ liệu mới cập nhật đáp ứng ràng buộc trong model .
+		});
 		return res.status(200).json({
 			statusCode: 200,
 			statusMessage: 'success',

@@ -23,7 +23,7 @@ const userSchema = new mongoose.Schema({
 		enum: ['user', 'admin'],
 		select: false,
 	},
-	list_favorite: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product', select: false }],
+	// list_favorite: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product', select: false }],
 	refreshToken: String,
 	accessToken: String,
 });

@@ -10,7 +10,7 @@ router.get('/', getProduct);
 router.use('/', collectionsRouter);
 router.use(isLoggedIn);
 router.post('/create', restricTo('admin'), createProduct);
-router.post('/update/:id', restricTo('admin'), updateProduct);
+router.put('/update/:id', restricTo('admin'), updateProduct);
 router.delete('/delete/:id', restricTo('admin'), deleteProduct);
 
 export default router;

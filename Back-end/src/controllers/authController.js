@@ -4,7 +4,6 @@ import joi from 'joi';
 import { JWTRefreshTokenService, generateTokens, sendToken } from '../middleware/sendToken.js';
 import httpError from 'http-errors';
 import bcrypt from 'bcrypt';
-import { uploadSingleFile } from '../service/fileService.js';
 
 export const signUp = async (req, res, next) => {
 	try {
@@ -108,12 +107,6 @@ export const updateUser = async (req, res, next) => {
 			runValidators: true,
 		});
 
-		// if (req.files && Object.keys(req.files).length > 0) {
-		// 	const imgName = await uploadSingleFile(req.files.avatar, req, res, next);
-		// 	user.avatar = imgName.path;
-		// 	await user.save();
-		// }
-
 		if (!user) {
 			return next(httpError(401, 'You are not logged in! Please log in to get access'));
 		}
@@ -193,5 +186,98 @@ export const refreshToken = async (req, res, next) => {
 	} catch (error) {
 		console.log(error);
 		return httpError(404, error);
+	}
+};
+
+export const updateUserForAdmin = async (req, res, next) => {
+	try {
+		const data = req.body;
+		console.log(data);
+		if (!data.name || !data.phone || !data.email) {
+			return res.status(200).json({
+				statusCode: 400,
+				statusMessage: 'failed',
+				message: 'Name, phone, and email are required.',
+			});
+		}
+		if (!data.name) {
+			return res.status(200).json({
+				statusCode: 400,
+				statusMessage: 'failed',
+				message: 'Name is required',
+			});
+		} else if (data.name.length > 25) {
+			return res.status(200).json({
+				statusCode: 400,
+				statusMessage: 'failed',
+				message: 'Name must not exceed 25 characters',
+			});
+		}
+
+		if (data.email && !isValidEmail(data.email)) {
+			return res.status(200).json({
+				statusCode: 400,
+				statusMessage: 'failed',
+				message: 'Invalid email address',
+			});
+		}
+
+		const user = await User.findByIdAndUpdate({ _id: req.params.id }, data, {
+			new: true,
+			runValidators: true,
+		});
+
+		if (!user) {
+			return next(httpError(401, 'You are not logged in! Please log in to get access'));
+		}
+
+		return res.status(200).json({
+			statusCode: 200,
+			statusMessage: 'success',
+			data: {
+				validatedData: req.body,
+				imgName: user.avatar,
+			},
+		});
+	} catch (error) {
+		console.log(error);
+		return res.status(500).json({
+			statusCode: 500,
+			statusMessage: 'Internal Server Error',
+			error: error.message,
+			message: 'An internal server error occurred',
+		});
+	}
+};
+
+export const deleteUser = async (req, res, next) => {
+	try {
+		const id = req.params.id;
+		if (!id) {
+			return res.status(200).json({
+				statusCode: 400,
+				statusMessage: 'failed',
+				message: 'The user is required',
+			});
+		}
+		const checkUser = await User.findOne({
+			_id: id,
+		});
+		if (checkUser == null) {
+			return res.status(200).json({
+				statusCode: 404,
+				statusMessage: 'failed',
+				message: 'The user is not defined',
+			});
+		}
+		const result = await User.deleteById({ _id: id });
+		return res.status(200).json({
+			statusCode: 200,
+			statusMessage: 'success',
+			data: result,
+		});
+	} catch (error) {
+		console.log(error);
+		return next(httpError(500, error));
 	}
 };
