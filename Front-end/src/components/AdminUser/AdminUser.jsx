@@ -259,7 +259,7 @@ const AdminUser = () => {
 		confirm();
 	};
 
-	//updateUser
+	//updateUser.
 	const mutationUpdateUser = useMutation({
 		mutationFn: async (data) => {
 			try {
