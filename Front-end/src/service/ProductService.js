@@ -18,8 +18,10 @@ export const getProduct = async (id) => {
 	try {
 		let res;
 		if (!id) {
+			//getOne
 			res = await axiosJWTC.get(`${process.env.REACT_APP_API_URL}/product`);
 		} else {
+			//getDetails
 			res = await axiosJWTC.get(`${process.env.REACT_APP_API_URL}/product/?id=${id}`);
 		}
 
@@ -34,8 +36,10 @@ export const getCollectionProduct = async (id) => {
 	try {
 		let res;
 		if (!id) {
+			//getOne
 			res = await axiosJWTC.get(`${process.env.REACT_APP_API_URL}/product/collections`);
 		} else {
+			//getDetails
 			res = await axiosJWTC.get(`${process.env.REACT_APP_API_URL}/product/collections/?id=${id}`);
 		}
 
@@ -60,5 +64,22 @@ export const createCollection = async (data) => {
 		return res.data;
 	} catch (error) {
 		return error?.response;
+	}
+};
+export const updateProduct = async (id, data) => {
+	try {
+		const res = await axiosJWTC.put(`${process.env.REACT_APP_API_URL}/product/update/${id}`, data);
+		return res.data;
+	} catch (error) {
+		console.log(error);
+	}
+};
+
+export const deleteProduct = async (id) => {
+	try {
+		const res = await axiosJWTC.delete(`${process.env.REACT_APP_API_URL}/product/delete/${id}`);
+		return res.data;
+	} catch (error) {
+		console.log(error);
 	}
 };

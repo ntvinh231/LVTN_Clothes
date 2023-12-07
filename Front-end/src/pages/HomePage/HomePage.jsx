@@ -57,7 +57,6 @@ const HomePage = () => {
 							</WrapperTypeProduct>
 						</div>
 						{products?.data.map((product) => {
-							console.log(product.image);
 							return (
 								<CardComponent
 									key={product._id}

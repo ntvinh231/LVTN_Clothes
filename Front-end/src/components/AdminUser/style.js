@@ -12,10 +12,13 @@ export const WrapperUploadFile = styled(Upload)`
 		height: 60px;
 		border-radius: 50%;
 	}
-	& .ant-upload-list-item-info {
+	.ant-upload-list-item-info {
 		display: none;
 	}
-	& .ant-upload-list-item {
+	.ant-upload-list-item {
+		display: none;
+	}
+	.ant-upload-list-item-container {
 		display: none;
 	}
 `;

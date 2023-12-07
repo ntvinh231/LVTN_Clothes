@@ -19,12 +19,14 @@ const TableComponent = (props) => {
 	return (
 		<Loading isLoading={isLoading}>
 			<Table
+				key={dataTable.key}
 				rowSelection={{
 					type: selectionType,
 					...rowSelection,
 				}}
 				columns={columns}
 				dataSource={dataTable}
+				{...props}
 			/>
 		</Loading>
 	);

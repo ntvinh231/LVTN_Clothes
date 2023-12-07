@@ -50,13 +50,14 @@ export const routes = [
 		page: ProfilePage,
 		isShowHeader: true,
 		isPrivate: true,
+		isAccessible: (user) => ['user', 'admin'].includes(user?.role),
 	},
 	{
 		path: '/system/admin',
 		page: AdminPage,
 		isShowHeader: false,
 		isPrivate: true,
-		isAccessible: (user) => user?.role === 'admin',
+		isAccessible: (user) => ['admin'].includes(user?.role),
 	},
 	{
 		path: '*',

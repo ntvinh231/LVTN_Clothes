@@ -23,7 +23,7 @@ export const registerUser = async (data) => {
 	}
 };
 
-export const getDetailsUser = async (id, accessToken) => {
+export const getDetailsUser = async (id) => {
 	try {
 		const res = await axiosJWT.get(`${process.env.REACT_APP_API_URL}/user/details/${id}`);
 
@@ -63,9 +63,29 @@ export const loggoutUser = async () => {
 	}
 };
 
+//ForUser
 export const updateUser = async (data) => {
 	try {
 		const res = await axiosJWT.post(`${process.env.REACT_APP_API_URL}/user/update`, data);
+		return res.data;
+	} catch (error) {
+		console.log(error);
+	}
+};
+
+//ForAdmin
+export const updateUserForAdmin = async (id, data) => {
+	try {
+		const res = await axiosJWT.post(`${process.env.REACT_APP_API_URL}/user/updateForAdmin/${id}`, data);
+		return res.data;
+	} catch (error) {
+		console.log(error);
+	}
+};
+
+export const deleteUser = async (id) => {
+	try {
+		const res = await axios.delete(`${process.env.REACT_APP_API_URL}/user/delete/${id}`);
 		return res.data;
 	} catch (error) {
 		console.log(error);

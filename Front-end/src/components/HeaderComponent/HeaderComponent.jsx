@@ -32,6 +32,7 @@ const HeaderComponent = ({ isHiddentSearch = false, isHiddenCart = false }) => {
 		localStorage.removeItem('accessToken');
 		localStorage.removeItem('refreshToken');
 		dispatch(resetUser());
+		navigate('/');
 		setIsLoading(false);
 	};
 	useEffect(() => {

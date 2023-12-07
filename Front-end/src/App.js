@@ -17,12 +17,24 @@ export default function App() {
 	const user = useSelector((state) => state.user);
 	const [isLoading, setIsLoading] = useState(false);
 	useEffect(() => {
-		setIsLoading(true);
-		const { storageData, decoded } = handleDecoded();
-		if (decoded?.payload) {
-			handleGetDetailsUser(decoded?.payload, storageData);
-		}
-		setIsLoading(false);
+		let isMounted = true;
+
+		const fetchData = async () => {
+			setIsLoading(true);
+			const { storageData, decoded } = handleDecoded();
+			if (decoded?.payload) {
+				await handleGetDetailsUser(decoded?.payload, storageData);
+			}
+			if (isMounted) {
+				setIsLoading(false);
+			}
+		};
+
+		fetchData();
+
+		return () => {
+			isMounted = false;
+		};
 	}, []);
 
 	UserService.axiosJWT.interceptors.request.use(async (config) => {
@@ -88,12 +100,15 @@ export default function App() {
 					<Routes>
 						{routes.map((route) => {
 							const Page = route.page;
-							const isCheckAuth = !route.isPrivate || (user && route.isAccessible ? route.isAccessible(user) : true);
+							const isPrivate = route.isPrivate;
+							const isAccessible = route.isAccessible;
+
+							const isAuthorized = !isPrivate || (user?.accessToken && (isAccessible ? isAccessible(user) : true));
 							const Layout = route.isShowHeader ? DefaultComponent : Fragment;
 							return (
 								<Route
 									key={Page} // Thêm key vào đây với giá trị là route.path hoặc một giá trị duy nhất khác
-									path={isCheckAuth ? route.path : ''}
+									path={isAuthorized ? route.path : ''}
 									element={
 										<Layout>
 											<Page />

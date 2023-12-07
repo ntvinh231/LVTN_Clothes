@@ -1,18 +1,26 @@
-import React, { useEffect, useState } from 'react';
-import { Button, Modal, Form, Select, Spin, message } from 'antd';
-import { PlusOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
+import React, { useEffect, useRef, useState } from 'react';
+import { Button, Form, Select, Spin, message, Space } from 'antd';
+import { PlusOutlined, DeleteOutlined, EditOutlined, SearchOutlined, UploadOutlined } from '@ant-design/icons';
 import TableComponent from '../TableComponent/TableComponent';
 import { WrapperHeader } from '../AdminUser/style';
 import InputComponent from '../InputComponent/InputComponent';
 import * as ProductService from '../../service/ProductService';
-import { UploadOutlined } from '@ant-design/icons';
+
 import { getBase64 } from '../../util';
 import { WrapperUploadFile } from './style';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import Loading from '../../components/LoadingComponent/Loading';
+import DrawerComponent from '../DrawerComponent/DrawerComponent';
+import ModalComponent from '../ModalComponent/ModalComponent';
 
 const AdminProduct = () => {
-	const [isModalOpen, setIsModelOpen] = useState(false);
+	const [isModalOpenDelete, setIsModalOpenDelete] = useState(false);
+	const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+	const [rowSelected, setRowSelected] = useState('');
+	const [isModalOpen, setIsModalOpen] = useState(false);
+	const [searchText, setSearchText] = useState('');
+	const [searchedColumn, setSearchedColumn] = useState('');
+	const searchInput = useRef(null);
 	const [stateProduct, setStateProduct] = useState({
 		name: '',
 		price: '',
@@ -22,15 +30,15 @@ const AdminProduct = () => {
 		image: '',
 	});
 	const [collections_id, setCollections_id] = useState('');
-	const [form] = Form.useForm();
-	const renderAction = () => {
-		return (
-			<div style={{ fontSize: '18px', display: 'flex', gap: '10px' }}>
-				<DeleteOutlined style={{ color: 'red', cursor: 'pointer' }} />
-				<EditOutlined style={{ color: 'green', cursor: 'pointer' }} />
-			</div>
-		);
-	};
+	const [stateProductDetails, setStateProductDetails] = useState({
+		name: '',
+		price: '',
+		size: '',
+		description: '',
+		quantity: '',
+		image: '',
+		collections_id: '',
+	});
 
 	//Select
 	const fetchCollectionProduct = async () => {
@@ -42,7 +50,7 @@ const AdminProduct = () => {
 		fetchCollectionProduct,
 		{
 			retry: 3,
-			retryDelay: 1000,
+			retryDelay: 500,
 		}
 	);
 	const dataCollection = collectionProduct?.data;
@@ -60,26 +68,31 @@ const AdminProduct = () => {
 	const filterOption = (input, option) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase());
 	const mutationProduct = useMutation({
 		mutationFn: async (data) => {
-			const { name, price, size, description, quantity, image, collections_id } = data;
-			const res = await ProductService.createProduct({
-				name: name,
-				price: price,
-				size: size,
-				description: description,
-				quantity: quantity,
-				image: image,
-				collections_id: collections_id,
-			});
+			try {
+				const { name, price, size, description, quantity, image, collections_id } = data;
+				const res = await ProductService.createProduct({
+					name: name,
+					price: price,
+					size: size,
+					description: description,
+					quantity: quantity,
+					image: image,
+					collections_id: collections_id,
+				});
 
-			return res;
+				return res;
+			} catch (error) {
+				console.log(error);
+			}
 		},
 	});
-
+	const { data, isLoading: isLoadingCreate, isSuccess } = mutationProduct;
 	//Form
-	const { data, isLoadingCreate, isSuccess } = mutationProduct;
+	const [form] = Form.useForm();
 	useEffect(() => {
 		if (isSuccess && data?.statusMessage === 'success') {
 			message.success('Thêm thành công');
+			handleCancel();
 		} else if (data?.status === 400 && data?.data.statusMessage !== 'success') {
 			message.error('Thêm thất bại');
 		}
@@ -91,18 +104,48 @@ const AdminProduct = () => {
 			[e.target.name]: e.target.value,
 		});
 	};
+	const handleOnChangeDetails = (e) => {
+		setStateProductDetails({
+			...stateProductDetails,
+			[e.target.name]: e.target.value,
+		});
+	};
+	const handleCancelDelete = () => {
+		setIsModalOpenDelete(false);
+	};
 
+	const handleDeleteProduct = () => {
+		mutationDeleteProduct.mutate(rowSelected, {
+			onSettled: () => {
+				queryProduct.refetch();
+			},
+		});
+	};
+
+	//Create
 	const handleCancel = () => {
-		setIsModelOpen(false);
+		setIsModalOpen(false);
 		form.resetFields();
 	};
 
+	//Update
+	const handleCancelDrawer = () => {
+		setIsDrawerOpen(false);
+	};
 	const onFinish = () => {
 		const configData = {
 			...stateProduct,
 			collections_id: collections_id,
 		};
-		mutationProduct.mutate(configData);
+
+		mutationProduct.mutate(configData, {
+			onSettled: () => {
+				queryProduct.refetch();
+			},
+		});
+		setStateProduct({
+			image: '',
+		});
 	};
 
 	const handleOnchangeAvatar = async ({ fileList }) => {
@@ -115,33 +158,151 @@ const AdminProduct = () => {
 			image: file ? file.preview : null,
 		});
 	};
+	const handleOnChangeDetailsAvatar = async ({ fileList }) => {
+		const file = fileList[0];
+		if (file && !file.url && !file.preview) {
+			file.preview = await getBase64(file.originFileObj);
+		}
+		setStateProductDetails({
+			...stateProductDetails,
+			image: file ? file.preview : null,
+		});
+	};
 
 	//GetAllProduct
 	const fetchAllProduct = async () => {
 		const res = await ProductService.getProduct();
 		return res;
 	};
-	const { isLoading, data: products } = useQuery(['products'], fetchAllProduct, {
-		retry: 3,
-		retryDelay: 1000,
-	});
+	const queryProduct = useQuery(['products'], fetchAllProduct);
+	const { isLoading, data: products } = queryProduct;
+	const [isLoadingDetails, setIsLoadingDetails] = useState(false);
+	const fetchDetailsProduct = async (rowSelected) => {
+		setIsLoadingDetails(true);
+		const res = await ProductService.getProduct(rowSelected);
+		const resCollectionSelect = await ProductService.getCollectionProduct(res?.data[0]?.collections_id);
+		setCollections_id(res?.data[0]?.collections_id);
+		if (res?.data) {
+			setStateProductDetails({
+				name: res?.data[0]?.name,
+				price: res?.data[0]?.price,
+				size: res?.data[0]?.size,
+				description: res?.data[0]?.description,
+				quantity: res?.data[0]?.quantity,
+				image: res?.data[0]?.image,
+				collections_name: resCollectionSelect.data[0]?.collections_name,
+			});
+		}
+		setIsLoadingDetails(false);
+	};
 
+	useEffect(() => {
+		form.setFieldsValue(stateProductDetails);
+	}, [form, stateProductDetails]);
+	useEffect(() => {
+		if (rowSelected) {
+			setIsLoadingDetails(true);
+			fetchDetailsProduct(rowSelected);
+		}
+	}, [rowSelected]);
+
+	const handleDetailsProduct = () => {
+		setIsDrawerOpen(true);
+	};
+	const renderAction = () => {
+		return (
+			<div style={{ fontSize: '18px', display: 'flex', gap: '10px' }}>
+				<DeleteOutlined style={{ color: 'red', cursor: 'pointer' }} onClick={() => setIsModalOpenDelete(true)} />
+				<EditOutlined style={{ color: 'green', cursor: 'pointer' }} onClick={handleDetailsProduct} />
+			</div>
+		);
+	};
 	//Chuyển collection.value thành key
 	const collectionMap = OPTIONS.reduce((acc, collection) => {
 		acc[collection.value] = collection.label;
 		return acc;
 	}, {});
 	// Cập nhật dữ liệu products với collection name thành vì collections_id
-	const updatedProducts = products?.data?.map((product) => ({
-		...product,
-		collections_name: collectionMap[product.collections_id],
-	}));
+	const updatedProducts = Array.isArray(products?.data)
+		? products.data.map((product) => ({
+				...product,
+				collections_name: collectionMap[product.collections_id],
+		  }))
+		: [];
+
+	const handleSearch = (selectedKeys, confirm, dataIndex) => {
+		confirm();
+	};
+	const handleReset = (clearFilters, selectedKeys, dataIndex, confirm) => {
+		clearFilters();
+		confirm();
+	};
+	const getColumnSearchProps = (dataIndex) => ({
+		filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
+			<div
+				style={{
+					padding: 8,
+				}}
+				onKeyDown={(e) => e.stopPropagation()}
+			>
+				<InputComponent
+					ref={searchInput}
+					placeholder={`Search ${dataIndex}`}
+					value={selectedKeys[0]}
+					onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+					onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
+					style={{
+						marginBottom: 8,
+						display: 'block',
+					}}
+				/>
+				<Space>
+					<Button
+						type="primary"
+						onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
+						icon={<SearchOutlined />}
+						size="small"
+						style={{
+							width: 90,
+						}}
+					>
+						Search
+					</Button>
+					<Button
+						onClick={() => clearFilters && handleReset(clearFilters, selectedKeys, dataIndex, confirm)}
+						size="small"
+						style={{
+							width: 90,
+						}}
+					>
+						Reset
+					</Button>
+				</Space>
+			</div>
+		),
+		filterIcon: (filtered) => (
+			<SearchOutlined
+				style={{
+					fontSize: '16px',
+					color: filtered ? '#1677ff' : undefined,
+				}}
+			/>
+		),
+		onFilter: (value, record) => record[dataIndex].toString().toLowerCase().includes(value.toLowerCase()),
+		onFilterDropdownOpenChange: (visible) => {
+			if (visible) {
+				setTimeout(() => searchInput.current?.select(), 100);
+			}
+		},
+	});
 
 	const columns = [
 		{
 			title: 'Name',
 			dataIndex: 'name',
 			render: (text) => <a>{text}</a>,
+			...getColumnSearchProps('name'),
+			sorter: (a, b) => a.name.length - b.name.length,
 		},
 		{
 			title: 'Collection',
@@ -150,6 +311,7 @@ const AdminProduct = () => {
 		{
 			title: 'Price',
 			dataIndex: 'price',
+			sorter: (a, b) => a.price - b.price,
 		},
 		{
 			title: 'Size',
@@ -162,6 +324,23 @@ const AdminProduct = () => {
 		{
 			title: 'Quantity',
 			dataIndex: 'quantity',
+			sorter: (a, b) => a.quantity - b.quantity,
+			filters: [
+				{
+					text: '>= 10',
+					value: '>=',
+				},
+				{
+					text: '<= 10',
+					value: '<=',
+				},
+			],
+			onFilter: (value, record) => {
+				if (value === '>=') {
+					return record.quantity >= 10;
+				}
+				return record.quantity <= 10;
+			},
 		},
 		{
 			title: 'Action',
@@ -178,21 +357,101 @@ const AdminProduct = () => {
 			};
 		});
 
+	//updateProduct
+	const mutationUpdateProduct = useMutation({
+		mutationFn: async (data) => {
+			try {
+				const { name, price, size, description, quantity, image, collections_id } = data.configData;
+				const res = await ProductService.updateProduct(data.id, {
+					name: name,
+					price: price,
+					size: size,
+					description: description,
+					quantity: quantity,
+					image: image,
+					collections_id: collections_id,
+				});
+				return res;
+			} catch (error) {
+				console.log(error);
+			}
+		},
+	});
+
+	//Delete
+	const mutationDeleteProduct = useMutation({
+		mutationFn: async (id) => {
+			try {
+				const res = await ProductService.deleteProduct(id);
+				return res;
+			} catch (error) {
+				console.log(error);
+			}
+		},
+	});
+	const { data: dataUpdate, isLoading: isLoadingUpdate, isSuccess: isSuccessUpdate } = mutationUpdateProduct;
+	const { data: dataDelete, isLoading: isLoadingDelete, isSuccess: isSuccessDelete } = mutationDeleteProduct;
+
+	useEffect(() => {
+		if (dataUpdate?.statusMessage === 'success') {
+			message.success('Cập nhật thành công');
+			handleCancelDrawer();
+		} else if (dataUpdate?.statusMessage === 'failed' && dataUpdate?.data.statusMessage !== 'success') {
+			message.error('Cập nhật thất bại');
+		}
+	}, [isSuccessUpdate]);
+
+	useEffect(() => {
+		if (isSuccessDelete && dataDelete?.statusMessage === 'success') {
+			message.success('Xóa thành công');
+			handleCancelDelete();
+		} else if (dataDelete?.data.statusMessage === 'failed') {
+			message.error('Xóa thất bại');
+		}
+	}, [isSuccessDelete]);
+
+	const onFinishUpdate = () => {
+		const configData = {
+			...stateProductDetails,
+			collections_id: collections_id,
+		};
+		mutationUpdateProduct.mutate(
+			{ id: rowSelected, configData },
+			{
+				onSettled: () => {
+					queryProduct.refetch();
+				},
+			}
+		);
+	};
+
 	return (
 		<div style={{ padding: '20px' }}>
 			<WrapperHeader>Quản lý sản phẩm</WrapperHeader>
 			<div style={{ marginTop: '10px' }}>
 				<Button
 					style={{ height: '150px', width: '150px', borderRadius: '6px', borderStyle: 'dashed' }}
-					onClick={() => setIsModelOpen(true)}
+					onClick={() => setIsModalOpen(true)}
 				>
 					<PlusOutlined style={{ fontSize: '60px' }}></PlusOutlined>
 				</Button>
 			</div>
 			<div style={{ marginTop: '20px' }}>
-				<TableComponent dataTable={dataTable} columns={columns} isLoading={isLoading}></TableComponent>
+				<TableComponent
+					dataTable={dataTable}
+					columns={columns}
+					isLoading={isLoading}
+					onRow={(record, rowIndex) => {
+						return {
+							onClick: (event) => {
+								setRowSelected(record._id);
+							},
+						};
+					}}
+				></TableComponent>
 			</div>
-			<Modal
+			<ModalComponent
+				forceRender
 				style={{ textAlign: 'center' }}
 				title="Tạo sản phẩm"
 				open={isModalOpen}
@@ -366,7 +625,196 @@ const AdminProduct = () => {
 						</Form.Item>
 					</Form>
 				</Loading>
-			</Modal>
+			</ModalComponent>
+			<DrawerComponent
+				title="Chi tiết sản phẩm"
+				isOpen={isDrawerOpen}
+				onClose={() => setIsDrawerOpen(false)}
+				width="30%"
+			>
+				<Loading isLoading={isLoadingDetails || isLoadingUpdate}>
+					<Form
+						name="basic"
+						labelCol={{
+							span: 5,
+						}}
+						wrapperCol={{
+							span: 21,
+						}}
+						style={{
+							maxWidth: 600,
+						}}
+						initialValues={{
+							remember: true,
+						}}
+						onFinish={onFinishUpdate}
+						autoComplete="on"
+						form={form}
+					>
+						<Form.Item
+							label="Name"
+							name="name"
+							rules={[
+								{
+									required: true,
+									message: 'Please input Name!',
+								},
+							]}
+						>
+							<InputComponent value={stateProductDetails.name} onChange={handleOnChangeDetails} name="name" />
+						</Form.Item>
+
+						<Form.Item
+							label="Collection"
+							name="collections_name"
+							rules={[
+								{
+									required: true,
+									message: 'Please input Collection!',
+								},
+							]}
+						>
+							<Select
+								style={{ width: '100%' }}
+								dropdownStyle={{ maxHeight: '300px' }}
+								showSearch
+								placeholder="Select a collection"
+								optionFilterProp="children"
+								onChange={onChange}
+								filterOption={filterOption}
+								options={OPTIONS}
+								dropdownRender={(menu) => <div style={{ width: '100%' }}>{menu}</div>}
+								notFoundContent={isLoadingCollectionProduct ? <Spin size="large" /> : null}
+							/>
+						</Form.Item>
+						<Form.Item
+							label="Size"
+							name="size"
+							rules={[
+								{
+									required: true,
+									message: 'Please input Size!',
+								},
+								{
+									validator: (_, value) => {
+										const validSizes = ['s', 'm', 'l', 'xl', 'xxl'];
+										if (validSizes.includes(value.toLowerCase()) || /^\d+$/.test(value)) {
+											return Promise.resolve();
+										}
+										return Promise.reject('Please enter a Size (S, M, L, XL, XXL, or a number)!');
+									},
+								},
+							]}
+						>
+							<InputComponent value={stateProductDetails.size} onChange={handleOnChangeDetails} name="size" />
+						</Form.Item>
+						<Form.Item
+							label="Quatity"
+							name="quantity"
+							rules={[
+								{
+									required: true,
+									message: 'Please input Quatity!',
+								},
+								{
+									validator: (_, value) => {
+										if (!isNaN(value) && parseInt(value, 10) === parseFloat(value)) {
+											return Promise.resolve();
+										}
+										return Promise.reject('Please enter a valid number!');
+									},
+								},
+							]}
+						>
+							<InputComponent value={stateProductDetails.quantity} onChange={handleOnChangeDetails} name="quantity" />
+						</Form.Item>
+						<Form.Item
+							label="Price"
+							name="price"
+							rules={[
+								{
+									required: true,
+									message: 'Please input Price!',
+								},
+								{
+									validator: (_, value) => {
+										if (!isNaN(value) && parseInt(value, 10) === parseFloat(value)) {
+											return Promise.resolve();
+										}
+										return Promise.reject('Please enter a valid number for Price!');
+									},
+								},
+							]}
+						>
+							<InputComponent value={stateProductDetails.price} onChange={handleOnChangeDetails} name="price" />
+						</Form.Item>
+						<Form.Item
+							label="Description"
+							name="description"
+							rules={[
+								{
+									required: true,
+									message: 'Please input Description!',
+								},
+							]}
+						>
+							<InputComponent
+								value={stateProductDetails.description}
+								onChange={handleOnChangeDetails}
+								name="description"
+							/>
+						</Form.Item>
+						<Form.Item
+							label="Image"
+							name="image"
+							rules={[
+								{
+									required: true,
+									message: 'Please input your image!',
+								},
+							]}
+						>
+							<WrapperUploadFile
+								fileList={stateProductDetails.image ? [{ uid: '-1', url: stateProductDetails.image }] : []}
+								onChange={handleOnChangeDetailsAvatar}
+								maxCount={1}
+							>
+								<Button icon={<UploadOutlined />}>Select Image</Button>
+								{stateProductDetails?.image && (
+									<img
+										src={stateProductDetails?.image}
+										style={{
+											height: '60px',
+											width: '60px',
+											borderRadius: '50%',
+											objectFit: 'cover',
+											marginLeft: '30px',
+										}}
+										alt="avatar"
+									/>
+								)}
+							</WrapperUploadFile>
+						</Form.Item>
+
+						<Form.Item wrapperCol={{ offset: 4, span: 16 }}>
+							<Button type="primary" htmlType="submit">
+								Submit
+							</Button>
+						</Form.Item>
+					</Form>
+				</Loading>
+			</DrawerComponent>
+			<ModalComponent
+				style={{ textAlign: 'center' }}
+				title="Xóa sản phẩm"
+				open={isModalOpenDelete}
+				onCancel={handleCancelDelete}
+				onOk={handleDeleteProduct}
+			>
+				<Loading isLoading={isLoadingDelete}>
+					<div>Bạn có chắc xóa sản phẩm này không?</div>
+				</Loading>
+			</ModalComponent>
 		</div>
 	);
 };

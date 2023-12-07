@@ -8,7 +8,7 @@ import {
 	WrapperPriceText,
 	WrapperReportText,
 } from './style';
-import imageProduct from '../../assets/images/test.webp';
+
 import { useNavigate } from 'react-router-dom';
 
 const CardComponent = (props) => {
@@ -30,7 +30,7 @@ const CardComponent = (props) => {
 				title="Áo Polo Radiate Positivity"
 				style={{ textDecoration: 'none', color: '#000000', fontWeight: 'bold' }}
 			>
-				Áo Polo Radiate {name}
+				{name}
 			</StyleNameProduct>
 			<WrapperReportText>
 				<WrapperPriceText>{price}</WrapperPriceText>
