@@ -21,9 +21,9 @@ router.post('/signin', signIn);
 router.post('/loggout', loggout);
 router.use(isLoggedIn);
 router.post('/update', updateUser);
-router.post('/updateForAdmin/:id', restricTo('admin'), updateUserForAdmin);
+router.post('/updateForAdmin/:id', restricTo('admin', 'superadmin'), updateUserForAdmin);
 router.get('/getAll', authMiddle, getAllUser);
 router.get('/details/:id', authMiddle, getDetailsUser);
-router.delete('/delete/:id', restricTo('admin'), deleteUser);
+router.delete('/delete/:id', restricTo('admin', 'superadmin'), deleteUser);
 
 export default router;

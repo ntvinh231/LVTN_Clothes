@@ -9,8 +9,8 @@ import collectionsRouter from './CollectionRouter.js';
 router.get('/', getProduct);
 router.use('/', collectionsRouter);
 router.use(isLoggedIn);
-router.post('/create', restricTo('admin'), createProduct);
-router.put('/update/:id', restricTo('admin'), updateProduct);
-router.delete('/delete/:id', restricTo('admin'), deleteProduct);
+router.post('/create', restricTo('admin', 'superadmin'), createProduct);
+router.put('/update/:id', restricTo('admin', 'superadmin'), updateProduct);
+router.delete('/delete/:id', restricTo('admin', 'superadmin'), deleteProduct);
 
 export default router;

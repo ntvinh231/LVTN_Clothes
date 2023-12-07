@@ -70,27 +70,112 @@ export const signIn = async (req, res, next) => {
 const isValidEmail = (email) => {
 	return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 };
-export const updateUser = async (req, res, next) => {
+
+export const updateUserForAdmin = async (req, res, next) => {
 	try {
 		const data = req.body;
+		const existingUser = await User.findOne({ email: req.body.email });
+		if (existingUser && existingUser.id !== data.id)
+			return res.status(200).json({
+				statusCode: 400,
+				statusMessage: 'failed',
+				message: 'Email already exists',
+			});
 		if (!data.name || !data.phone || !data.email) {
 			return res.status(200).json({
 				statusCode: 400,
-				statusMessage: 'success',
+				statusMessage: 'failed',
 				message: 'Name, phone, and email are required.',
 			});
 		}
 		if (!data.name) {
 			return res.status(200).json({
 				statusCode: 400,
-				statusMessage: 'success',
+				statusMessage: 'failed',
 				message: 'Name is required',
+			});
+		} else if (data.name.length > 25) {
+			return res.status(200).json({
+				statusCode: 400,
+				statusMessage: 'failed',
+				message: 'Name must not exceed 25 characters',
+			});
+		}
+
+		const phoneRegex = /^(?:(?:\+|0{0,2})[1-9]\d{0,14}(?:-|\s|)?)?(?:\d{1,5}[-\s]?){0,2}\d{1,5}$/;
+		if (data.phone && !phoneRegex.test(data.phone)) {
+			return res.status(200).json({
+				statusCode: 400,
+				statusMessage: 'failed',
+				message: 'Invalid phone number',
+			});
+		}
+		if (data.email && !isValidEmail(data.email)) {
+			return res.status(200).json({
+				statusCode: 400,
+				statusMessage: 'failed',
+				message: 'Invalid email address',
+			});
+		}
+
+		const user = await User.findByIdAndUpdate({ _id: req.params.id }, data, {
+			new: true,
+			runValidators: true,
+		});
+
+		if (!user) {
+			return next(httpError(401, 'You are not logged in! Please log in to get access'));
+		}
+
+		return res.status(200).json({
+			statusCode: 200,
+			statusMessage: 'success',
+			data: {
+				validatedData: req.body,
+				imgName: user.avatar,
+			},
+		});
+	} catch (error) {
+		console.log(error);
+		return res.status(500).json({
+			statusCode: 500,
+			statusMessage: 'Internal Server Error',
+			error: error.message,
+			message: 'An internal server error occurred',
+		});
+	}
+};
+export const updateUser = async (req, res, next) => {
+	try {
+		const data = req.body;
+		const existingUser = await User.findOne({ email: req.body.email });
+		if (existingUser && existingUser.id !== req.user.id)
+			return res.status(200).json({
+				statusCode: 400,
+				statusMessage: 'failed',
+				message: 'Email already exists',
+			});
+		if (!data.name || !data.phone || !data.email) {
+			return res.status(200).json({
+				statusCode: 400,
+				statusMessage: 'success',
+				message: 'Name, phone, and email are required.',
 			});
 		} else if (data.name.length > 25) {
 			return res.status(200).json({
 				statusCode: 400,
 				statusMessage: 'success',
 				message: 'Name must not exceed 25 characters',
+			});
+		}
+
+		// Kiểm tra số điện thoại hợp lệ
+		const phoneRegex = /^(?:(?:\+|0{0,2})[1-9]\d{0,14}(?:-|\s|)?)?(?:\d{1,5}[-\s]?){0,2}\d{1,5}$/;
+		if (data.phone && !phoneRegex.test(data.phone)) {
+			return res.status(200).json({
+				statusCode: 400,
+				statusMessage: 'failed',
+				message: 'Invalid phone number',
 			});
 		}
 
@@ -186,67 +271,6 @@ export const refreshToken = async (req, res, next) => {
 	} catch (error) {
 		console.log(error);
 		return httpError(404, error);
-	}
-};
-
-export const updateUserForAdmin = async (req, res, next) => {
-	try {
-		const data = req.body;
-		console.log(data);
-		if (!data.name || !data.phone || !data.email) {
-			return res.status(200).json({
-				statusCode: 400,
-				statusMessage: 'failed',
-				message: 'Name, phone, and email are required.',
-			});
-		}
-		if (!data.name) {
-			return res.status(200).json({
-				statusCode: 400,
-				statusMessage: 'failed',
-				message: 'Name is required',
-			});
-		} else if (data.name.length > 25) {
-			return res.status(200).json({
-				statusCode: 400,
-				statusMessage: 'failed',
-				message: 'Name must not exceed 25 characters',
-			});
-		}
-
-		if (data.email && !isValidEmail(data.email)) {
-			return res.status(200).json({
-				statusCode: 400,
-				statusMessage: 'failed',
-				message: 'Invalid email address',
-			});
-		}
-
-		const user = await User.findByIdAndUpdate({ _id: req.params.id }, data, {
-			new: true,
-			runValidators: true,
-		});
-
-		if (!user) {
-			return next(httpError(401, 'You are not logged in! Please log in to get access'));
-		}
-
-		return res.status(200).json({
-			statusCode: 200,
-			statusMessage: 'success',
-			data: {
-				validatedData: req.body,
-				imgName: user.avatar,
-			},
-		});
-	} catch (error) {
-		console.log(error);
-		return res.status(500).json({
-			statusCode: 500,
-			statusMessage: 'Internal Server Error',
-			error: error.message,
-			message: 'An internal server error occurred',
-		});
 	}
 };
 

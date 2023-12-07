@@ -11,7 +11,7 @@ import {
 // api/product/collections or api/product/collection?id=...
 collectionRouter.get('/collections', getCollections);
 collectionRouter.use(isLoggedIn);
-collectionRouter.post('/collections', restricTo('admin'), createCollectionsController);
-collectionRouter.delete('/collections', restricTo('admin'), deleteCollectionsController);
+collectionRouter.post('/collections', restricTo('admin', 'superadmin'), createCollectionsController);
+collectionRouter.delete('/collections', restricTo('admin', 'superadmin'), deleteCollectionsController);
 
 export default collectionRouter;
