@@ -9,17 +9,20 @@ import {
 } from './style';
 import { Badge, Col } from 'antd';
 import { UserOutlined, ShoppingCartOutlined } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import * as UserService from '../../service/UserService';
 import { resetUser } from '../../redux/slice/userSlide';
 import { useEffect, useState } from 'react';
 import Loading from '../LoadingComponent/Loading';
+import { searchProduct } from '../../redux/slice/productSlide';
 const HeaderComponent = ({ isHiddentSearch = false, isHiddenCart = false }) => {
 	const dispatch = useDispatch();
 	const navigate = useNavigate();
+	const [search, setSearch] = useState('');
 	const [userName, setUserName] = useState('');
 	const [userAvatar, setUserAvatar] = useState('');
+	const location = useLocation();
 	const user = useSelector((state) => state.user);
 	const handleNavigateLogin = () => {
 		if (!user?.name || !user?.accessToken) navigate('/sign-in');
@@ -53,6 +56,18 @@ const HeaderComponent = ({ isHiddentSearch = false, isHiddenCart = false }) => {
 			<WrapperContentPopup onClick={handleLogout}>Đăng xuất</WrapperContentPopup>
 		</div>
 	) : null;
+
+	const onSearch = (e) => {
+		setSearch(e.target.value);
+		dispatch(searchProduct(e.target.value));
+	};
+
+	useEffect(() => {
+		if (location.pathname !== '/') {
+			dispatch(searchProduct(''));
+		}
+	}, [location.pathname]);
+
 	return (
 		<div>
 			<WrapperHeader
@@ -64,10 +79,7 @@ const HeaderComponent = ({ isHiddentSearch = false, isHiddenCart = false }) => {
 				</Col>
 				{!isHiddentSearch && (
 					<Col span={12} style={{ marginRight: '40px' }}>
-						<CustomSearch
-							placeholder="Nhập sản phẩm cần tìm" //onSearch={onSearch}
-							enterButton
-						/>
+						<CustomSearch placeholder="Nhập sản phẩm cần tìm" enterButton onChange={onSearch} />
 					</Col>
 				)}
 				<Loading isLoading={isLoading}>

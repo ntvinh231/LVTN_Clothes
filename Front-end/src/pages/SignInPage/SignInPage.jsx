@@ -17,6 +17,7 @@ const SignInPage = () => {
 	const [isShowPassword, setIsShowPassword] = useState(false);
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
+	const [loading, setLoading] = useState(false);
 
 	const mutation = useMutation({
 		mutationFn: (data) => UserService.loginUser(data),
@@ -26,15 +27,17 @@ const SignInPage = () => {
 	useEffect(() => {
 		const fetchData = async () => {
 			if (data?.statusCode === 201) {
-				Message.success('Đăng nhập thành công');
+				setLoading(true);
 				localStorage.setItem('accessToken', JSON.stringify(data?.accessToken));
 				if (data?.accessToken) {
 					const decoded = jwtDecode(data?.accessToken);
 					if (decoded?.payload) {
 						await handleGetDetailsUser(decoded?.payload, data?.accessToken);
+						Message.success('Đăng nhập thành công');
 					}
 				}
 			}
+			setLoading(false);
 		};
 
 		fetchData();
@@ -117,7 +120,7 @@ const SignInPage = () => {
 					{data?.data?.statusCode === 400 && (
 						<span style={{ color: 'red', margin: '10px 0 0 4px' }}>{data?.data?.message}</span>
 					)}
-					<Loading isLoading={isLoading}>
+					<Loading isLoading={loading || isLoading}>
 						<ButtonComponent
 							onClick={handleSignIn}
 							disabled={!email.length || !password.length}

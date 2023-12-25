@@ -474,7 +474,7 @@ const AdminProduct = () => {
 					handleDeleteMany={handleDeleteManyProduct}
 					dataTable={dataTable}
 					columns={columns}
-					isLoading={isLoading}
+					isLoading={isLoadingCreate || isLoading}
 					onRow={(record, rowIndex) => {
 						return {
 							onClick: (event) => {

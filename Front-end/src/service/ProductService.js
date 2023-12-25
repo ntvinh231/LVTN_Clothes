@@ -18,11 +18,28 @@ export const getProduct = async (id) => {
 	try {
 		let res;
 		if (!id) {
-			//getOne
-			res = await axiosJWTC.get(`${process.env.REACT_APP_API_URL}/product`);
+			//getAll
+			res = await axios.get(`${process.env.REACT_APP_API_URL}/product`);
 		} else {
 			//getDetails
-			res = await axiosJWTC.get(`${process.env.REACT_APP_API_URL}/product/?id=${id}`);
+			res = await axios.get(`${process.env.REACT_APP_API_URL}/product/?id=${id}`);
+		}
+
+		return res.data;
+	} catch (error) {
+		return error?.response;
+	}
+};
+
+export const getProductSearch = async (search, limit) => {
+	try {
+		let res;
+		if (!(search?.length > 0)) {
+			//getAll
+			res = await axios.get(`${process.env.REACT_APP_API_URL}/product?limit=${limit}`);
+		} else {
+			//getDataSearch
+			res = await axios.get(`${process.env.REACT_APP_API_URL}/product?name=/${search}/i`);
 		}
 
 		return res.data;
