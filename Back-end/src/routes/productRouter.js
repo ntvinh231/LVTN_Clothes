@@ -14,10 +14,9 @@ import collectionsRouter from './CollectionRouter.js';
 
 router.get('/', getProduct);
 router.use('/', collectionsRouter);
-router.use(isLoggedIn);
-router.post('/create', restricTo('admin', 'superadmin'), createProduct);
-router.put('/update/:id', restricTo('admin', 'superadmin'), updateProduct);
-router.delete('/delete/:id', restricTo('admin', 'superadmin'), deleteProduct);
-router.delete('/delete-many', restricTo('admin', 'superadmin'), deleteManyProduct);
+router.post('/create', isLoggedIn, restricTo('admin', 'superadmin'), createProduct);
+router.put('/update/:id', isLoggedIn, restricTo('admin', 'superadmin'), updateProduct);
+router.delete('/delete/:id', isLoggedIn, restricTo('admin', 'superadmin'), deleteProduct);
+router.delete('/delete-many', isLoggedIn, restricTo('admin', 'superadmin'), deleteManyProduct);
 
 export default router;

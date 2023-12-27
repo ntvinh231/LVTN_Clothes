@@ -2,7 +2,6 @@ import joi from 'joi';
 import httpError from 'http-errors';
 import Product from '../models/Product.js';
 import apq from 'api-query-params';
-import { JWTRefreshTokenService } from '../middleware/sendToken.js';
 
 export const getProduct = async (req, res, next) => {
 	try {
@@ -13,7 +12,8 @@ export const getProduct = async (req, res, next) => {
 		const filterData = filter.id ? { _id: filter.id } : filter;
 		const offset = limit * (page - 1);
 		const product = await Product.find(filterData).limit(limit).skip(offset).sort(sort);
-		if (product.length == 0) {
+		const totalResultProduct = product?.length;
+		if (filter.id && product.length === 0) {
 			return res.status(404).json({
 				statusCode: 404,
 				statusMessage: 'failed',
@@ -27,6 +27,7 @@ export const getProduct = async (req, res, next) => {
 			data: product,
 			totalProduct,
 			totalPage: Math.ceil(totalProduct / limit),
+			totalResult: Math.ceil(totalResultProduct / limit),
 			currentPage: page,
 		});
 	} catch (error) {
