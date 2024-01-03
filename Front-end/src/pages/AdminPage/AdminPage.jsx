@@ -17,6 +17,7 @@ const AdminPage = () => {
 		getItem('Quản lý sản phẩm', 'rootProduct', <AppstoreOutlined />, [
 			getItem('Thông tin sản phẩm', 'product'),
 			getItem('Thông tin loại', 'productCollection'),
+			getItem('Đơn hàng', 'productOrder'),
 		]),
 	];
 

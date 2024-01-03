@@ -53,10 +53,10 @@ export const getCollectionProduct = async (id) => {
 	try {
 		let res;
 		if (!id) {
-			//getOne
+			//getDetails
 			res = await axiosJWTC.get(`${process.env.REACT_APP_API_URL}/product/collections`);
 		} else {
-			//getDetails
+			//getOne
 			res = await axiosJWTC.get(`${process.env.REACT_APP_API_URL}/product/collections/?id=${id}`);
 		}
 
@@ -104,6 +104,40 @@ export const deleteProduct = async (id) => {
 export const deleteManyProduct = async (data) => {
 	try {
 		const res = await axiosJWTC.delete(`${process.env.REACT_APP_API_URL}/product/delete-many`, { data });
+		return res.data;
+	} catch (error) {
+		console.log(error);
+	}
+};
+
+export const getAllCollections = async (id) => {
+	try {
+		let res;
+		if (id) {
+			//getOne
+			res = await axiosJWTC.get(`${process.env.REACT_APP_API_URL}/product/collections?id=${id}`);
+		} else {
+			//GetDetails
+			res = await axiosJWTC.get(`${process.env.REACT_APP_API_URL}/product/collections`);
+		}
+		return res.data;
+	} catch (error) {
+		return error?.response;
+	}
+};
+
+export const deleteCollection = async (id) => {
+	try {
+		const res = await axiosJWTC.delete(`${process.env.REACT_APP_API_URL}/product/collections?id=${id}`);
+		return res.data;
+	} catch (error) {
+		console.log(error);
+	}
+};
+
+export const updateCollection = async (id, data) => {
+	try {
+		const res = await axiosJWTC.put(`${process.env.REACT_APP_API_URL}/product/collections/${id}`, data);
 		return res.data;
 	} catch (error) {
 		console.log(error);
