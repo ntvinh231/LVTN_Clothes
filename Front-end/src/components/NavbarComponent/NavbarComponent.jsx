@@ -2,13 +2,16 @@ import React from 'react';
 import { WrapperContent, WrapperLabelText, WrapperTextValue } from './style';
 import { Checkbox } from 'antd';
 
-const NavbarComponent = () => {
+const NavbarComponent = (props) => {
+	const { collectionsName } = props;
+	const collectionsArray = Array.isArray(collectionsName) ? collectionsName : [];
+	const updatedCollections = ['ALL ITEM', ...collectionsArray];
 	const onChange = () => {};
 	const renderContent = (type, options) => {
 		switch (type) {
 			case 'text':
-				return options.map((option, id) => {
-					return <WrapperTextValue key={id}>{option}</WrapperTextValue>;
+				return options?.map((option, id) => {
+					return <WrapperTextValue key={id}>{option.toUpperCase()}</WrapperTextValue>;
 				});
 			case 'checkbox':
 				return (
@@ -36,7 +39,7 @@ const NavbarComponent = () => {
 	return (
 		<div>
 			<WrapperLabelText>Label</WrapperLabelText>
-			<WrapperContent>{renderContent('text', ['ALL ITEM', 'BABY TEE', 'BOTTOM'])}</WrapperContent>
+			<WrapperContent>{renderContent('text', updatedCollections)}</WrapperContent>
 			<WrapperContent>
 				{' '}
 				{renderContent('checkbox', [

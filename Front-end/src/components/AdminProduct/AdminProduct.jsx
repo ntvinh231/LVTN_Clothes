@@ -167,7 +167,6 @@ const AdminProduct = () => {
 			image: stateProduct.image,
 			collections_id: collections_id,
 		};
-		console.log('configData', configData);
 
 		mutationProduct.mutate(configData, {
 			onSettled: () => {

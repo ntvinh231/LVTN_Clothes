@@ -36,7 +36,7 @@ export const routes = [
 		isShowHeader: true,
 	},
 	{
-		path: '/collection',
+		path: '/:collections',
 		page: TypeProductPage,
 		isShowHeader: true,
 	},

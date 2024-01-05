@@ -2,6 +2,7 @@ import styled from 'styled-components';
 
 export const WrapperLabelText = styled.h4`
 	color: rgb(56, 56, 61);
+	margin-bottom: 16px;
 	font-size: 14px;
 	font-weight: 500;
 `;
@@ -20,6 +21,7 @@ export const WrapperContent = styled.div`
 	display: flex;
 	/* align-items: center; */
 	flex-direction: column;
-	gap: 12px;
+	gap: 14px;
+	margin-bottom: 32px;
 	cursor: pointer;
 `;
