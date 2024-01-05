@@ -23,6 +23,7 @@ const AdminProduct = () => {
 	const searchInput = useRef(null);
 	const [stateProduct, setStateProduct] = useState({
 		name: '',
+		newName: '',
 		price: '',
 		size: '',
 		description: '',
@@ -32,6 +33,7 @@ const AdminProduct = () => {
 	const [collections_id, setCollections_id] = useState('');
 	const [stateProductDetails, setStateProductDetails] = useState({
 		name: '',
+		newName: '',
 		price: '',
 		size: '',
 		description: '',
@@ -61,6 +63,13 @@ const AdminProduct = () => {
 				label: item.collections_name,
 		  }))
 		: [];
+	const handleSelectChange = (value) => {
+		setStateProduct({
+			...stateProduct,
+			name: value,
+		});
+	};
+
 	const onChange = (value) => {
 		setCollections_id(value);
 	};
@@ -137,6 +146,15 @@ const AdminProduct = () => {
 	const handleCancel = () => {
 		setIsModalOpen(false);
 		form.resetFields();
+		setStateProduct({
+			name: '',
+			newName: '',
+			price: '',
+			size: '',
+			description: '',
+			quantity: '',
+			image: '',
+		}); // Reset state values
 	};
 
 	//Update
@@ -145,9 +163,15 @@ const AdminProduct = () => {
 	};
 	const onFinish = () => {
 		const configData = {
-			...stateProduct,
+			name: stateProduct.name === 'add_name' ? stateProduct.newName : stateProduct.name,
+			price: stateProduct.price,
+			size: stateProduct.size,
+			description: stateProduct.description,
+			quantity: stateProduct.quantity,
+			image: stateProduct.image,
 			collections_id: collections_id,
 		};
+		console.log('configData', configData);
 
 		mutationProduct.mutate(configData, {
 			onSettled: () => {
@@ -208,6 +232,13 @@ const AdminProduct = () => {
 		setIsLoadingDetails(false);
 	};
 
+	console.log(products?.data);
+	const OPTIONSName = Array.isArray(products?.data)
+		? [...new Set(products?.data.map((item) => item.name))].map((name) => ({
+				value: name,
+				label: name,
+		  }))
+		: [];
 	useEffect(() => {
 		form.setFieldsValue(stateProductDetails);
 	}, [form, stateProductDetails]);
@@ -328,6 +359,24 @@ const AdminProduct = () => {
 		{
 			title: 'Size',
 			dataIndex: 'size',
+			filters: [
+				{
+					text: 'S',
+					value: 'S',
+				},
+				{
+					text: 'L',
+					value: 'L',
+				},
+				{
+					text: 'X',
+					value: 'X',
+				},
+				{
+					text: 'XL',
+					value: 'XL',
+				},
+			],
 		},
 		{
 			title: 'Description',
@@ -502,7 +551,7 @@ const AdminProduct = () => {
 							span: 18,
 						}}
 						style={{
-							maxWidth: 600,
+							maxWidth: 800,
 						}}
 						initialValues={{
 							remember: true,
@@ -521,8 +570,37 @@ const AdminProduct = () => {
 								},
 							]}
 						>
-							<InputComponent value={stateProduct.name} onChange={handleOnChange} name="name" />
+							{/* <InputComponent value={stateProduct.name} onChange={handleOnChange} name="name" /> */}
+							<Select
+								name="name"
+								style={{ width: '100%' }}
+								dropdownStyle={{ maxHeight: '300px' }}
+								showSearch
+								placeholder="Select a name"
+								optionFilterProp="children"
+								onChange={handleSelectChange}
+								filterOption={filterOption}
+								options={OPTIONSName.concat([
+									{
+										value: 'add_name',
+										label: 'Thêm tên sản phẩm mới',
+									},
+								])}
+								dropdownRender={(menu) => <div style={{ width: '100%' }}>{menu}</div>}
+								notFoundContent={isLoadingCollectionProduct ? <Spin size="large" /> : null}
+							/>
 						</Form.Item>
+						{stateProduct.name && stateProduct.name === 'add_name' ? (
+							<Form.Item
+								label="New name"
+								name="newName"
+								rules={[{ required: true, message: 'Please input your name!' }]}
+							>
+								<InputComponent value={stateProduct.newName} onChange={handleOnChange} name="newName" />
+							</Form.Item>
+						) : (
+							''
+						)}
 
 						<Form.Item
 							label="Collection"
@@ -557,11 +635,13 @@ const AdminProduct = () => {
 								},
 								{
 									validator: (_, value) => {
-										const validSizes = ['s', 'm', 'l', 'xl', 'xxl'];
-										if (validSizes.includes(value.toLowerCase()) || /^\d+$/.test(value)) {
+										const validSizes = ['s', 'm', 'l', 'xl'];
+										const lowerCaseValue = value.toLowerCase();
+
+										if (validSizes.includes(lowerCaseValue)) {
 											return Promise.resolve();
 										}
-										return Promise.reject('Please enter a Size (S, M, L, XL, XXL, or a number)!');
+										return Promise.reject('Please enter a Size (S, M, L, XL)!');
 									},
 								},
 							]}
@@ -731,11 +811,13 @@ const AdminProduct = () => {
 								},
 								{
 									validator: (_, value) => {
-										const validSizes = ['s', 'm', 'l', 'xl', 'xxl'];
-										if (validSizes.includes(value.toLowerCase()) || /^\d+$/.test(value)) {
+										const validSizes = ['s', 'm', 'l', 'xl'];
+										const lowerCaseValue = value.toLowerCase();
+
+										if (validSizes.includes(lowerCaseValue)) {
 											return Promise.resolve();
 										}
-										return Promise.reject('Please enter a Size (S, M, L, XL, XXL, or a number)!');
+										return Promise.reject('Please enter a Size (S, M, L, XL)!');
 									},
 								},
 							]}

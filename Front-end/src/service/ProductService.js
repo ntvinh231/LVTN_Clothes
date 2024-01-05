@@ -143,3 +143,12 @@ export const updateCollection = async (id, data) => {
 		console.log(error);
 	}
 };
+
+export const checkProductDetails = async (data) => {
+	try {
+		const res = await axios.post(`${process.env.REACT_APP_API_URL}/product/checkProductDetails`, data);
+		return res.data;
+	} catch (error) {
+		return error?.response;
+	}
+};

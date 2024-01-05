@@ -13,13 +13,13 @@ import { useNavigate } from 'react-router-dom';
 
 const CardComponent = (props) => {
 	const navigate = useNavigate();
-	const { description, image, name, price, discount } = props;
-	const handleCard = () => {
-		navigate('/product-detail');
+	const { description, image, name, price, discount, id } = props;
+	const handleDetails = (id) => {
+		navigate(`/product-details/${id}`);
 	};
 	return (
 		<Card
-			onClick={handleCard}
+			onClick={() => handleDetails(id)}
 			hoverable
 			headStyle={{ width: '200px', height: '200px' }}
 			style={{ width: 200 }}

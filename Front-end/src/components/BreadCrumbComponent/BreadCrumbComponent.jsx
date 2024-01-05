@@ -5,20 +5,23 @@ const BreadCrumbComponent = () => {
 	const navigate = useNavigate();
 	const location = useLocation();
 	const [breadCrumb, setBreadCrumb] = useState('');
+	const locationPath = location.pathname;
+
 	useEffect(() => {
-		switch (location.pathname) {
-			case '/type':
-			case '/product-detail':
+		switch (true) {
+			case locationPath === '/collection':
 				setBreadCrumb('Danh mục');
 				break;
-			case '/sign-in':
-			case '/sign-up':
+			case locationPath === '/sign-in' || locationPath === '/sign-up':
 				setBreadCrumb('Tài khoản');
+				break;
+			case locationPath.startsWith('/product-details/'):
+				setBreadCrumb('Chi tiết sản phẩm');
 				break;
 			default:
 				break;
 		}
-	}, [location.pathname]);
+	}, [locationPath]);
 	return (
 		<div>
 			<Row style={{ padding: '14px 130px', marginTop: '80px', backgroundColor: '#f6f6f6' }}>
@@ -27,7 +30,7 @@ const BreadCrumbComponent = () => {
 						Trang chủ
 					</span>
 					<span className="mr_lr">&nbsp;/&nbsp;</span>
-					<span onClick={() => navigate('/type')} style={{ color: '#2f80ed', cursor: 'pointer' }}>
+					<span onClick={() => navigate(locationPath)} style={{ color: '#2f80ed', cursor: 'pointer' }}>
 						{breadCrumb}
 					</span>
 					{/* <span className="mr_lr">&nbsp;/&nbsp;</span>
