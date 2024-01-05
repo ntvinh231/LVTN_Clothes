@@ -6,7 +6,10 @@ export const getCollections = async (req, res, next) => {
 	try {
 		const filterData = req.query.id ? { _id: req.query.id } : {};
 
-		const collections = await Collections.find(filterData).populate('list_product');
+		const collections = await Collections.find(filterData).populate({
+			path: 'list_product',
+			select: '-image',
+		});
 		return res.status(200).json({
 			statusCode: 200,
 			statusMessage: 'success',
