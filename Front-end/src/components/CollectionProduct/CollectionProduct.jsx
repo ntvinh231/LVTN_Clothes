@@ -268,8 +268,8 @@ const CollectionProduct = () => {
 		if (isSuccess && data?.statusMessage === 'success') {
 			message.success('Thêm thành công');
 			handleCancel();
-		} else if (data?.status === 400) {
-			message.error('Thêm thất bại');
+		} else if (data?.statusCode === 400 || data?.statusMessage === 'failed') {
+			message.error(data?.message);
 		}
 	}, [isSuccess, isError]);
 
@@ -301,6 +301,35 @@ const CollectionProduct = () => {
 		});
 	};
 
+	//Delete-many
+	const mutationDeleteManyCollection = useMutation({
+		mutationFn: async (ids) => {
+			try {
+				const res = await ProductService.deleteManyCollection(ids);
+				return res;
+			} catch (error) {
+				console.log(error);
+			}
+		},
+	});
+	const { data: dataDeleteMany, isLoading: isLoadingDeleteMany } = mutationDeleteManyCollection;
+	const handleDeleteManyCollection = (ids) => {
+		mutationDeleteManyCollection.mutate(
+			{ ids },
+			{
+				onSettled: () => {
+					queryCollections.refetch();
+				},
+			}
+		);
+	};
+	useEffect(() => {
+		if (dataDeleteMany?.statusMessage === 'success') {
+			message.success('Xóa thành công');
+		} else if (dataDeleteMany?.statusMessage === 'failed' || dataDeleteMany?.statusCode === 400) {
+			message.error(dataDeleteMany?.message);
+		}
+	}, [dataDeleteMany?.statusMessage]);
 	return (
 		<div style={{ padding: '20px' }}>
 			<WrapperHeader>Quản lý loại</WrapperHeader>
@@ -314,7 +343,8 @@ const CollectionProduct = () => {
 			</div>
 			<div style={{ marginTop: '20px' }}>
 				<TableComponent
-					// handleDeleteMany={handleDeleteManyProduct}
+					handleDeleteMany={handleDeleteManyCollection}
+					isLoadingDeleteMany={isLoadingDeleteMany}
 					dataTable={dataTable}
 					columns={columns}
 					isLoading={isLoadingCreate || isLoading}

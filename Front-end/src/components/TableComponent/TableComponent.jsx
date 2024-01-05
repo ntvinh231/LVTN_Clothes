@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import Loading from '../LoadingComponent/Loading';
 import { Excel } from 'antd-table-saveas-excel';
 import { useMemo } from 'react';
+import ModalComponent from '../ModalComponent/ModalComponent';
 
 const TableComponent = (props) => {
 	const {
@@ -11,6 +12,7 @@ const TableComponent = (props) => {
 		columns = [],
 		isLoading = false,
 		handleDeleteMany,
+		isLoadingDeleteMany = false,
 	} = props;
 
 	const newColumnExport = useMemo(() => {
@@ -43,6 +45,12 @@ const TableComponent = (props) => {
 			.saveAs('Excel.xlsx');
 	};
 
+	const [isModalOpenDelete, setIsModalOpenDelete] = useState(false);
+
+	const handleCancelDelete = () => {
+		setIsModalOpenDelete(false);
+	};
+
 	return (
 		<Loading isLoading={isLoading}>
 			{rowSelectedKeys.length > 0 && (
@@ -53,12 +61,24 @@ const TableComponent = (props) => {
 						fontWeight: 'bold',
 						padding: '10px',
 						cursor: 'pointer',
+						marginBottom: '10px',
 					}}
-					onClick={handleDeleteAll}
+					onClick={() => setIsModalOpenDelete(true)}
 				>
 					Xóa tất cả
 				</div>
 			)}
+			<ModalComponent
+				style={{ textAlign: 'center' }}
+				title="Xóa tất cả"
+				open={isModalOpenDelete}
+				onCancel={handleCancelDelete}
+				onOk={handleDeleteAll}
+			>
+				<Loading isLoading={isLoadingDeleteMany}>
+					<div>Bạn có chắc chắn xóa tất cả không?</div>
+				</Loading>
+			</ModalComponent>
 			<Button onClick={exportExcel}>Export excel</Button>
 			<Table
 				key={dataSource.key}

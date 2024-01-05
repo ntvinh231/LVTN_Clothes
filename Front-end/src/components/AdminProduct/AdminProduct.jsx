@@ -131,7 +131,8 @@ const AdminProduct = () => {
 		});
 	};
 
-	const handleDeleteManyProduct = (ids) => {
+	//Delete-many
+	const handleDeleteMany = (ids) => {
 		mutationDeleteManyProduct.mutate(
 			{ ids },
 			{
@@ -147,14 +148,9 @@ const AdminProduct = () => {
 		setIsModalOpen(false);
 		form.resetFields();
 		setStateProduct({
-			name: '',
-			newName: '',
-			price: '',
-			size: '',
-			description: '',
-			quantity: '',
+			...stateProduct,
 			image: '',
-		}); // Reset state values
+		});
 	};
 
 	//Update
@@ -212,6 +208,7 @@ const AdminProduct = () => {
 	};
 	const queryProduct = useQuery(['products'], fetchAllProduct);
 	const { isLoading, data: products } = queryProduct;
+
 	const [isLoadingDetails, setIsLoadingDetails] = useState(false);
 	const fetchDetailsProduct = async (rowSelected) => {
 		setIsLoadingDetails(true);
@@ -232,7 +229,6 @@ const AdminProduct = () => {
 		setIsLoadingDetails(false);
 	};
 
-	console.log(products?.data);
 	const OPTIONSName = Array.isArray(products?.data)
 		? [...new Set(products?.data.map((item) => item.name))].map((name) => ({
 				value: name,
@@ -520,7 +516,9 @@ const AdminProduct = () => {
 			</div>
 			<div style={{ marginTop: '20px' }}>
 				<TableComponent
-					handleDeleteMany={handleDeleteManyProduct}
+					onClickOpenModal={() => setIsModalOpenDelete(true)}
+					handleDeleteMany={handleDeleteMany}
+					isLoadingDeleteMany={isLoadingDeleteMany}
 					dataTable={dataTable}
 					columns={columns}
 					isLoading={isLoadingCreate || isLoading}
@@ -636,7 +634,7 @@ const AdminProduct = () => {
 								{
 									validator: (_, value) => {
 										const validSizes = ['s', 'm', 'l', 'xl'];
-										const lowerCaseValue = value.toLowerCase();
+										const lowerCaseValue = value && value.toLowerCase();
 
 										if (validSizes.includes(lowerCaseValue)) {
 											return Promise.resolve();

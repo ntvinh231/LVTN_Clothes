@@ -152,3 +152,13 @@ export const checkProductDetails = async (data) => {
 		return error?.response;
 	}
 };
+
+//Deletemany collection
+export const deleteManyCollection = async (data) => {
+	try {
+		const res = await axiosJWTC.delete(`${process.env.REACT_APP_API_URL}/product/collection-many`, { data });
+		return res.data;
+	} catch (error) {
+		console.log(error);
+	}
+};
