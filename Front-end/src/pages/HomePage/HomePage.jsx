@@ -107,7 +107,7 @@ const HomePage = () => {
 						color: '#fff',
 						borderRadius: '2px',
 					}}
-					onClick={() => navigate('/collection')}
+					onClick={() => navigate('/product/collections')}
 				></WrapperButtonMore>
 			</div>
 		</div>

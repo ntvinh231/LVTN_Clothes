@@ -21,15 +21,20 @@ import ButtonComponent from '../ButtonComponent/ButtonComponent';
 import * as ProductService from '../../service/ProductService';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import Loading from '../LoadingComponent/Loading';
+import { useDispatch, useSelector } from 'react-redux';
+import { checkProduct } from '../../redux/slice/checkProductSlide';
 
 const ProductDetailsComponent = ({ idProduct }) => {
+	const dispatch = useDispatch();
 	const [numProduct, setNumProduct] = useState(1);
 	const [sizeProduct, setSizeProduct] = useState('S');
+	const checkSoldOut = useSelector((state) => state.checkProduct);
 	const [checkProductDetails, setCheckProductDetails] = useState({
 		id: idProduct,
 		size: sizeProduct,
 		quantity: numProduct,
 	});
+
 	const fetchProductDetails = async (context) => {
 		const id = context?.queryKey && context?.queryKey[1];
 		const res = await ProductService.getProduct(id);
@@ -52,8 +57,8 @@ const ProductDetailsComponent = ({ idProduct }) => {
 			setNumProduct(numProduct + 1);
 		} else if (type === 'decrease') {
 			setNumProduct(numProduct - 1);
-			if (numProduct < 1) {
-				setNumProduct(0);
+			if (numProduct <= 1) {
+				setNumProduct(1);
 			}
 		}
 	};
@@ -79,16 +84,21 @@ const ProductDetailsComponent = ({ idProduct }) => {
 	const { data: dataCheckProductDetails, isLoading: isLoadingCheck } = mutationCheckProductDetails;
 
 	const handleCheckSoldOut = async (data) => {
-		setCheckProductDetails(() => {
+		try {
 			const newData = { ...data };
-			mutationCheckProductDetails.mutate(newData, {
-				onSettled: () => {
-					queryProductDetail.refetch();
-				},
-			});
+			const mutationResult = await mutationCheckProductDetails.mutateAsync(newData);
+
+			dispatch(checkProduct(mutationResult && mutationResult?.statusCode));
+			setCheckProductDetails(newData);
 			return newData;
-		});
+		} catch (error) {
+			console.log(error);
+		}
 	};
+	useEffect(() => {
+		//Thực hiện lấy data nếu còn hàng
+	}, [checkProductDetails]);
+
 	return (
 		<Loading isLoading={isLoading}>
 			<Row style={{ padding: '16px', marginTop: '30px' }}>
@@ -163,10 +173,10 @@ const ProductDetailsComponent = ({ idProduct }) => {
 							borderRadius: '4px',
 							transition: 'background 0.3s ease',
 							margin: '40px 0 10px',
-							opacity: dataCheckProductDetails?.statusCode !== 200 ? 0.5 : 1,
-							cursor: dataCheckProductDetails?.statusCode === 200 ? 'pointer' : 'default',
+							opacity: checkSoldOut.statusCode && checkSoldOut.statusCode === 200 ? 1 : 0.5,
+							cursor: checkSoldOut.statusCode && checkSoldOut.statusCode === 200 ? 'pointer' : 'default',
 						}}
-						textButton={dataCheckProductDetails?.statusCode === 200 ? 'Chọn Mua' : 'Hết hàng'}
+						textButton={checkSoldOut.statusCode && checkSoldOut.statusCode === 200 ? 'Chọn Mua' : 'Hết hàng'}
 						styleTextButton={{ color: '#fff', fontSize: '15px', fontWeight: '700' }}
 					></ButtonComponent>
 				</Col>

@@ -1,7 +1,16 @@
 import { Button } from 'antd';
 import React, { useState } from 'react';
+import Loading from '../LoadingComponent/Loading';
 
-const ButtonComponent = ({ size, backgroundHover, styleButton, styleTextButton, textButton, ...rest }) => {
+const ButtonComponent = ({
+	size,
+	backgroundHover,
+	styleButton,
+	styleTextButton,
+	textButton,
+	isLoading = false,
+	...rest
+}) => {
 	const [isHovered, setIsHovered] = useState(false);
 
 	return (

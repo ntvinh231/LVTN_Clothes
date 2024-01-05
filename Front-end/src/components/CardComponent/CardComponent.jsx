@@ -13,7 +13,9 @@ import { useNavigate } from 'react-router-dom';
 
 const CardComponent = (props) => {
 	const navigate = useNavigate();
-	const { description, image, name, price, discount, id } = props;
+	const { description, image, name, price, discount = 5, id } = props;
+
+	const discountedPrice = price - (price * discount) / 100;
 	const handleDetails = (id) => {
 		navigate(`/product-details/${id}`);
 	};
@@ -33,10 +35,10 @@ const CardComponent = (props) => {
 				{name}
 			</StyleNameProduct>
 			<WrapperReportText>
-				<WrapperPriceText>{price}</WrapperPriceText>
+				<WrapperPriceText>{discountedPrice.toLocaleString()}</WrapperPriceText>
 				<div style={{ display: 'flex', alignItems: 'center' }}>
-					<WrapperComparePriceText>{price}</WrapperComparePriceText>
-					<WrapperDiscountText>{discount || -10}%</WrapperDiscountText>
+					<WrapperComparePriceText>{price?.toLocaleString()}</WrapperComparePriceText>
+					<WrapperDiscountText>{discount || -5}%</WrapperDiscountText>
 				</div>
 			</WrapperReportText>
 		</Card>
