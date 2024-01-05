@@ -12,6 +12,7 @@ export const getProduct = async (req, res, next) => {
 		const filterData = filter.id ? { _id: filter.id } : filter;
 		const offset = limit * (page - 1);
 		const product = await Product.find(filterData).limit(limit).skip(offset).sort(sort);
+
 		const totalResultProduct = product?.length;
 		if (filter.id && product.length === 0) {
 			return res.status(404).json({
@@ -49,6 +50,13 @@ export const createProduct = async (req, res, next) => {
 			discount: joi.number(),
 		});
 
+		if (req.body.size && !['s', 'm', 'l', 'xl'].includes(req.body.size.toLowerCase())) {
+			return res.status(200).json({
+				statusCode: 400,
+				statusMessage: 'failed',
+				message: 'Size nhập không hợp lệ',
+			});
+		}
 		const validatedData = await productValidationSchema.validateAsync(req.body);
 
 		if (

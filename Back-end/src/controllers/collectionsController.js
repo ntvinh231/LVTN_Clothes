@@ -1,15 +1,24 @@
 import joi from 'joi';
 import httpError from 'http-errors';
 import Collections from '../models/Collections.js';
+import apq from 'api-query-params';
 
 export const getCollections = async (req, res, next) => {
 	try {
-		const filterData = req.query.id ? { _id: req.query.id } : {};
-
-		const collections = await Collections.find(filterData).populate({
+		let page = req.query.page;
+		const { filter, limit, sort } = apq(req.query);
+		delete filter.page;
+		const filterData = filter.id ? { _id: filter.id } : filter;
+		const filterData2 =
+			filterData?.collections_name && filter.collections_name
+				? { collections_name: { $regex: new RegExp(`^${filter.collections_name}$`, 'i') } }
+				: filterData;
+		const offset = limit * (page - 1);
+		const collections = await Collections.find(filterData2).limit(limit).skip(offset).sort(sort).populate({
 			path: 'list_product',
 			select: '-image',
 		});
+
 		return res.status(200).json({
 			statusCode: 200,
 			statusMessage: 'success',
