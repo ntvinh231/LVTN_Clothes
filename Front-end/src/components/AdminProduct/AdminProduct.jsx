@@ -102,10 +102,10 @@ const AdminProduct = () => {
 		if (data?.statusMessage === 'success' && data?.statusCode === 200) {
 			message.success('Thêm thành công');
 			handleCancel();
-		} else if (data?.data && data?.data?.statusCode === 400) {
-			message.error(data?.data?.message);
+		} else if (data?.statusCode === 400) {
+			message.error(data?.message);
 		}
-	}, [data?.statusCode, data?.data?.statusCode]);
+	}, [data?.statusCode]);
 
 	const handleOnChange = (e) => {
 		setStateProduct({
@@ -814,7 +814,7 @@ const AdminProduct = () => {
 										if (validSizes.includes(lowerCaseValue)) {
 											return Promise.resolve();
 										}
-										return Promise.reject('Please enter a Size (S, M, L, XL)!');
+										return Promise.reject('Chỉ được nhập size cho phép (S, M, L, XL)!');
 									},
 								},
 							]}

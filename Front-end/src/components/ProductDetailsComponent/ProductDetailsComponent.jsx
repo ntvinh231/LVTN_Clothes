@@ -28,16 +28,25 @@ const ProductDetailsComponent = ({ idProduct }) => {
 	const dispatch = useDispatch();
 	const [numProduct, setNumProduct] = useState(1);
 	const [sizeProduct, setSizeProduct] = useState('S');
+	const [collectionName, setCollectionName] = useState('Loading...');
 	const checkSoldOut = useSelector((state) => state.checkProduct);
 	const [checkProductDetails, setCheckProductDetails] = useState({
 		id: idProduct,
 		size: sizeProduct,
 		quantity: numProduct,
 	});
+	const fetchCollectionProduct = async (context) => {
+		const id = context?.queryKey && context?.queryKey[1];
+
+		const res = await ProductService.getCollectionProduct(id);
+		return res;
+	};
 
 	const fetchProductDetails = async (context) => {
 		const id = context?.queryKey && context?.queryKey[1];
 		const res = await ProductService.getProduct(id);
+		const res2 = await ProductService.getCollectionProduct(res?.data[0].collections_id);
+		setCollectionName(res2?.data[0].collections_name);
 		return res.data[0];
 	};
 	const queryProductDetail = useQuery(['products-details', idProduct], fetchProductDetails, {
@@ -81,13 +90,23 @@ const ProductDetailsComponent = ({ idProduct }) => {
 			}
 		},
 	});
+
+	const mutationGetCollectionProduct = useMutation({
+		mutationFn: async (id) => {
+			try {
+				const res = await ProductService.getCollectionProduct(id);
+				return res;
+			} catch (error) {
+				console.log(error);
+			}
+		},
+	});
 	const { data: dataCheckProductDetails, isLoading: isLoadingCheck } = mutationCheckProductDetails;
 
 	const handleCheckSoldOut = async (data) => {
 		try {
 			const newData = { ...data };
 			const mutationResult = await mutationCheckProductDetails.mutateAsync(newData);
-
 			dispatch(checkProduct(mutationResult && mutationResult?.statusCode));
 			setCheckProductDetails(newData);
 			return newData;
@@ -126,8 +145,14 @@ const ProductDetailsComponent = ({ idProduct }) => {
 				<Col span={14} style={{ padding: '0 16px' }}>
 					<WrapperStyleNameProduct>{productDetails?.name}</WrapperStyleNameProduct>
 					<WrapperGroupStatus>
+						<WrapperStatusTextName>Loại:</WrapperStatusTextName>
+						<WrapperStatusTextAvailabel>{collectionName}</WrapperStatusTextAvailabel>
+					</WrapperGroupStatus>
+					<WrapperGroupStatus>
 						<WrapperStatusTextName>Tình trạng:</WrapperStatusTextName>
-						<WrapperStatusTextAvailabel>Còn hàng</WrapperStatusTextAvailabel>
+						<WrapperStatusTextAvailabel>
+							{checkSoldOut.statusCode && checkSoldOut.statusCode === 200 ? 'Còn hàng' : 'Hết hàng'}
+						</WrapperStatusTextAvailabel>
 					</WrapperGroupStatus>
 					<WrapperPriceBox>
 						<WraperPriceProduct>{productDetails?.price}</WraperPriceProduct>

@@ -1,6 +1,6 @@
 import HomePage from '../pages/HomePage/HomePage';
 import NotFoundPage from '../pages/NotFoundPage/NotFoundPage';
-import OrderPage from '../pages/OrderPage/OrderPage';
+import CartPage from '../pages/CartPage/CartPage';
 import ProductDetailsPage from '../pages/ProductDetailsPage/ProductDetailsPage';
 import ProductPage from '../pages/ProductPage/ProductPage';
 import ProfilePage from '../pages/ProfilePage/ProfilePage';
@@ -16,8 +16,8 @@ export const routes = [
 		isShowHeader: true,
 	},
 	{
-		path: '/order',
-		page: OrderPage,
+		path: '/cart',
+		page: CartPage,
 		isShowHeader: true,
 	},
 	{
@@ -61,11 +61,6 @@ export const routes = [
 	},
 	{
 		path: '*',
-		page: NotFoundPage,
-		isShowHeader: false,
-	},
-	{
-		path: '/product-details/undefined',
 		page: NotFoundPage,
 		isShowHeader: false,
 	},

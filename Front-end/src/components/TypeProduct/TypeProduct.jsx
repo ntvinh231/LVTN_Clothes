@@ -1,19 +1,31 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { WrapperType } from './style';
 
 const TypeProduct = ({ name }) => {
 	const navigate = useNavigate();
-	const handleNavigatetype = (type) => {
+
+	const handleNavigatetype = (collection) => {
+		let stateValue;
+
+		switch (collection.toLowerCase()) {
+			case 'xem thêm':
+			case 'sản phẩm':
+			case 'all item':
+				stateValue = 'all';
+				break;
+			default:
+				stateValue = collection.toLowerCase();
+		}
+
 		navigate(
-			`/product/${type
+			`/product/${stateValue
 				.normalize('NFD')
 				.replace(/[\u0300-\u036f]/g, '')
-				?.replace(/ /g, '_')}`,
-			{ state: type }
+				.replace(/ /g, '-')}`,
+			{ state: stateValue }
 		);
 	};
-	return <WrapperType onClick={() => handleNavigatetype(name)}>{name}</WrapperType>;
+	return <div onClick={() => handleNavigatetype(name)}>{name}</div>;
 };
 
 export default TypeProduct;

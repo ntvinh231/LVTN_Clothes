@@ -31,6 +31,33 @@ export const getProduct = async (id) => {
 	}
 };
 
+export const getNameCollection = async (collection) => {
+	try {
+		const res = await axios.get(`${process.env.REACT_APP_API_URL}/product/collections?collections_name=${collection}`);
+
+		return res.data;
+	} catch (error) {
+		return error?.response;
+	}
+};
+
+export const getProductCollection = async (id) => {
+	try {
+		let res;
+		if (!id) {
+			//getAll
+			res = await axios.get(`${process.env.REACT_APP_API_URL}/product`);
+		} else {
+			//getOne
+			res = await axios.get(`${process.env.REACT_APP_API_URL}/product?collections_id=${id}`);
+		}
+
+		return res.data;
+	} catch (error) {
+		return error?.response;
+	}
+};
+
 export const getProductSearch = async (search, limit) => {
 	try {
 		let res;
@@ -48,7 +75,6 @@ export const getProductSearch = async (search, limit) => {
 	}
 };
 
-// get all or get with id query,exercise: product/collections?id=65661792bfbb244758e8dbf7
 export const getCollectionProduct = async (id) => {
 	try {
 		let res;
@@ -59,7 +85,6 @@ export const getCollectionProduct = async (id) => {
 			//getOne
 			res = await axiosJWTC.get(`${process.env.REACT_APP_API_URL}/product/collections/?id=${id}`);
 		}
-
 		return res.data;
 	} catch (error) {
 		return error?.response;

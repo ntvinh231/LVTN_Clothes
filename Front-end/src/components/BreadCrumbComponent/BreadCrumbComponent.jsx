@@ -15,9 +15,13 @@ const BreadCrumbComponent = () => {
 			case locationPath === '/sign-in' || locationPath === '/sign-up':
 				setBreadCrumb('Tài khoản');
 				break;
-			case locationPath.startsWith('/product-details/'):
+			case locationPath.startsWith('/product-details'):
 				setBreadCrumb('Chi tiết sản phẩm');
 				break;
+			case locationPath.startsWith('/cart'):
+				setBreadCrumb('Giỏ hàng');
+				break;
+
 			default:
 				break;
 		}

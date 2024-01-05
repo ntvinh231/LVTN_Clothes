@@ -384,6 +384,10 @@ const CollectionProduct = () => {
 									required: true,
 									message: 'Please input Collection!',
 								},
+								{
+									pattern: /^[a-zA-Z0-9\s]+$/,
+									message: 'Collection chỉ được đặt chữ hoặc số, không có kí tự',
+								},
 							]}
 						>
 							<InputComponent value={stateCollection.collection} onChange={handleOnChange} name="collections_name" />
@@ -428,6 +432,10 @@ const CollectionProduct = () => {
 								{
 									required: true,
 									message: 'Please input Collection Name!',
+								},
+								{
+									pattern: /^[a-zA-Z0-9\s]+$/,
+									message: 'Collection chỉ được đặt chữ hoặc số, không có kí tự',
 								},
 							]}
 						>

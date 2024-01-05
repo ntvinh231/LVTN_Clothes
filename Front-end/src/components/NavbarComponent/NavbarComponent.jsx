@@ -1,17 +1,43 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { WrapperContent, WrapperLabelText, WrapperTextValue } from './style';
 import { Checkbox } from 'antd';
+import TypeProduct from '../../components/TypeProduct/TypeProduct';
+import { useLocation } from 'react-router-dom';
 
 const NavbarComponent = (props) => {
+	const [activeOption, setActiveOption] = useState(null);
+	const { state } = useLocation();
 	const { collectionsName } = props;
 	const collectionsArray = Array.isArray(collectionsName) ? collectionsName : [];
 	const updatedCollections = ['ALL ITEM', ...collectionsArray];
-	const onChange = () => {};
+	const { pathname } = useLocation();
+
+	const onChange = (e) => {
+		setActiveOption(e.target.value);
+	};
+	const match = pathname.match(/\/product\/([^\/]+)(\/|$)/);
+	let result = match ? match[1].replace(/-/g, ' ') : null;
+	useEffect(() => {
+		if (!state) {
+			setActiveOption(result?.toUpperCase());
+		} else {
+			setActiveOption(state.toUpperCase());
+		}
+	}, []);
+
 	const renderContent = (type, options) => {
 		switch (type) {
 			case 'text':
 				return options?.map((option, id) => {
-					return <WrapperTextValue key={id}>{option.toUpperCase()}</WrapperTextValue>;
+					return (
+						<WrapperTextValue
+							key={id}
+							style={{ color: activeOption === option.toUpperCase() ? '#0089ff' : '#333' }}
+							onClick={() => setActiveOption(option.toUpperCase())}
+						>
+							<TypeProduct name={option.toUpperCase()} />
+						</WrapperTextValue>
+					);
 				});
 			case 'checkbox':
 				return (
@@ -38,7 +64,7 @@ const NavbarComponent = (props) => {
 	};
 	return (
 		<div>
-			<WrapperLabelText>Label</WrapperLabelText>
+			<WrapperLabelText>DANH MỤC SẢN PHẨM</WrapperLabelText>
 			<WrapperContent>{renderContent('text', updatedCollections)}</WrapperContent>
 			<WrapperContent>
 				{' '}

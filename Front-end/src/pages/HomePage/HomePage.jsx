@@ -6,7 +6,7 @@ import slider_3 from '../../assets/images/slider_3.webp';
 import CardComponent from '../../components/CardComponent/CardComponent.jsx';
 import { useQuery } from '@tanstack/react-query';
 import * as ProductService from '../../service/ProductService.js';
-import { WrapperButtonMore, WrapperProducts, WrapperTypeProduct } from './style.js';
+import { WrapperButtonMore, WrapperMore, WrapperProducts, WrapperTypeProduct } from './style.js';
 import TypeProduct from '../../components/TypeProduct/TypeProduct';
 import { useSelector } from 'react-redux';
 import Loading from '../../components/LoadingComponent/Loading.jsx';
@@ -20,7 +20,6 @@ const HomePage = () => {
 	const searchProduct = useSelector((state) => state.product.search);
 	const searchDebounce = useDebounce(searchProduct, 500);
 	const queryRef = useRef();
-	const arr = [''];
 
 	const fetchProduct = async (context) => {
 		setLoading(true);
@@ -74,11 +73,11 @@ const HomePage = () => {
 				<Loading isLoading={loading}>
 					<WrapperProducts>
 						<div style={{ width: '1270px', margin: '0 auto' }}>
-							<WrapperTypeProduct>
+							{/* <WrapperTypeProduct>
 								{arr.map((item) => {
 									return <TypeProduct name={item} key={item} />;
 								})}
-							</WrapperTypeProduct>
+							</WrapperTypeProduct> */}
 						</div>
 						{products?.data?.map((product) => {
 							return (
@@ -97,18 +96,9 @@ const HomePage = () => {
 			</div>
 
 			<div style={{ width: '100%', display: 'flex', justifyContent: 'center', marginTop: '40px' }}>
-				<WrapperButtonMore
-					textButton="XEM THÊM"
-					type="outline"
-					backgroundHover="#0089ff"
-					bordered="false"
-					styleButton={{
-						background: '#ed1c24',
-						color: '#fff',
-						borderRadius: '2px',
-					}}
-					onClick={() => navigate('/product/collections')}
-				></WrapperButtonMore>
+				<WrapperMore>
+					<TypeProduct name={'XEM THÊM'} />
+				</WrapperMore>
 			</div>
 		</div>
 	);
