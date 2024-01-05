@@ -62,8 +62,6 @@ export const createProduct = async (req, res, next) => {
 		) {
 			return next(httpError(400, 'The input is required'));
 		}
-		const existingProduct = await Product.findOne({ name: validatedData.name });
-		if (existingProduct) return next(httpError(400, 'Name product already exists'));
 
 		const product = await Product.create(validatedData);
 		return res.status(200).json({

@@ -11,7 +11,10 @@ import {
 import isLoggedIn from '../middleware/isLoggedIn.js';
 import restricTo from '../middleware/checkRole.js';
 import collectionsRouter from './CollectionRouter.js';
+import { checkProductDetails } from '../controllers/productDetailsController.js';
 
+//Product Details
+router.post('/checkProductDetails', checkProductDetails);
 router.get('/', getProduct);
 router.use('/', collectionsRouter);
 router.post('/create', isLoggedIn, restricTo('admin', 'superadmin'), createProduct);
