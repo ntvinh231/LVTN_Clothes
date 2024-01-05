@@ -145,7 +145,7 @@ export const deleteProduct = async (req, res, next) => {
 export const deleteManyProduct = async (req, res, next) => {
 	try {
 		const { ids } = req.body;
-
+		console.log(ids);
 		if (!ids) {
 			return res.status(200).json({
 				statusCode: 400,

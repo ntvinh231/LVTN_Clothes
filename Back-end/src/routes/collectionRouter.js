@@ -5,6 +5,7 @@ import restricTo from '../middleware/checkRole.js';
 import {
 	createCollectionsController,
 	deleteCollectionsController,
+	deleteManyCollection,
 	getCollections,
 	updateCollection,
 } from '../controllers/collectionsController.js';
@@ -17,5 +18,5 @@ collectionRouter.use(isLoggedIn);
 collectionRouter.post('/collections', restricTo('admin', 'superadmin'), createCollectionsController);
 collectionRouter.put('/collections/:id', isLoggedIn, restricTo('admin', 'superadmin'), updateCollection);
 collectionRouter.delete('/collections', restricTo('admin', 'superadmin'), deleteCollectionsController);
-
+collectionRouter.delete('/collection-many', restricTo('admin', 'superadmin'), deleteManyCollection);
 export default collectionRouter;
