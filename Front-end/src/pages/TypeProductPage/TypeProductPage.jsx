@@ -13,7 +13,7 @@ const TypeProductPage = () => {
 	let { state } = useLocation();
 	const { pathname } = useLocation();
 	const match = pathname.match(/\/product\/([^\/]+)(\/|$)/);
-	console.log(match);
+
 	let result = match ? match[1].replace(/-/g, ' ') : null;
 	useEffect(() => {
 		if (!state) {

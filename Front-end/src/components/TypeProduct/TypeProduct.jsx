@@ -1,7 +1,8 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { StyledTypeProduct } from './style';
 
-const TypeProduct = ({ name }) => {
+const TypeProduct = ({ name, styleComponent }) => {
 	const navigate = useNavigate();
 
 	const handleNavigatetype = (collection) => {
@@ -25,7 +26,17 @@ const TypeProduct = ({ name }) => {
 			{ state: stateValue }
 		);
 	};
-	return <div onClick={() => handleNavigatetype(name)}>{name}</div>;
+
+	return (
+		<StyledTypeProduct
+			style={{
+				...styleComponent,
+			}}
+			onClick={() => handleNavigatetype(name)}
+		>
+			{name}
+		</StyledTypeProduct>
+	);
 };
 
 export default TypeProduct;

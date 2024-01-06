@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { WrapperContent, WrapperLabelText, WrapperTextValue } from './style';
 import { Checkbox } from 'antd';
 import TypeProduct from '../../components/TypeProduct/TypeProduct';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const NavbarComponent = (props) => {
 	const [activeOption, setActiveOption] = useState(null);
@@ -11,63 +11,92 @@ const NavbarComponent = (props) => {
 	const collectionsArray = Array.isArray(collectionsName) ? collectionsName : [];
 	const updatedCollections = ['ALL ITEM', ...collectionsArray];
 	const { pathname } = useLocation();
+	const navigate = useNavigate();
 
 	const onChange = (e) => {
 		setActiveOption(e.target.value);
 	};
+
 	const match = pathname.match(/\/product\/([^\/]+)(\/|$)/);
 	let result = match ? match[1].replace(/-/g, ' ') : null;
+
 	useEffect(() => {
-		if (!state) {
-			setActiveOption(result?.toUpperCase());
+		if (result && result.toLowerCase() === 'all') {
+			setActiveOption('ALL ITEM');
+		} else if (!state && result) {
+			setActiveOption(result.toUpperCase());
+		} else if (state && state.toLowerCase() === 'all') {
+			setActiveOption('ALL ITEM');
 		} else {
 			setActiveOption(state.toUpperCase());
 		}
-	}, []);
+	}, [state, result]);
+
+	const handleTypeProductClick = (option) => {
+		let stateValue;
+
+		switch (option.toLowerCase()) {
+			case 'xem thêm':
+			case 'sản phẩm':
+			case 'all item':
+				stateValue = 'all';
+				break;
+			default:
+				stateValue = option.toLowerCase();
+		}
+
+		navigate(
+			`/product/${stateValue
+				.normalize('NFD')
+				.replace(/[\u0300-\u036f]/g, '')
+				.replace(/ /g, '-')}`,
+			{ state: stateValue }
+		);
+	};
 
 	const renderContent = (type, options) => {
 		switch (type) {
 			case 'text':
-				return options?.map((option, id) => {
-					return (
-						<WrapperTextValue
-							key={id}
-							style={{ color: activeOption === option.toUpperCase() ? '#0089ff' : '#333' }}
-							onClick={() => setActiveOption(option.toUpperCase())}
-						>
-							<TypeProduct name={option.toUpperCase()} />
-						</WrapperTextValue>
-					);
-				});
+				return options?.map((option, id) => (
+					<TypeProduct
+						key={id}
+						styleComponent={{
+							color: activeOption === option.toUpperCase() ? '#0089ff' : '#333',
+							padding: '6px',
+							fontSize: '15px',
+							cursor: 'pointer',
+						}}
+						name={option.toUpperCase()}
+						onClick={() => handleTypeProductClick(option)}
+					>
+						<WrapperTextValue key={id}></WrapperTextValue>
+					</TypeProduct>
+				));
 			case 'checkbox':
 				return (
 					<Checkbox.Group
 						style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '12px' }}
 						onChange={onChange}
 					>
-						{options.map((option) => {
-							return (
-								<Checkbox key={option.value} value={option.value}>
-									{option.label}
-								</Checkbox>
-							);
-						})}
+						{options.map((option) => (
+							<Checkbox key={option.value} value={option.value}>
+								{option.label}
+							</Checkbox>
+						))}
 					</Checkbox.Group>
 				);
 			case 'price':
-				return options.map((option, id) => {
-					return <WrapperTextValue key={id}>{option}</WrapperTextValue>;
-				});
+				return options.map((option, id) => <WrapperTextValue key={id}>{option}</WrapperTextValue>);
 			default:
 				return {};
 		}
 	};
+
 	return (
 		<div>
 			<WrapperLabelText>DANH MỤC SẢN PHẨM</WrapperLabelText>
 			<WrapperContent>{renderContent('text', updatedCollections)}</WrapperContent>
 			<WrapperContent>
-				{' '}
 				{renderContent('checkbox', [
 					{
 						value: 'a',

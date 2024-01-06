@@ -26,6 +26,7 @@ export const SortPagi = styled.div`
 export const WrapperTextValue = styled.span`
 	padding: 10px 20px 10px 0px;
 	font-family: 'Roboto', sans-serif;
+	display: block;
 	font-size: 14px;
 	font-weight: 400;
 	line-height: 1px;
