@@ -63,9 +63,8 @@ const HeaderComponent = ({ isHiddentSearch = false, isHiddenCart = false }) => {
 	};
 
 	useEffect(() => {
-		if (location.pathname !== '/') {
-			dispatch(searchProduct(''));
-		}
+		dispatch(searchProduct(''));
+		setSearch('');
 	}, [location.pathname]);
 
 	return (
@@ -79,7 +78,7 @@ const HeaderComponent = ({ isHiddentSearch = false, isHiddenCart = false }) => {
 				</Col>
 				{!isHiddentSearch && (
 					<Col span={12} style={{ marginRight: '40px' }}>
-						<CustomSearch placeholder="Nhập sản phẩm cần tìm" enterButton onChange={onSearch} />
+						<CustomSearch value={search} placeholder="Nhập sản phẩm cần tìm" enterButton onChange={onSearch} />
 					</Col>
 				)}
 				<Loading isLoading={isLoading}>

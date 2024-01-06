@@ -189,7 +189,7 @@ const ProductDetailsComponent = ({ idProduct }) => {
 					<ButtonComponent
 						bordered="false"
 						size={40}
-						backgroundHover="#0089ff"
+						backgroundHover={checkSoldOut.statusCode && checkSoldOut.statusCode === 200 ? '#0089ff' : 'disabled'}
 						styleButton={{
 							background: 'rgb(255, 57, 69)',
 							height: '48px',

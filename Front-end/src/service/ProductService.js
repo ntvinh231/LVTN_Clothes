@@ -41,15 +41,17 @@ export const getNameCollection = async (collection) => {
 	}
 };
 
-export const getProductCollection = async (id) => {
+export const getProductCollection = async (page, limit, id) => {
 	try {
 		let res;
 		if (!id) {
 			//getAll
-			res = await axios.get(`${process.env.REACT_APP_API_URL}/product`);
+			res = await axios.get(`${process.env.REACT_APP_API_URL}/product?page=${page}&limit=${limit}`);
 		} else {
 			//getOne
-			res = await axios.get(`${process.env.REACT_APP_API_URL}/product?collections_id=${id}`);
+			res = await axios.get(
+				`${process.env.REACT_APP_API_URL}/product?page=${page}&limit=${limit}&collections_id=${id}`
+			);
 		}
 
 		return res.data;

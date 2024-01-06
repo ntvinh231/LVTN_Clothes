@@ -27,16 +27,7 @@ const TypeProduct = ({ name, styleComponent }) => {
 		);
 	};
 
-	return (
-		<StyledTypeProduct
-			style={{
-				...styleComponent,
-			}}
-			onClick={() => handleNavigatetype(name)}
-		>
-			{name}
-		</StyledTypeProduct>
-	);
+	return <StyledTypeProduct onClick={() => handleNavigatetype(name)}>{name}</StyledTypeProduct>;
 };
 
 export default TypeProduct;

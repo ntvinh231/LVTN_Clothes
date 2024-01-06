@@ -16,6 +16,7 @@ import { useNavigate } from 'react-router-dom';
 const HomePage = () => {
 	const navigate = useNavigate();
 	const [initialLoad, setInitialLoad] = useState(true);
+	const [isNull, setIsNull] = useState(false);
 	const [loading, setLoading] = useState(false);
 	const searchProduct = useSelector((state) => state.product.search);
 	const searchDebounce = useDebounce(searchProduct, 500);
@@ -26,6 +27,10 @@ const HomePage = () => {
 		const limit = 10;
 		const searchValue = context?.queryKey && context?.queryKey[1];
 		const res = await ProductService.getProductSearch(searchValue, limit);
+		setIsNull(false);
+		if (res?.data?.length === 0) {
+			setIsNull(true);
+		}
 		setLoading(false);
 		return res;
 	};
@@ -42,19 +47,16 @@ const HomePage = () => {
 	});
 
 	useEffect(() => {
-		// Set the refetch function to the queryRef
 		queryRef.current = refetch;
 	}, [refetch]);
 
 	useEffect(() => {
 		if (!initialLoad) {
-			// Manually trigger a refetch when the searchDebounce changes
 			queryRef.current && queryRef.current();
 		}
 	}, [searchDebounce]);
 
 	useEffect(() => {
-		// Set initialLoad to false after the first render
 		setInitialLoad(false);
 	}, []);
 
@@ -72,13 +74,16 @@ const HomePage = () => {
 			>
 				<Loading isLoading={loading}>
 					<WrapperProducts>
-						<div style={{ width: '1270px', margin: '0 auto' }}>
-							{/* <WrapperTypeProduct>
-								{arr.map((item) => {
-									return <TypeProduct name={item} key={item} />;
-								})}
-							</WrapperTypeProduct> */}
+						<div style={{ width: '1270px', margin: '0 auto', display: 'flex', justifyContent: 'center' }}>
+							{isNull ? (
+								<div style={{ fontWeight: 'bold', fontSize: '20px' }}>
+									Không tìm thấy bất kỳ kết quả nào với từ khóa trên.
+								</div>
+							) : (
+								''
+							)}
 						</div>
+
 						{products?.data?.map((product) => {
 							return (
 								<CardComponent
