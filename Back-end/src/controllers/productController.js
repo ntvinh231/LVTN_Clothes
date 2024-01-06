@@ -8,12 +8,11 @@ export const getProduct = async (req, res, next) => {
 		let page = req.query.page;
 		const { filter, limit, sort } = apq(req.query);
 		delete filter.page;
-		const totalProduct = await Product.count();
 		const filterData = filter.id ? { _id: filter.id } : filter;
 		const offset = limit * (page - 1);
+		const totalProductCount = await Product.countDocuments(filterData);
 		const product = await Product.find(filterData).limit(limit).skip(offset).sort(sort);
 
-		const totalResultProduct = product?.length;
 		if (filter.id && product.length === 0) {
 			return res.status(404).json({
 				statusCode: 404,
@@ -26,10 +25,8 @@ export const getProduct = async (req, res, next) => {
 			statusCode: 200,
 			statusMessage: 'success',
 			data: product,
-			totalProduct,
-			totalPage: Math.ceil(totalProduct / limit),
-			totalResult: Math.ceil(totalResultProduct / limit),
-			currentPage: page,
+			totalProduct: totalProductCount,
+			totalPage: Math.ceil(totalProductCount / (limit || 10)),
 		});
 	} catch (error) {
 		console.log(error);
