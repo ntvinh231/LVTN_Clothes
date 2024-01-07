@@ -9,7 +9,7 @@ const productSchema = new mongoose.Schema({
 	quantity: Number,
 	image: String,
 	collections_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Collections', required: true },
-	discount_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Discount' },
+	discount_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Discount', default: 5 },
 });
 
 productSchema.plugin(mongoose_delete, { overrideMethods: 'all' });
