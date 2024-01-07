@@ -3,7 +3,7 @@ import Product from '../models/Product.js';
 
 export const checkProductDetails = async (req, res, next) => {
 	try {
-		const { name, quantity, size } = req.body;
+		const { name, quantity, size, collections_id } = req.body;
 		if (!name) {
 			return res.status(200).json({
 				statusCode: 200,
@@ -16,6 +16,7 @@ export const checkProductDetails = async (req, res, next) => {
 			name: name,
 			size: { $regex: new RegExp(`^${size}$`, 'i') }, // Sử dụng biểu thức chính quy không phân biệt chữ hoa thường
 			quantity: { $gte: quantity }, // Kiểm tra quantity lớn hơn hoặc bằng quantity truyền vào
+			collections_id: collections_id,
 		}).select('-image');
 
 		if (checkProduct == null) {

@@ -8,19 +8,21 @@ export const getProduct = async (req, res, next) => {
 		let page = req.query.page;
 		const { filter, limit, sort } = apq(req.query);
 		delete filter.page;
+
 		const filterData = filter.id ? { _id: filter.id } : filter;
 		const offset = limit * (page - 1);
 		const totalProductCount = await Product.countDocuments(filterData);
 		const products = await Product.find(filterData).limit(limit).skip(offset).sort(sort);
 
-		const uniqueNamesSet = new Set();
-		const uniqueProducts = products.filter((product) => {
-			if (!uniqueNamesSet.has(product.name)) {
-				uniqueNamesSet.add(product.name);
-				return true;
+		const uniqueProductsMap = {};
+		products.forEach((product) => {
+			const key = `${product.name}_${product.collections_id}`;
+			if (!uniqueProductsMap[key]) {
+				uniqueProductsMap[key] = product;
 			}
-			return false;
 		});
+
+		const uniqueProducts = Object.values(uniqueProductsMap);
 
 		if (filter.id && uniqueProducts.length === 0) {
 			return res.status(404).json({
