@@ -9,7 +9,7 @@ const BreadCrumbComponent = () => {
 
 	useEffect(() => {
 		switch (true) {
-			case locationPath === '/product/collections':
+			case locationPath.startsWith('/product'):
 				setBreadCrumb('Danh mục');
 				break;
 			case locationPath === '/sign-in' || locationPath === '/sign-up':

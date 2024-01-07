@@ -22,6 +22,7 @@ const HeaderComponent = ({ isHiddentSearch = false, isHiddenCart = false }) => {
 	const [search, setSearch] = useState('');
 	const [userName, setUserName] = useState('');
 	const [userAvatar, setUserAvatar] = useState('');
+	const cart = useSelector((state) => state.cart);
 	const location = useLocation();
 	const user = useSelector((state) => state.user);
 	const handleNavigateLogin = () => {
@@ -118,7 +119,7 @@ const HeaderComponent = ({ isHiddentSearch = false, isHiddenCart = false }) => {
 				</Loading>
 				{!isHiddenCart && (
 					<WrapperHeaderCart onClick={() => navigate('/cart')} style={{ cursor: 'pointer' }}>
-						<Badge count={4} size="small">
+						<Badge count={cart?.totalCart} size="small">
 							<ShoppingCartOutlined style={{ fontSize: '20px', color: ' #cccccc' }} />
 						</Badge>
 						<div>

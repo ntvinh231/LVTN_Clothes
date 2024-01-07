@@ -23,28 +23,30 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import Loading from '../LoadingComponent/Loading';
 import { useDispatch, useSelector } from 'react-redux';
 import { checkProduct } from '../../redux/slice/checkProductSlide';
-
+import { useLocation } from 'react-router-dom';
+import { addCart } from '../../redux/slice/cartSlide';
 const ProductDetailsComponent = ({ idProduct }) => {
 	const dispatch = useDispatch();
+	const user = useSelector((state) => state.user);
+	const order = useSelector((state) => state.order);
+	const location = useLocation();
+	const [nameProduct, setNameProduct] = useState('');
 	const [numProduct, setNumProduct] = useState(1);
 	const [sizeProduct, setSizeProduct] = useState('S');
+	const [discount, setDiscount] = useState(5);
 	const [collectionName, setCollectionName] = useState('Loading...');
 	const checkSoldOut = useSelector((state) => state.checkProduct);
+
 	const [checkProductDetails, setCheckProductDetails] = useState({
-		id: idProduct,
+		name: nameProduct,
 		size: sizeProduct,
 		quantity: numProduct,
 	});
-	const fetchCollectionProduct = async (context) => {
-		const id = context?.queryKey && context?.queryKey[1];
-
-		const res = await ProductService.getCollectionProduct(id);
-		return res;
-	};
 
 	const fetchProductDetails = async (context) => {
 		const id = context?.queryKey && context?.queryKey[1];
 		const res = await ProductService.getProduct(id);
+		setNameProduct(res?.data[0].name);
 		const res2 = await ProductService.getCollectionProduct(res?.data[0].collections_id);
 		setCollectionName(res2?.data[0].collections_name);
 		return res.data[0];
@@ -56,6 +58,7 @@ const ProductDetailsComponent = ({ idProduct }) => {
 
 	const onChangeSize = (e) => {
 		setSizeProduct(e.target.value);
+		setNumProduct(1);
 	};
 
 	const onChangeNumber = (value) => {
@@ -74,11 +77,11 @@ const ProductDetailsComponent = ({ idProduct }) => {
 
 	useEffect(() => {
 		handleCheckSoldOut({
-			id: idProduct,
+			name: nameProduct,
 			size: sizeProduct,
 			quantity: numProduct,
 		});
-	}, [sizeProduct, numProduct, idProduct]);
+	}, [sizeProduct, numProduct, nameProduct]);
 
 	const mutationCheckProductDetails = useMutation({
 		mutationFn: async (data) => {
@@ -91,32 +94,54 @@ const ProductDetailsComponent = ({ idProduct }) => {
 		},
 	});
 
-	const mutationGetCollectionProduct = useMutation({
-		mutationFn: async (id) => {
-			try {
-				const res = await ProductService.getCollectionProduct(id);
-				return res;
-			} catch (error) {
-				console.log(error);
-			}
-		},
-	});
-	const { data: dataCheckProductDetails, isLoading: isLoadingCheck } = mutationCheckProductDetails;
-
+	const [isLoadingSoldOut, setIsLoadingSoldOut] = useState(false);
 	const handleCheckSoldOut = async (data) => {
 		try {
+			setIsLoadingSoldOut(true);
 			const newData = { ...data };
 			const mutationResult = await mutationCheckProductDetails.mutateAsync(newData);
 			dispatch(checkProduct(mutationResult && mutationResult?.statusCode));
-			setCheckProductDetails(newData);
+			setCheckProductDetails(mutationResult);
+			setIsLoadingSoldOut(false);
 			return newData;
 		} catch (error) {
 			console.log(error);
 		}
 	};
-	useEffect(() => {
-		//Thực hiện lấy data nếu còn hàng
-	}, [checkProductDetails]);
+	// useEffect(() => {
+	// 	//Thực hiện lấy data nếu còn hàng
+	// }, [checkProductDetails]);
+
+	const handleAddCart = () => {
+		if (!isLoadingSoldOut) {
+			if (!user?.id) {
+				const dataCart = JSON.stringify({
+					cartItem: {
+						name: checkProductDetails?.data?.name,
+						amount: numProduct,
+						image: productDetails?.image,
+						price: checkProductDetails?.data?.price,
+						size: checkProductDetails?.data?.size,
+						product: checkProductDetails?.data?._id,
+					},
+				});
+				localStorage.setItem('dataCart', dataCart);
+			} else {
+				dispatch(
+					addCart({
+						cartItem: {
+							name: checkProductDetails?.data?.name,
+							amount: numProduct,
+							image: productDetails?.image,
+							price: checkProductDetails?.data?.price,
+							size: checkProductDetails?.data?.size,
+							product: checkProductDetails?.data?._id,
+						},
+					})
+				);
+			}
+		}
+	};
 
 	return (
 		<Loading isLoading={isLoading}>
@@ -143,67 +168,80 @@ const ProductDetailsComponent = ({ idProduct }) => {
 					</div>
 				</Col>
 				<Col span={14} style={{ padding: '0 16px' }}>
-					<WrapperStyleNameProduct>{productDetails?.name}</WrapperStyleNameProduct>
-					<WrapperGroupStatus>
-						<WrapperStatusTextName>Loại:</WrapperStatusTextName>
-						<WrapperStatusTextAvailabel>{collectionName}</WrapperStatusTextAvailabel>
-					</WrapperGroupStatus>
-					<WrapperGroupStatus>
-						<WrapperStatusTextName>Tình trạng:</WrapperStatusTextName>
-						<WrapperStatusTextAvailabel>
-							{checkSoldOut.statusCode && checkSoldOut.statusCode === 200 ? 'Còn hàng' : 'Hết hàng'}
-						</WrapperStatusTextAvailabel>
-					</WrapperGroupStatus>
-					<WrapperPriceBox>
-						<WraperPriceProduct>{productDetails?.price}</WraperPriceProduct>
-						<WrapperComparePriceProduct>{productDetails?.price}</WrapperComparePriceProduct>
-					</WrapperPriceBox>
+					<Loading isLoading={isLoading}>
+						<WrapperStyleNameProduct>{productDetails?.name}</WrapperStyleNameProduct>
+						<WrapperGroupStatus>
+							<WrapperStatusTextName>Loại:</WrapperStatusTextName>
+							<WrapperStatusTextAvailabel>{collectionName}</WrapperStatusTextAvailabel>
+						</WrapperGroupStatus>
+						<WrapperGroupStatus>
+							<WrapperStatusTextName>Tình trạng:</WrapperStatusTextName>
+							<WrapperStatusTextAvailabel>
+								{checkSoldOut.statusCode && checkSoldOut.statusCode === 200 ? 'Còn hàng' : 'Hết hàng'}
+							</WrapperStatusTextAvailabel>
+						</WrapperGroupStatus>
+						{productDetails?.price ? (
+							<WrapperPriceBox>
+								<WraperPriceProduct>
+									{(productDetails?.price - (productDetails?.price * (discount || 5)) / 100)?.toLocaleString()} VNĐ
+								</WraperPriceProduct>
+								<WrapperComparePriceProduct>{productDetails?.price?.toLocaleString()} VNĐ</WrapperComparePriceProduct>
+							</WrapperPriceBox>
+						) : (
+							<WrapperPriceBox>
+								<WraperPriceProduct></WraperPriceProduct>
+								<WrapperComparePriceProduct></WrapperComparePriceProduct>
+							</WrapperPriceBox>
+						)}
 
-					<WrapperFormProduct>
-						<WrapperHeader>Kích thước</WrapperHeader>
-						<Radio.Group onChange={onChangeSize} defaultValue="S" buttonStyle="solid">
-							<Radio.Button checked value="S">
-								S
-							</Radio.Button>
-							<Radio.Button value="L">L</Radio.Button>
-							<Radio.Button value="X">X</Radio.Button>
-							<Radio.Button value="XL">XL</Radio.Button>
-						</Radio.Group>
-						<div style={{ margin: '30px 0' }}>Số lượng:</div>
-						<WrapperQualityProduct>
-							<WrapperBtnQualityProduct>
-								<MinusOutlined
-									style={{ color: '#000', fontSize: '20px', cursor: 'pointer' }}
-									onClick={() => handleChangeCount('decrease')}
-								/>
-							</WrapperBtnQualityProduct>
-							<WrapperInputNumber value={numProduct} onChange={onChangeNumber} size="small" />
-							<WrapperBtnQualityProduct>
-								<PlusOutlined
-									style={{ color: '#000', fontSize: '20px', cursor: 'pointer' }}
-									onClick={() => handleChangeCount('increase')}
-								/>
-							</WrapperBtnQualityProduct>
-						</WrapperQualityProduct>
-					</WrapperFormProduct>
-					<ButtonComponent
-						bordered="false"
-						size={40}
-						backgroundHover={checkSoldOut.statusCode && checkSoldOut.statusCode === 200 ? '#0089ff' : 'disabled'}
-						styleButton={{
-							background: 'rgb(255, 57, 69)',
-							height: '48px',
-							width: '150px',
-							border: 'none',
-							borderRadius: '4px',
-							transition: 'background 0.3s ease',
-							margin: '40px 0 10px',
-							opacity: checkSoldOut.statusCode && checkSoldOut.statusCode === 200 ? 1 : 0.5,
-							cursor: checkSoldOut.statusCode && checkSoldOut.statusCode === 200 ? 'pointer' : 'default',
-						}}
-						textButton={checkSoldOut.statusCode && checkSoldOut.statusCode === 200 ? 'Chọn Mua' : 'Hết hàng'}
-						styleTextButton={{ color: '#fff', fontSize: '15px', fontWeight: '700' }}
-					></ButtonComponent>
+						<WrapperFormProduct>
+							<WrapperHeader>Kích thước</WrapperHeader>
+							<Radio.Group onChange={onChangeSize} defaultValue="S" buttonStyle="solid">
+								<Radio.Button checked value="S">
+									S
+								</Radio.Button>
+								<Radio.Button value="L">L</Radio.Button>
+								<Radio.Button value="X">X</Radio.Button>
+								<Radio.Button value="XL">XL</Radio.Button>
+							</Radio.Group>
+							<div style={{ margin: '30px 0' }}>Số lượng:</div>
+							<WrapperQualityProduct>
+								<WrapperBtnQualityProduct>
+									<MinusOutlined
+										style={{ color: '#000', fontSize: '20px', cursor: 'pointer' }}
+										onClick={() => handleChangeCount('decrease')}
+									/>
+								</WrapperBtnQualityProduct>
+								<WrapperInputNumber value={numProduct} onChange={onChangeNumber} size="small" />
+								<WrapperBtnQualityProduct>
+									<PlusOutlined
+										style={{ color: '#000', fontSize: '20px', cursor: 'pointer' }}
+										onClick={() => handleChangeCount('increase')}
+									/>
+								</WrapperBtnQualityProduct>
+							</WrapperQualityProduct>
+						</WrapperFormProduct>
+						<ButtonComponent
+							bordered="false"
+							size={40}
+							disabled={checkSoldOut.statusCode && checkSoldOut.statusCode === 200 ? false : true}
+							backgroundHover={checkSoldOut.statusCode && checkSoldOut.statusCode === 200 ? '#0089ff' : 'disabled'}
+							styleButton={{
+								background: 'rgb(255, 57, 69)',
+								height: '48px',
+								width: '150px',
+								border: 'none',
+								borderRadius: '4px',
+								transition: 'background 0.3s ease',
+								margin: '40px 0 10px',
+								opacity: checkSoldOut.statusCode && checkSoldOut.statusCode === 200 ? 1 : 0.5,
+								cursor: checkSoldOut.statusCode && checkSoldOut.statusCode === 200 ? 'pointer' : 'default',
+							}}
+							onClick={handleAddCart}
+							textButton={checkSoldOut.statusCode && checkSoldOut.statusCode === 200 ? 'Chọn Mua' : 'Hết hàng'}
+							styleTextButton={{ color: '#fff', fontSize: '15px', fontWeight: '700' }}
+						></ButtonComponent>
+					</Loading>
 				</Col>
 			</Row>
 		</Loading>

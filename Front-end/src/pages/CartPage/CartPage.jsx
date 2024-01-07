@@ -1,37 +1,92 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { DeleteOutlined, MinusOutlined, PlusOutlined } from '@ant-design/icons';
+import cart_empty_background from '../../assets/images/cart_empty_background.webp';
 import {
 	CustomCheckbox,
+	WrapperCountCart,
 	WrapperInfo,
+	WrapperItemCart,
 	WrapperLeft,
 	WrapperListCart,
 	WrapperRight,
+	WrapperStyleEmpty,
 	WrapperStyleHeader,
 	WrapperStyleHeaderDilivery,
 	WrapperTotal,
+	labelEmpty,
 } from './style';
 
 import { Checkbox, Form } from 'antd';
 import InputComponent from '../../components/InputComponent/InputComponent';
 import ButtonComponent from '../../components/ButtonComponent/ButtonComponent';
-import { DeleteOutlined } from '@ant-design/icons';
-import ModalComponent from '../../components/ModalComponent/ModalComponent';
-import Loading from '../../components/LoadingComponent/Loading';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { convertPrice } from '../../util';
+import { WrapperInputNumber } from '../../components/ProductDetailsComponent/style';
+import { deCreaseAmount, inCreaseAmount, removeAllCart, removeCart } from '../../redux/slice/cartSlide';
+import TypeProduct from '../../components/TypeProduct/TypeProduct';
 const CartPage = () => {
+	const cart = useSelector((state) => state.cart);
+	const [listChecked, setListChecked] = useState([]);
 	const navigate = useNavigate();
+	const dispatch = useDispatch();
 	const [form] = Form.useForm();
-	const handleRemoveAllOrder = () => {};
+
+	const onChange = (e) => {
+		//Check thêm -> nếu chưa checked(chưa có trong listChecked) thì thêm vào
+		//Check bỏ -> nếu đã check(có trong listChecked) thì bỏ ra vào tạo list
+		if (listChecked.includes(e.target.value)) {
+			const newListChecked = listChecked.filter((item) => item !== e.target.value);
+			setListChecked(newListChecked);
+		} else {
+			setListChecked([...listChecked, e.target.value]);
+		}
+	};
+
+	const handleOnchangeCheckAll = (e) => {
+		if (e.target.checked) {
+			const newListChecked = [];
+			cart?.cartItems?.forEach((item) => {
+				newListChecked.push(item?.product);
+			});
+			setListChecked(newListChecked);
+		} else {
+			setListChecked([]);
+		}
+	};
+
 	const isOpenModalUpdateInfo = () => {};
 	const handleCancleUpdate = () => {};
 	const handleUpdateInforUser = () => {};
+	const handleChangeCount = (type, idProduct, limited) => {
+		if (type === 'increase') {
+			if (!limited) {
+				dispatch(inCreaseAmount({ idProduct }));
+			}
+		} else {
+			if (!limited) {
+				dispatch(deCreaseAmount({ idProduct }));
+			}
+		}
+	};
+	const handleDeleteCart = (idProduct) => {
+		dispatch(removeCart({ idProduct }));
+	};
+
+	const handleRemoveAllCart = () => {
+		if (listChecked?.length > 0) {
+			dispatch(removeAllCart({ listChecked }));
+			setListChecked([]);
+		}
+	};
 
 	return (
-		<div style={{ background: '#f5f5fa', with: '100%', height: '100vh' }}>
+		<div style={{ background: '#fff', with: '100%', height: '100vh' }}>
 			<div style={{ height: '100%', width: '1215px', margin: '0 auto' }}>
-				<h3 style={{ fontWeight: 'bold' }}>Giỏ hàng</h3>
+				<h3 style={{ fontWeight: 'bold', marginTop: '10px' }}>Giỏ hàng</h3>
 				<div style={{ display: 'flex', justifyContent: 'center' }}>
 					<WrapperLeft>
-						<h4>Phí giao hàng</h4>
+						{cart?.totalCart > 0 ? <h4>Phí giao hàng</h4> : ''}
 						<WrapperStyleHeaderDilivery>
 							<WrapperStyleHeaderDilivery
 							// items={itemsDelivery}
@@ -46,84 +101,110 @@ const CartPage = () => {
 							// }
 							/>
 						</WrapperStyleHeaderDilivery>
-						<WrapperStyleHeader>
-							<span style={{ display: 'inline-block', width: '390px' }}>
-								<CustomCheckbox
-								// onChange={handleOnchangeCheckAll}
-								// checked={listChecked?.length === order?.orderItems?.length}
-								></CustomCheckbox>
-								{/* <span> Tất cả ({order?.orderItems?.length} sản phẩm)</span> */}
-								<span> Tất cả sản phẩm</span>
-							</span>
-							<div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-								<span>Đơn giá</span>
-								<span>Số lượng</span>
-								<span>Thành tiền</span>
-								<DeleteOutlined style={{ cursor: 'pointer' }} onClick={handleRemoveAllOrder} />
-							</div>
-						</WrapperStyleHeader>
+						{cart?.totalCart > 0 ? (
+							<WrapperStyleHeader>
+								<span style={{ display: 'inline-block', width: '390px' }}>
+									<CustomCheckbox
+										onChange={handleOnchangeCheckAll}
+										checked={listChecked?.length === cart?.totalCart}
+									></CustomCheckbox>
+
+									<span> Tất cả ({cart.totalCart} sản phẩm)</span>
+								</span>
+								<div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+									<span>Đơn giá</span>
+									<span>Số lượng</span>
+									<span>Thành tiền</span>
+									<DeleteOutlined style={{ cursor: 'pointer' }} onClick={handleRemoveAllCart} />
+								</div>
+							</WrapperStyleHeader>
+						) : (
+							<WrapperStyleHeader style={{ background: 'rgb(255,255,255)' }}>
+								<WrapperStyleEmpty>
+									<img src={cart_empty_background} alt="" />
+									<span style={{ fontSize: '22px', fontWeight: '500', lineHeight: '1.2', marginBottom: '1rem' }}>
+										{' '}
+										Hiện giỏ hàng của bạn không có sản phẩm nào!
+									</span>
+									<div
+										style={{
+											cursor: 'pointer',
+											borderRadius: '5px',
+											borderColor: '#080808',
+											border: '2px solid #080808',
+											padding: '8px 12px',
+											transition: 'background-color 0.3s, color 0.3s',
+										}}
+										onClick={() => navigate('/product/collections', { state: 'all' })}
+										onMouseOver={(e) => {
+											e.currentTarget.style.backgroundColor = '#080808';
+											e.currentTarget.style.color = '#fff';
+										}}
+										onMouseOut={(e) => {
+											e.currentTarget.style.backgroundColor = 'transparent';
+											e.currentTarget.style.color = '#080808';
+										}}
+									>
+										Mua sắm ngay
+									</div>
+								</WrapperStyleEmpty>
+							</WrapperStyleHeader>
+						)}
 						<WrapperListCart>
-							{/* {order?.orderItems?.map((order) => {
+							{cart?.cartItems?.map((cart, index, array) => {
 								return (
-									<WrapperItemOrder key={order?.product}>
+									<WrapperItemCart key={cart?.product} isLastItem={index === array.length - 1}>
 										<div style={{ width: '390px', display: 'flex', alignItems: 'center', gap: 4 }}>
 											<CustomCheckbox
 												onChange={onChange}
-												value={order?.product}
-												checked={listChecked.includes(order?.product)}
+												value={cart?.product}
+												checked={listChecked.includes(cart?.product)}
 											></CustomCheckbox>
-											<img src={order?.image} style={{ width: '77px', height: '79px', objectFit: 'cover' }} />
+											<img src={cart?.image} style={{ width: '77px', height: '79px', objectFit: 'cover' }} />
 											<div
 												style={{
 													width: 260,
 													overflow: 'hidden',
-													textOverflow: 'ellipsis',
+													// textOverflow: 'ellipsis',
 													whiteSpace: 'nowrap',
 												}}
 											>
-												{order?.name}
+												{cart?.name}
 											</div>
 										</div>
 										<div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
 											<span>
-												<span style={{ fontSize: '13px', color: '#242424' }}>{convertPrice(order?.price)}</span>
+												<span style={{ fontSize: '13px', color: '#242424' }}>{convertPrice(cart?.price)}</span>
 											</span>
-											<WrapperCountOrder>
+											<WrapperCountCart>
 												<button
 													style={{ border: 'none', background: 'transparent', cursor: 'pointer' }}
-													onClick={() => handleChangeCount('decrease', order?.product, order?.amount === 1)}
+													onClick={() => handleChangeCount('decrease', cart?.product)}
 												>
 													<MinusOutlined style={{ color: '#000', fontSize: '10px' }} />
 												</button>
 												<WrapperInputNumber
-													defaultValue={order?.amount}
-													value={order?.amount}
+													defaultValue={cart?.amount}
+													value={cart?.amount}
 													size="small"
-													min={1}
-													max={order?.countInstock}
+													// min={1}
+													// max={cart?.quantity}
 												/>
 												<button
 													style={{ border: 'none', background: 'transparent', cursor: 'pointer' }}
-													onClick={() =>
-														handleChangeCount(
-															'increase',
-															order?.product,
-															order?.amount === order.countInstock,
-															order?.amount === 1
-														)
-													}
+													onClick={() => handleChangeCount('increase', cart?.product)}
 												>
 													<PlusOutlined style={{ color: '#000', fontSize: '10px' }} />
 												</button>
-											</WrapperCountOrder>
+											</WrapperCountCart>
 											<span style={{ color: 'rgb(255, 66, 78)', fontSize: '13px', fontWeight: 500 }}>
-												{convertPrice(order?.price * order?.amount)}
+												{convertPrice(cart?.price * cart?.amount)}
 											</span>
-											<DeleteOutlined style={{ cursor: 'pointer' }} onClick={() => handleDeleteOrder(order?.product)} />
+											<DeleteOutlined style={{ cursor: 'pointer' }} onClick={() => handleDeleteCart(cart?.product)} />
 										</div>
-									</WrapperItemOrder>
+									</WrapperItemCart>
 								);
-							})} */}
+							})}
 						</WrapperListCart>
 					</WrapperLeft>
 					<WrapperRight>

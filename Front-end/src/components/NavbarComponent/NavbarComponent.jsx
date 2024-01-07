@@ -60,6 +60,7 @@ const NavbarComponent = (props) => {
 				return options?.map((option, id) => (
 					<TypeProduct
 						key={id}
+						backgroundHover="#0089ff"
 						styleComponent={{
 							color: activeOption === option.toUpperCase() ? '#0089ff' : '#333',
 							padding: '6px',

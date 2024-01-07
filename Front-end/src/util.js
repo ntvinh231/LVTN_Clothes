@@ -25,3 +25,12 @@ export const getItem = (label, key, icon, children, type) => {
 		type,
 	};
 };
+
+export const convertPrice = (price) => {
+	try {
+		const result = price?.toLocaleString().replaceAll(',', '.');
+		return `${result} VNĐ`;
+	} catch (error) {
+		return null;
+	}
+};

@@ -2,9 +2,10 @@ import { Checkbox } from 'antd';
 import styled from 'styled-components';
 
 export const WrapperStyleHeader = styled.div`
-	background: rgb(255, 255, 255);
+	background: rgb(246, 246, 246);
 	padding: 9px 16px;
 	border-radius: 4px;
+	justify-content: center;
 	display: flex;
 	align-items: center;
 	span {
@@ -39,6 +40,7 @@ export const WrapperItemCart = styled.div`
 	padding: 9px 16px;
 	background: #fff;
 	margin-top: 12px;
+	border-bottom: ${({ isLastItem }) => (isLastItem ? 'none' : '1.6px solid #eee')};
 `;
 
 export const WrapperPriceDiscount = styled.span`
@@ -91,4 +93,12 @@ export const CustomCheckbox = styled(Checkbox)`
 	.ant-checkbox:hover .ant-checkbox-inner {
 		border-color: #9255fd;
 	}
+`;
+
+export const WrapperStyleEmpty = styled.div`
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	align-content: center;
+	flex-direction: column;
 `;

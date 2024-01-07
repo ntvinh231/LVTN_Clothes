@@ -22,6 +22,7 @@ const AdminProduct = () => {
 	const [searchedColumn, setSearchedColumn] = useState('');
 	const searchInput = useRef(null);
 	const [stateProduct, setStateProduct] = useState({
+		idProduct: '',
 		name: '',
 		newName: '',
 		price: '',
@@ -32,6 +33,7 @@ const AdminProduct = () => {
 	});
 	const [collections_id, setCollections_id] = useState('');
 	const [stateProductDetails, setStateProductDetails] = useState({
+		idProduct: '',
 		name: '',
 		newName: '',
 		price: '',

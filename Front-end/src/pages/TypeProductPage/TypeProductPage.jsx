@@ -16,6 +16,8 @@ const TypeProductPage = () => {
 	const searchDebounce = useDebounce(searchProduct, 500);
 	const [collection, setCollection] = useState('');
 	let { state } = useLocation();
+	let data = useLocation();
+	console.log(data);
 	const { pathname } = useLocation();
 	const match = pathname.match(/\/product\/([^\/]+)(\/|$)/);
 	let result = match ? match[1].replace(/-/g, ' ') : null;
@@ -68,7 +70,7 @@ const TypeProductPage = () => {
 				data = await ProductService.getProductCollection(page, limit);
 			} else {
 				res = await ProductService.getNameCollection(state);
-				collectionsId = res?.data[0]._id;
+				collectionsId = res?.data[0]?._id;
 
 				data = await ProductService.getProductCollection(page, limit, collectionsId);
 			}
