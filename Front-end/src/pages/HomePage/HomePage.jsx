@@ -12,6 +12,7 @@ import { useSelector } from 'react-redux';
 import Loading from '../../components/LoadingComponent/Loading.jsx';
 import { useDebounce } from '../../hooks/useDebounce.js';
 import { useNavigate } from 'react-router-dom';
+import { convertPrice } from '../../util.js';
 
 const HomePage = () => {
 	const navigate = useNavigate();
@@ -45,7 +46,6 @@ const HomePage = () => {
 		keepPreviousData: true,
 		enabled: initialLoad,
 	});
-
 	useEffect(() => {
 		queryRef.current = refetch;
 	}, [refetch]);
@@ -91,6 +91,7 @@ const HomePage = () => {
 									description={product.description}
 									image={product.image}
 									name={product.name}
+									discount={product.discount}
 									price={product.price}
 									id={product._id}
 								></CardComponent>

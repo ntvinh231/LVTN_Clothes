@@ -20,6 +20,7 @@ export const cartSlide = createSlice({
 			} else {
 				state?.cartItems.push(cartItem);
 			}
+
 			// Tính tổng số lượng trong giỏ hàng sau mỗi lần thêm sản phẩm
 			const totalQuantity = state?.cartItems?.reduce((total, item) => total + item.amount, 0);
 			// Cập nhật state với tổng số lượng mới
@@ -28,16 +29,26 @@ export const cartSlide = createSlice({
 		inCreaseAmount: (state, action) => {
 			const { idProduct } = action.payload;
 			const foundItem = state?.cartItems?.find((item) => item.product === idProduct);
-			foundItem.amount++;
+			const itemCartSelected = state?.cartItemsSelected?.find((item) => item?.product === idProduct);
+
+			if (itemCartSelected) {
+				itemCartSelected.amount++;
+			}
+
 			const totalQuantity = state?.cartItems?.reduce((total, item) => total + item.amount, 0);
 			state.totalCart = totalQuantity;
 		},
 		deCreaseAmount: (state, action) => {
 			const { idProduct } = action.payload;
 			const foundItem = state?.cartItems?.find((item) => item.product === idProduct);
+			const itemCartSelected = state?.cartItemsSelected?.find((item) => item?.product === idProduct);
 			if (foundItem && foundItem.amount > 1) {
 				foundItem.amount--;
 			}
+			if (itemCartSelected) {
+				itemCartSelected.amount--;
+			}
+
 			const totalQuantity = state?.cartItems?.reduce((total, item) => total + item.amount, 0);
 
 			state.totalCart = totalQuantity;
@@ -54,6 +65,7 @@ export const cartSlide = createSlice({
 		},
 		removeAllCart: (state, action) => {
 			const { listChecked } = action.payload;
+
 			const foundItem = state?.cartItems?.filter((item) => !listChecked.includes(item.product));
 			state.cartItems = foundItem;
 			const totalQuantity = state?.cartItems?.reduce((total, item) => total + item.amount, 0);
@@ -61,9 +73,10 @@ export const cartSlide = createSlice({
 		},
 		selectedCart: (state, action) => {
 			const { listChecked } = action.payload;
+
 			const cartSelected = [];
 			state.cartItems.forEach((cart) => {
-				if (listChecked.includes(cart.product)) {
+				if (listChecked?.includes(cart.product)) {
 					cartSelected.push(cart);
 				}
 			});

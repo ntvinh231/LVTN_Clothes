@@ -40,7 +40,7 @@ export const WrapperItemCart = styled.div`
 	padding: 9px 16px;
 	background: #fff;
 	margin-top: 12px;
-	border-bottom: ${({ isLastItem }) => (isLastItem ? 'none' : '1.6px solid #eee')};
+	border-bottom: ${({ $lastitem }) => ($lastitem === 'true' ? 'none' : '1.6px solid #eee')};
 `;
 
 export const WrapperPriceDiscount = styled.span`

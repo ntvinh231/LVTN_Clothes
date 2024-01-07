@@ -3,7 +3,7 @@ import { WrapperContainer, WrapperTextLight } from './style';
 import InputForm from '../../components/InputForm/InputForm';
 import ButtonComponent from '../../components/ButtonComponent/ButtonComponent';
 import { EyeFilled, EyeInvisibleFilled } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import * as UserService from '../../service/UserService';
 import { useMutation } from '@tanstack/react-query';
 import Loading from '../../components/LoadingComponent/Loading';
@@ -14,6 +14,7 @@ import { updateUser } from '../../redux/slice/userSlide';
 const SignInPage = () => {
 	const dispatch = useDispatch();
 	const navigate = useNavigate();
+	const location = useLocation();
 	const user = useSelector((state) => state.user);
 	const [isShowPassword, setIsShowPassword] = useState(false);
 	const [email, setEmail] = useState('');
@@ -21,7 +22,7 @@ const SignInPage = () => {
 	const [loading, setLoading] = useState(false);
 
 	useEffect(() => {
-		if (user) {
+		if (user?.id && user?.accessToken) {
 			navigate('/');
 		}
 	}, [user]);
@@ -33,8 +34,13 @@ const SignInPage = () => {
 
 	useEffect(() => {
 		const fetchData = async () => {
+			setLoading(true);
 			if (data?.statusCode === 201) {
-				setLoading(true);
+				if (location?.state) {
+					navigate(location?.state);
+				} else {
+					navigate('/');
+				}
 				localStorage.setItem('accessToken', JSON.stringify(data?.accessToken));
 				if (data?.accessToken) {
 					const decoded = jwtDecode(data?.accessToken);
@@ -53,7 +59,6 @@ const SignInPage = () => {
 	const handleGetDetailsUser = async (id, token) => {
 		const res = await UserService.getDetailsUser(id, token);
 		await dispatch(updateUser({ ...res?.data, accessToken: token }));
-		navigate('/');
 	};
 
 	const handleShowPassword = () => {

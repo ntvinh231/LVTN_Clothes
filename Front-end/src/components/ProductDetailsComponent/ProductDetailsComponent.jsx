@@ -23,10 +23,12 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import Loading from '../LoadingComponent/Loading';
 import { useDispatch, useSelector } from 'react-redux';
 import { checkProduct } from '../../redux/slice/checkProductSlide';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { addCart } from '../../redux/slice/cartSlide';
+import { convertPrice } from '../../util';
 const ProductDetailsComponent = ({ idProduct }) => {
 	const dispatch = useDispatch();
+	const navigate = useNavigate();
 	const user = useSelector((state) => state.user);
 	const cart = useSelector((state) => state.cart);
 	const location = useLocation();
@@ -41,6 +43,7 @@ const ProductDetailsComponent = ({ idProduct }) => {
 		name: nameProduct,
 		size: sizeProduct,
 		quantity: numProduct,
+		collections_id: '',
 	});
 
 	const fetchProductDetails = async (context) => {
@@ -76,17 +79,31 @@ const ProductDetailsComponent = ({ idProduct }) => {
 	};
 
 	useEffect(() => {
-		handleCheckSoldOut({
-			name: nameProduct,
-			size: sizeProduct,
-			quantity: numProduct,
-		});
+		if (productDetails) {
+			handleCheckSoldOut({
+				name: nameProduct,
+				size: sizeProduct,
+				quantity: numProduct,
+				collections_id: productDetails?.collections_id,
+			});
+		}
 	}, [sizeProduct, numProduct, nameProduct]);
+	useEffect(() => {
+		if (productDetails) {
+			handleCheckSoldOut({
+				name: nameProduct,
+				size: sizeProduct,
+				quantity: numProduct,
+				collections_id: productDetails?.collections_id,
+			});
+		}
+	}, [productDetails]);
 
 	const mutationCheckProductDetails = useMutation({
 		mutationFn: async (data) => {
 			try {
 				const res = await ProductService.checkProductDetails(data);
+
 				return res;
 			} catch (error) {
 				console.log(error);
@@ -97,8 +114,12 @@ const ProductDetailsComponent = ({ idProduct }) => {
 	const [isLoadingSoldOut, setIsLoadingSoldOut] = useState(false);
 	const handleCheckSoldOut = async (data) => {
 		try {
+			let newData;
 			setIsLoadingSoldOut(true);
-			const newData = { ...data };
+			if (productDetails?.collections_id) {
+				newData = { ...data, collections_id: productDetails?.collections_id };
+			}
+
 			const mutationResult = await mutationCheckProductDetails.mutateAsync(newData);
 			dispatch(checkProduct(mutationResult && mutationResult?.statusCode));
 			setCheckProductDetails(mutationResult);
@@ -108,25 +129,15 @@ const ProductDetailsComponent = ({ idProduct }) => {
 			console.log(error);
 		}
 	};
+
 	// useEffect(() => {
 	// 	//Thực hiện lấy data nếu còn hàng
 	// }, [checkProductDetails]);
 
-	console.log(productDetails);
 	const handleAddCart = () => {
 		if (!isLoadingSoldOut) {
 			if (!user?.id) {
-				const dataCart = JSON.stringify({
-					cartItem: {
-						name: checkProductDetails?.data?.name,
-						amount: numProduct,
-						image: productDetails?.image,
-						price: checkProductDetails?.data?.price,
-						size: checkProductDetails?.data?.size,
-						product: checkProductDetails?.data?._id,
-					},
-				});
-				localStorage.setItem('dataCart', dataCart);
+				navigate('/sign-in', { state: location?.pathname });
 			} else {
 				dispatch(
 					addCart({
@@ -135,6 +146,7 @@ const ProductDetailsComponent = ({ idProduct }) => {
 							amount: numProduct,
 							image: productDetails?.image,
 							price: checkProductDetails?.data?.price,
+							discount: checkProductDetails?.data?.discount,
 							size: checkProductDetails?.data?.size,
 							product: checkProductDetails?.data?._id,
 						},
@@ -184,9 +196,9 @@ const ProductDetailsComponent = ({ idProduct }) => {
 						{productDetails?.price ? (
 							<WrapperPriceBox>
 								<WraperPriceProduct>
-									{(productDetails?.price - (productDetails?.price * (discount || 5)) / 100)?.toLocaleString()} VNĐ
+									{convertPrice((productDetails?.price * productDetails.discount) / 100)}
 								</WraperPriceProduct>
-								<WrapperComparePriceProduct>{productDetails?.price?.toLocaleString()} VNĐ</WrapperComparePriceProduct>
+								<WrapperComparePriceProduct>{convertPrice(productDetails?.price)}</WrapperComparePriceProduct>
 							</WrapperPriceBox>
 						) : (
 							<WrapperPriceBox>

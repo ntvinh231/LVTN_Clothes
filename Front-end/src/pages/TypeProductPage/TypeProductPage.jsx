@@ -142,6 +142,7 @@ const TypeProductPage = () => {
 												description={data.description}
 												image={data.image}
 												name={data.name}
+												discount={data.discount}
 												price={data.price}
 												id={data._id}
 											></CardComponent>

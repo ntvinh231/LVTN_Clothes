@@ -176,13 +176,16 @@ const AdminProduct = () => {
 	}, [isModalOpen]);
 	const handleCancel = () => {
 		setIsModalOpen(false);
-		form.resetFields();
-
 		setStateProduct({
-			...stateProduct,
+			name: '',
+			price: '',
+			description: '',
+			discount: '',
 			collections_name: '',
 			image: '',
 		});
+		setCollectionName('');
+		form.resetFields();
 	};
 
 	//Update
@@ -197,9 +200,10 @@ const AdminProduct = () => {
 			description: stateProduct.description,
 			quantity: stateProduct.quantity,
 			image: stateProduct.image,
+			discount: stateProduct?.discount,
 			collections_id: collections_id,
 		};
-
+		console.log('configData', configData);
 		mutationProduct.mutate(configData, {
 			onSettled: () => {
 				queryProduct.refetch();
@@ -298,7 +302,6 @@ const AdminProduct = () => {
 				label: name,
 		  }))
 		: [];
-
 	useEffect(() => {
 		form.setFieldsValue({
 			name: stateProduct?.name,
@@ -310,7 +313,6 @@ const AdminProduct = () => {
 			image: stateProduct?.image,
 		});
 	}, [form, stateProduct.name, collectionName]);
-
 	useEffect(() => {
 		form.setFieldsValue({
 			name: stateProduct?.name,
@@ -437,10 +439,12 @@ const AdminProduct = () => {
 			render: (text) => <a>{text}</a>,
 			...getColumnSearchProps('name'),
 			sorter: (a, b) => a.name.length - b.name.length,
+			width: 300,
 		},
 		{
 			title: 'Collection',
 			dataIndex: 'collections_name',
+			width: 200,
 		},
 		{
 			title: 'Price',
@@ -476,6 +480,7 @@ const AdminProduct = () => {
 		{
 			title: 'Description',
 			dataIndex: 'description',
+			width: 200,
 		},
 		{
 			title: 'Quantity',
@@ -570,6 +575,7 @@ const AdminProduct = () => {
 			message.error(dataDeleteMany?.message);
 		}
 	}, [dataDeleteMany?.statusMessage]);
+
 	useEffect(() => {
 		if (dataUpdate?.statusMessage === 'success') {
 			message.success('Cập nhật thành công');
@@ -593,6 +599,7 @@ const AdminProduct = () => {
 			...stateProductDetails,
 			collections_id: collections_id,
 		};
+		console.log('configDataonF', configData);
 		mutationUpdateProduct.mutate(
 			{ id: rowSelected, configData },
 			{

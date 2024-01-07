@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { DeleteOutlined, MinusOutlined, PlusOutlined } from '@ant-design/icons';
 import cart_empty_background from '../../assets/images/cart_empty_background.webp';
 import {
@@ -57,7 +57,7 @@ const CartPage = () => {
 	};
 
 	useEffect(() => {
-		dispatch(selectedCart(listChecked));
+		dispatch(selectedCart({ listChecked }));
 	}, [listChecked]);
 
 	const isOpenModalUpdateInfo = () => {};
@@ -85,6 +85,36 @@ const CartPage = () => {
 		}
 	};
 
+	const priceMemo = useMemo(() => {
+		const result = cart?.cartItems?.reduce((total, cur) => {
+			return total + cur.price * cur.amount;
+		}, 0);
+		return result;
+	}, [cart]);
+	const priceDiscountMemo = useMemo(() => {
+		const result = cart?.cartItems?.reduce((total, cur) => {
+			const totalDiscount = cur.discount ? cur.discount : 0;
+			return total + (priceMemo * (totalDiscount * cur.amount)) / 100;
+		}, 0);
+		if (Number(result)) {
+			return result;
+		}
+		return 0;
+	}, [cart]);
+
+	const diliveryPriceMemo = useMemo(() => {
+		if (priceMemo >= 20000 && priceMemo < 500000) {
+			return 10000;
+		} else if (priceMemo >= 500000 || cart?.cartItemsSelected?.length === 0) {
+			return 0;
+		} else {
+			return 20000;
+		}
+	}, [priceMemo]);
+
+	const totalPriceMemo = useMemo(() => {
+		return Number(priceMemo) - Number(priceDiscountMemo) + Number(diliveryPriceMemo);
+	}, [priceMemo, priceDiscountMemo, diliveryPriceMemo]);
 	return (
 		<div style={{ background: '#fff', with: '100%', height: '100vh' }}>
 			<div style={{ height: '100%', width: '1215px', margin: '0 auto' }}>
@@ -108,7 +138,7 @@ const CartPage = () => {
 						</WrapperStyleHeaderDilivery>
 						{cart?.totalCart > 0 ? (
 							<WrapperStyleHeader>
-								<span style={{ display: 'inline-block', width: '390px' }}>
+								<span style={{ display: 'inline-block', width: '400px' }}>
 									<CustomCheckbox
 										onChange={handleOnchangeCheckAll}
 										checked={listChecked?.length === cart?.totalCart}
@@ -116,10 +146,17 @@ const CartPage = () => {
 
 									<span> Tất cả ({cart.totalCart} sản phẩm)</span>
 								</span>
-								<div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+								<div
+									style={{
+										flex: 1,
+										display: 'flex',
+										alignItems: 'center',
+										justifyContent: 'space-between',
+									}}
+								>
 									<span>Đơn giá</span>
-									<span>Số lượng</span>
-									<span>Thành tiền</span>
+									<span style={{ marginLeft: '50px' }}>Số lượng</span>
+									<span style={{ marginLeft: '10px' }}>Thành tiền</span>
 									<DeleteOutlined style={{ cursor: 'pointer' }} onClick={handleRemoveAllCart} />
 								</div>
 							</WrapperStyleHeader>
@@ -158,7 +195,7 @@ const CartPage = () => {
 						<WrapperListCart>
 							{cart?.cartItems?.map((cart, index, array) => {
 								return (
-									<WrapperItemCart key={cart?.product} isLastItem={index === array.length - 1}>
+									<WrapperItemCart key={cart?.product} $lastitem={String(index === array.length - 1)}>
 										<div style={{ width: '390px', display: 'flex', alignItems: 'center', gap: 4 }}>
 											<CustomCheckbox
 												onChange={onChange}
@@ -185,7 +222,9 @@ const CartPage = () => {
 										</div>
 										<div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
 											<span>
-												<span style={{ fontSize: '13px', color: '#242424' }}>{convertPrice(cart?.price)}</span>
+												<span style={{ fontSize: '13px', color: '#242424' }}>
+													{convertPrice(cart?.price)}(-{cart?.discount}%)
+												</span>
 											</span>
 											<WrapperCountCart>
 												<button
@@ -209,7 +248,7 @@ const CartPage = () => {
 												</button>
 											</WrapperCountCart>
 											<span style={{ color: 'rgb(255, 66, 78)', fontSize: '13px', fontWeight: 500 }}>
-												{convertPrice(cart?.price * cart?.amount)}
+												{convertPrice(Number(cart?.price * cart?.amount))}
 											</span>
 											<DeleteOutlined style={{ cursor: 'pointer' }} onClick={() => handleDeleteCart(cart?.product)} />
 										</div>
@@ -232,18 +271,16 @@ const CartPage = () => {
 							<WrapperInfo>
 								<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
 									<span>Tạm tính</span>
-									{/* <span style={{ color: '#000', fontSize: '14px', fontWeight: 'bold' }}>{convertPrice(priceMemo)}</span> */}
+									<span style={{ color: '#000', fontSize: '14px', fontWeight: 'bold' }}>{convertPrice(priceMemo)}</span>
 								</div>
 								<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
 									<span>Giảm giá</span>
-									{/* <span style={{ color: '#000', fontSize: '14px', fontWeight: 'bold' }}>
-										{convertPrice(priceDiscountMemo)}
-									</span> */}
+									<span style={{ color: '#000', fontSize: '14px', fontWeight: 'bold' }}>{`${cart?.discount} %`}</span>
 								</div>
 								<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
 									<span>Phí giao hàng</span>
 									<span style={{ color: '#000', fontSize: '14px', fontWeight: 'bold' }}>
-										{/* {convertPrice(diliveryPriceMemo)} */}
+										{convertPrice(diliveryPriceMemo)}
 									</span>
 								</div>
 							</WrapperInfo>
@@ -251,7 +288,7 @@ const CartPage = () => {
 								<span>Tổng tiền</span>
 								<span style={{ display: 'flex', flexDirection: 'column' }}>
 									<span style={{ color: 'rgb(254, 56, 52)', fontSize: '24px', fontWeight: 'bold' }}>
-										{/* {convertPrice(totalPriceMemo)} */}
+										{convertPrice(totalPriceMemo)}
 									</span>
 									<span style={{ color: '#000', fontSize: '11px' }}>(Đã bao gồm VAT nếu có)</span>
 								</span>
