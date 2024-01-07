@@ -8,16 +8,23 @@ import * as UserService from '../../service/UserService';
 import { useMutation } from '@tanstack/react-query';
 import Loading from '../../components/LoadingComponent/Loading';
 import * as Message from '../../components/Message/Message';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { jwtDecode } from 'jwt-decode';
 import { updateUser } from '../../redux/slice/userSlide';
 const SignInPage = () => {
 	const dispatch = useDispatch();
 	const navigate = useNavigate();
+	const user = useSelector((state) => state.user);
 	const [isShowPassword, setIsShowPassword] = useState(false);
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
 	const [loading, setLoading] = useState(false);
+
+	useEffect(() => {
+		if (user) {
+			navigate('/');
+		}
+	}, [user]);
 
 	const mutation = useMutation({
 		mutationFn: (data) => UserService.loginUser(data),

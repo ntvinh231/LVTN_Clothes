@@ -10,6 +10,7 @@ import {
 } from './style';
 
 import { useNavigate } from 'react-router-dom';
+import { convertPrice } from '../../util';
 
 const CardComponent = (props) => {
 	const navigate = useNavigate();
@@ -35,9 +36,9 @@ const CardComponent = (props) => {
 				{name}
 			</StyleNameProduct>
 			<WrapperReportText>
-				<WrapperPriceText>{discountedPrice.toLocaleString()} VNĐ</WrapperPriceText>
+				<WrapperPriceText>{convertPrice(discountedPrice)}</WrapperPriceText>
 				<div style={{ display: 'flex', alignItems: 'center' }}>
-					<WrapperComparePriceText>{price?.toLocaleString()}</WrapperComparePriceText> VNĐ
+					<WrapperComparePriceText>{convertPrice(price)}</WrapperComparePriceText>
 					<WrapperDiscountText>{discount || -5}%</WrapperDiscountText>
 				</div>
 			</WrapperReportText>

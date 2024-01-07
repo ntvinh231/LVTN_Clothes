@@ -28,7 +28,7 @@ import { addCart } from '../../redux/slice/cartSlide';
 const ProductDetailsComponent = ({ idProduct }) => {
 	const dispatch = useDispatch();
 	const user = useSelector((state) => state.user);
-	const order = useSelector((state) => state.order);
+	const cart = useSelector((state) => state.cart);
 	const location = useLocation();
 	const [nameProduct, setNameProduct] = useState('');
 	const [numProduct, setNumProduct] = useState(1);
@@ -112,6 +112,7 @@ const ProductDetailsComponent = ({ idProduct }) => {
 	// 	//Thực hiện lấy data nếu còn hàng
 	// }, [checkProductDetails]);
 
+	console.log(productDetails);
 	const handleAddCart = () => {
 		if (!isLoadingSoldOut) {
 			if (!user?.id) {
@@ -200,8 +201,8 @@ const ProductDetailsComponent = ({ idProduct }) => {
 								<Radio.Button checked value="S">
 									S
 								</Radio.Button>
+								<Radio.Button value="M">M</Radio.Button>
 								<Radio.Button value="L">L</Radio.Button>
-								<Radio.Button value="X">X</Radio.Button>
 								<Radio.Button value="XL">XL</Radio.Button>
 							</Radio.Group>
 							<div style={{ margin: '30px 0' }}>Số lượng:</div>

@@ -22,7 +22,6 @@ const AdminProduct = () => {
 	const [searchedColumn, setSearchedColumn] = useState('');
 	const searchInput = useRef(null);
 	const [stateProduct, setStateProduct] = useState({
-		idProduct: '',
 		name: '',
 		newName: '',
 		price: '',
@@ -30,10 +29,10 @@ const AdminProduct = () => {
 		description: '',
 		quantity: '',
 		image: '',
+		discount: '',
 	});
 	const [collections_id, setCollections_id] = useState('');
 	const [stateProductDetails, setStateProductDetails] = useState({
-		idProduct: '',
 		name: '',
 		newName: '',
 		price: '',
@@ -42,6 +41,7 @@ const AdminProduct = () => {
 		quantity: '',
 		image: '',
 		collections_id: '',
+		discount: '',
 	});
 	//Form
 	const [form] = Form.useForm();
@@ -65,11 +65,22 @@ const AdminProduct = () => {
 				label: item.collections_name,
 		  }))
 		: [];
+
 	const handleSelectChange = (value) => {
-		setStateProduct({
-			...stateProduct,
-			name: value,
-		});
+		const existingProduct = products?.data.find((product) => product.name === value);
+		if (value === 'add_name') {
+			setStateProduct({
+				...existingProduct,
+				name: value,
+			});
+		} else {
+			setStateProduct({
+				...existingProduct,
+				name: value,
+			});
+			setIsLoadingDetails1(true);
+			fetchDetailsProductCreate(existingProduct?._id);
+		}
 	};
 
 	const onChange = (value) => {
@@ -81,7 +92,7 @@ const AdminProduct = () => {
 	const mutationProduct = useMutation({
 		mutationFn: async (data) => {
 			try {
-				const { name, price, size, description, quantity, image, collections_id } = data;
+				const { name, price, size, description, quantity, image, collections_id, discount } = data;
 				const res = await ProductService.createProduct({
 					name: name,
 					price: price,
@@ -90,6 +101,7 @@ const AdminProduct = () => {
 					quantity: quantity,
 					image: image,
 					collections_id: collections_id,
+					discount,
 				});
 
 				return res;
@@ -106,6 +118,7 @@ const AdminProduct = () => {
 			handleCancel();
 		} else if (data?.statusCode === 400) {
 			message.error(data?.message);
+			handleCancel();
 		}
 	}, [data?.statusCode]);
 
@@ -146,11 +159,28 @@ const AdminProduct = () => {
 	};
 
 	//Create
+	useEffect(() => {
+		if (isModalOpen) {
+			setStateProduct({
+				name: '',
+				collections_name: '',
+				price: '',
+				size: '',
+				description: '',
+				quantity: '',
+				image: '',
+				discount: '',
+			});
+			form.resetFields();
+		}
+	}, [isModalOpen]);
 	const handleCancel = () => {
 		setIsModalOpen(false);
 		form.resetFields();
+
 		setStateProduct({
 			...stateProduct,
+			collections_name: '',
 			image: '',
 		});
 	};
@@ -177,7 +207,6 @@ const AdminProduct = () => {
 		});
 		setStateProduct({
 			...stateProduct,
-			image: '',
 		});
 	};
 
@@ -204,13 +233,14 @@ const AdminProduct = () => {
 
 	//GetAllProduct
 	const fetchAllProduct = async () => {
-		const res = await ProductService.getProduct();
+		const res = await ProductService.getProductAdmin();
 		return res;
 	};
 	const queryProduct = useQuery(['products'], fetchAllProduct);
 	const { isLoading, data: products } = queryProduct;
 
 	const [isLoadingDetails, setIsLoadingDetails] = useState(false);
+	const [isLoadingDetails1, setIsLoadingDetails1] = useState(false);
 	const fetchDetailsProduct = async (rowSelected) => {
 		setIsLoadingDetails(true);
 		const res = await ProductService.getProduct(rowSelected);
@@ -225,9 +255,41 @@ const AdminProduct = () => {
 				quantity: res?.data[0]?.quantity,
 				image: res?.data[0]?.image,
 				collections_name: resCollectionSelect.data[0]?.collections_name,
+				discount: res?.data[0].discount,
+			});
+			form.setFieldsValue({
+				name: stateProductDetails?.name,
+				collections_name: resCollectionSelect.data[0]?.collections_name,
+				size: stateProductDetails?.size,
+				quantity: stateProductDetails?.quantity,
+				price: stateProductDetails?.price,
+				discount: stateProductDetails?.discount,
+				description: stateProductDetails?.description,
+				image: stateProductDetails?.image,
 			});
 		}
 		setIsLoadingDetails(false);
+	};
+	const [collectionName, setCollectionName] = useState('');
+	const fetchDetailsProductCreate = async (rowSelected) => {
+		setIsLoadingDetails1(true);
+		const res = await ProductService.getProduct(rowSelected);
+		const resCollectionSelect = await ProductService.getCollectionProduct(res?.data[0]?.collections_id);
+		setCollections_id(res?.data[0]?.collections_id);
+		setCollectionName(resCollectionSelect.data[0]?.collections_name);
+		if (res?.data) {
+			setStateProduct({
+				name: res?.data[0]?.name,
+				price: res?.data[0]?.price,
+				size: '',
+				description: res?.data[0]?.description,
+				quantity: '',
+				image: res?.data[0]?.image,
+				collections_name: resCollectionSelect.data[0]?.collections_name,
+				discount: res?.data[0].discount,
+			});
+		}
+		setIsLoadingDetails1(false);
 	};
 
 	const OPTIONSName = Array.isArray(products?.data)
@@ -236,16 +298,48 @@ const AdminProduct = () => {
 				label: name,
 		  }))
 		: [];
+
 	useEffect(() => {
-		form.setFieldsValue(stateProductDetails);
+		form.setFieldsValue({
+			name: stateProduct?.name,
+			collections_name: collectionName,
+			quantity: stateProduct?.quantity,
+			price: stateProduct?.price,
+			discount: stateProduct?.discount,
+			description: stateProduct?.description,
+			image: stateProduct?.image,
+		});
+	}, [form, stateProduct.name, collectionName]);
+
+	useEffect(() => {
+		form.setFieldsValue({
+			name: stateProduct?.name,
+			quantity: stateProduct?.quantity,
+			price: stateProduct?.price,
+			discount: stateProduct?.discount,
+			description: stateProduct?.description,
+			image: stateProduct?.image,
+		});
+	}, [form, stateProduct]);
+	useEffect(() => {
+		console.log(stateProductDetails);
+		form.setFieldsValue({
+			name: stateProductDetails?.name,
+			quantity: stateProductDetails?.quantity,
+			price: stateProductDetails?.price,
+			size: stateProductDetails?.size,
+			discount: stateProductDetails?.discount,
+			description: stateProductDetails?.description,
+			image: stateProductDetails?.image,
+		});
 	}, [form, stateProductDetails]);
+
 	useEffect(() => {
 		if (rowSelected) {
 			setIsLoadingDetails(true);
 			fetchDetailsProduct(rowSelected);
 		}
-	}, [rowSelected]);
-
+	}, [isDrawerOpen]);
 	const handleDetailsProduct = () => {
 		setIsDrawerOpen(true);
 	};
@@ -362,18 +456,22 @@ const AdminProduct = () => {
 					value: 'S',
 				},
 				{
-					text: 'L',
-					value: 'L',
+					text: 'M',
+					value: 'M',
 				},
 				{
-					text: 'X',
-					value: 'X',
+					text: 'L',
+					value: 'L',
 				},
 				{
 					text: 'XL',
 					value: 'XL',
 				},
 			],
+		},
+		{
+			title: 'Discount',
+			dataIndex: 'discount',
 		},
 		{
 			title: 'Description',
@@ -419,7 +517,7 @@ const AdminProduct = () => {
 	const mutationUpdateProduct = useMutation({
 		mutationFn: async (data) => {
 			try {
-				const { name, price, size, description, quantity, image, collections_id } = data.configData;
+				const { name, price, size, description, quantity, image, collections_id, discount } = data.configData;
 				const res = await ProductService.updateProduct(data.id, {
 					name: name,
 					price: price,
@@ -428,6 +526,7 @@ const AdminProduct = () => {
 					quantity: quantity,
 					image: image,
 					collections_id: collections_id,
+					discount,
 				});
 				return res;
 			} catch (error) {
@@ -475,8 +574,8 @@ const AdminProduct = () => {
 		if (dataUpdate?.statusMessage === 'success') {
 			message.success('Cập nhật thành công');
 			handleCancelDrawer();
-		} else if (dataUpdate?.statusMessage === 'failed' && dataUpdate?.data.statusMessage !== 'success') {
-			message.error('Cập nhật thất bại');
+		} else if (dataUpdate?.statusMessage === 'failed') {
+			message.error(dataUpdate?.message);
 		}
 	}, [isSuccessUpdate]);
 
@@ -540,7 +639,7 @@ const AdminProduct = () => {
 				onCancel={handleCancel}
 				footer={null}
 			>
-				<Loading isLoading={isLoadingCreate}>
+				<Loading isLoading={isLoadingCreate || isLoadingDetails1}>
 					<Form
 						name="AdminProduct"
 						labelCol={{
@@ -688,6 +787,18 @@ const AdminProduct = () => {
 							<InputComponent value={stateProduct.price} onChange={handleOnChange} name="price" />
 						</Form.Item>
 						<Form.Item
+							label="Discount(%)"
+							name="discount"
+							rules={[
+								{
+									required: true,
+									message: 'Please input discount!',
+								},
+							]}
+						>
+							<InputComponent value={stateProduct.discount} onChange={handleOnChange} name="discount" />
+						</Form.Item>
+						<Form.Item
 							label="Description"
 							name="description"
 							rules={[
@@ -749,13 +860,13 @@ const AdminProduct = () => {
 					<Form
 						name="AdminProduct2"
 						labelCol={{
-							span: 5,
+							span: 6,
 						}}
 						wrapperCol={{
-							span: 21,
+							span: 16,
 						}}
 						style={{
-							maxWidth: 600,
+							maxWidth: 660,
 						}}
 						initialValues={{
 							remember: true,
@@ -878,6 +989,18 @@ const AdminProduct = () => {
 								onChange={handleOnChangeDetails}
 								name="description"
 							/>
+						</Form.Item>
+						<Form.Item
+							label="Discount(%)"
+							name="discount"
+							rules={[
+								{
+									required: true,
+									message: 'Please input Discount of product!',
+								},
+							]}
+						>
+							<InputComponent value={stateProductDetails?.discount} onChange={handleOnChangeDetails} name="discount" />
 						</Form.Item>
 						<Form.Item
 							label="Image"

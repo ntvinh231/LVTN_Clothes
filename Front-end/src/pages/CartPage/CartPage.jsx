@@ -23,10 +23,11 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { convertPrice } from '../../util';
 import { WrapperInputNumber } from '../../components/ProductDetailsComponent/style';
-import { deCreaseAmount, inCreaseAmount, removeAllCart, removeCart } from '../../redux/slice/cartSlide';
+import { deCreaseAmount, inCreaseAmount, removeAllCart, removeCart, selectedCart } from '../../redux/slice/cartSlide';
 import TypeProduct from '../../components/TypeProduct/TypeProduct';
 const CartPage = () => {
 	const cart = useSelector((state) => state.cart);
+	const user = useSelector((state) => state.user);
 	const [listChecked, setListChecked] = useState([]);
 	const navigate = useNavigate();
 	const dispatch = useDispatch();
@@ -54,6 +55,10 @@ const CartPage = () => {
 			setListChecked([]);
 		}
 	};
+
+	useEffect(() => {
+		dispatch(selectedCart(listChecked));
+	}, [listChecked]);
 
 	const isOpenModalUpdateInfo = () => {};
 	const handleCancleUpdate = () => {};
@@ -121,7 +126,7 @@ const CartPage = () => {
 						) : (
 							<WrapperStyleHeader style={{ background: 'rgb(255,255,255)' }}>
 								<WrapperStyleEmpty>
-									<img src={cart_empty_background} alt="" />
+									<img src={cart_empty_background} alt="Empty Cart" />
 									<span style={{ fontSize: '22px', fontWeight: '500', lineHeight: '1.2', marginBottom: '1rem' }}>
 										{' '}
 										Hiện giỏ hàng của bạn không có sản phẩm nào!
@@ -160,16 +165,22 @@ const CartPage = () => {
 												value={cart?.product}
 												checked={listChecked.includes(cart?.product)}
 											></CustomCheckbox>
-											<img src={cart?.image} style={{ width: '77px', height: '79px', objectFit: 'cover' }} />
+											<img
+												src={cart?.image}
+												alt={cart?.name}
+												style={{ width: '77px', height: '79px', objectFit: 'cover' }}
+											/>
 											<div
 												style={{
 													width: 260,
 													overflow: 'hidden',
 													// textOverflow: 'ellipsis',
 													whiteSpace: 'nowrap',
+													fontWeight: '550',
+													marginLeft: '4px',
 												}}
 											>
-												{cart?.name}
+												{cart?.name} ({cart?.size.toUpperCase()})
 											</div>
 										</div>
 										<div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -248,6 +259,7 @@ const CartPage = () => {
 						</div>
 						<ButtonComponent
 							// onClick={() => handleAddCard()}
+							backgroundHover="#0089ff"
 							size={40}
 							styleButton={{
 								background: 'rgb(255, 57, 69)',
@@ -256,7 +268,7 @@ const CartPage = () => {
 								border: 'none',
 								borderRadius: '4px',
 							}}
-							textbutton={'Mua hàng'}
+							textButton={'Mua hàng'}
 							styleTextButton={{ color: '#fff', fontSize: '15px', fontWeight: '700' }}
 						></ButtonComponent>
 					</WrapperRight>

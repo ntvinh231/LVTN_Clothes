@@ -1,6 +1,5 @@
 import { Button } from 'antd';
 import React, { useState } from 'react';
-import Loading from '../LoadingComponent/Loading';
 
 const ButtonComponent = ({
 	size,

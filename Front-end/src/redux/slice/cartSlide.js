@@ -2,6 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
 	cartItems: [],
+	cartItemsSelected: [],
 	totalCart: null,
 	user: '',
 };
@@ -58,10 +59,20 @@ export const cartSlide = createSlice({
 			const totalQuantity = state?.cartItems?.reduce((total, item) => total + item.amount, 0);
 			state.totalCart = totalQuantity;
 		},
+		selectedCart: (state, action) => {
+			const { listChecked } = action.payload;
+			const cartSelected = [];
+			state.cartItems.forEach((cart) => {
+				if (listChecked.includes(cart.product)) {
+					cartSelected.push(cart);
+				}
+			});
+			state.cartItemsSelected = cartSelected;
+		},
 	},
 });
 
 // Action creators are generated for each case reducer function
-export const { addCart, inCreaseAmount, deCreaseAmount, removeCart, removeAllCart } = cartSlide.actions;
+export const { addCart, inCreaseAmount, deCreaseAmount, removeCart, removeAllCart, selectedCart } = cartSlide.actions;
 
 export default cartSlide.reducer;

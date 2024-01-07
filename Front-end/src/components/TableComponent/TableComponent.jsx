@@ -33,6 +33,7 @@ const TableComponent = (props) => {
 
 	const handleDeleteAll = () => {
 		handleDeleteMany(rowSelectedKeys);
+		setIsModalOpenDelete(false);
 	};
 	const exportExcel = () => {
 		const excel = new Excel();

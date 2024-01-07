@@ -31,6 +31,23 @@ export const getProduct = async (id) => {
 	}
 };
 
+export const getProductAdmin = async (id) => {
+	try {
+		let res;
+		if (!id) {
+			//getAll
+			res = await axios.get(`${process.env.REACT_APP_API_URL}/product/admin`);
+		} else {
+			//getDetails
+			res = await axios.get(`${process.env.REACT_APP_API_URL}/product/admin/?id=${id}`);
+		}
+
+		return res.data;
+	} catch (error) {
+		return error?.response;
+	}
+};
+
 export const getNameCollection = async (collection) => {
 	try {
 		const res = await axios.get(`${process.env.REACT_APP_API_URL}/product/collections?collections_name=${collection}`);

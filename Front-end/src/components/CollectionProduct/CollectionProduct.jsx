@@ -41,6 +41,7 @@ const CollectionProduct = () => {
 	//GetAllCollections
 	const fetchAllCollections = async () => {
 		const res = await ProductService.getAllCollections();
+
 		return res;
 	};
 	const queryCollections = useQuery(['collections'], fetchAllCollections);
@@ -257,9 +258,11 @@ const CollectionProduct = () => {
 	const dataTable =
 		collections?.data?.length &&
 		collections?.data?.map((collection) => {
+			const totalQuantity = collection?.list_product.reduce((sum, product) => sum + (product?.quantity || 0), 0);
+
 			return {
 				key: collection._id,
-				quantity: collection?.list_product.length,
+				quantity: totalQuantity,
 				...collection,
 			};
 		});
