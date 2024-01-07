@@ -4,6 +4,7 @@ import Product from '../models/Product.js';
 export const checkProductDetails = async (req, res, next) => {
 	try {
 		const { name, quantity, size, collections_id } = req.body;
+
 		if (!name) {
 			return res.status(200).json({
 				statusCode: 200,
@@ -18,6 +19,7 @@ export const checkProductDetails = async (req, res, next) => {
 			quantity: { $gte: quantity }, // Kiểm tra quantity lớn hơn hoặc bằng quantity truyền vào
 			collections_id: collections_id,
 		}).select('-image');
+		console.log(checkProduct);
 
 		if (checkProduct == null) {
 			return res.status(200).json({
