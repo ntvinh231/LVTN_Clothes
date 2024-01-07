@@ -11,6 +11,46 @@ export const getProduct = async (req, res, next) => {
 		const filterData = filter.id ? { _id: filter.id } : filter;
 		const offset = limit * (page - 1);
 		const totalProductCount = await Product.countDocuments(filterData);
+		const products = await Product.find(filterData).limit(limit).skip(offset).sort(sort);
+
+		const uniqueNamesSet = new Set();
+		const uniqueProducts = products.filter((product) => {
+			if (!uniqueNamesSet.has(product.name)) {
+				uniqueNamesSet.add(product.name);
+				return true;
+			}
+			return false;
+		});
+
+		if (filter.id && uniqueProducts.length === 0) {
+			return res.status(404).json({
+				statusCode: 404,
+				statusMessage: 'failed',
+				message: 'The product is not defined',
+			});
+		}
+
+		return res.status(200).json({
+			statusCode: 200,
+			statusMessage: 'success',
+			data: uniqueProducts,
+			totalProduct: totalProductCount,
+			totalPage: Math.ceil(totalProductCount / (limit || 10)),
+		});
+	} catch (error) {
+		console.log(error);
+		return next(httpError(400, error));
+	}
+};
+
+export const getProductAdmin = async (req, res, next) => {
+	try {
+		let page = req.query.page;
+		const { filter, limit, sort } = apq(req.query);
+		delete filter.page;
+		const filterData = filter.id ? { _id: filter.id } : filter;
+		const offset = limit * (page - 1);
+		const totalProductCount = await Product.countDocuments(filterData);
 		const product = await Product.find(filterData).limit(limit).skip(offset).sort(sort);
 
 		if (filter.id && product.length === 0) {
@@ -68,11 +108,42 @@ export const createProduct = async (req, res, next) => {
 			return next(httpError(400, 'The input is required'));
 		}
 
-		const product = await Product.create(validatedData);
+		validatedData.discount = validatedData.discount || 5;
+		let updatedProduct;
+		const sizeRegExp = new RegExp(`^${validatedData.size}$`, 'i');
+		const nameRegExp = new RegExp(`^${validatedData.name}$`, 'i');
+		const existingProduct = await Product.findOne({
+			name: nameRegExp,
+			size: sizeRegExp,
+		});
+
+		if (existingProduct) {
+			if (existingProduct.price !== validatedData.price) {
+				return res.status(200).json({
+					statusCode: 400,
+					statusMessage: 'failed',
+					message: 'Sản phẩm đã tồn tại, giá không được thay đổi.Vui lòng thêm lại',
+				});
+			}
+
+			// Nếu sản phẩm đã tồn tại, cộng dồn quantity
+			updatedProduct = await Product.findOneAndUpdate(
+				{
+					name: validatedData.name,
+					size: sizeRegExp,
+				},
+				{ $inc: { quantity: parseInt(validatedData.quantity) || 0 } },
+				{ new: true } // Trả về sản phẩm sau khi cập nhật
+			);
+		} else {
+			// Nếu sản phẩm không tồn tại
+			updatedProduct = await Product.create(validatedData);
+		}
+
 		return res.status(200).json({
 			statusCode: 200,
 			statusMessage: 'success',
-			data: product,
+			data: updatedProduct,
 		});
 	} catch (error) {
 		console.log(error);
@@ -87,22 +158,41 @@ export const updateProduct = async (req, res, next) => {
 			return res.status(200).json({
 				statusCode: 200,
 				statusMessage: 'failed',
-				message: 'The product is required',
+				message: 'The product ID is required',
 			});
 		}
-		const checkProduct = await Product.findOne({
-			_id: id,
-		});
-		if (checkProduct == null) {
+
+		const checkProduct = await Product.findOne({ _id: id });
+		if (!checkProduct) {
 			return res.status(404).json({
 				statusCode: 404,
 				statusMessage: 'failed',
-				message: 'The product is not defined',
+				message: 'Product not found',
 			});
 		}
+
+		const { name, size, discount } = req.body;
+
+		const sizeRegExp = new RegExp(`^${size}$`, 'i');
+		const nameRegExp = new RegExp(`^${name}$`, 'i');
+		const existingProduct = await Product.findOne({
+			name: nameRegExp,
+			size: sizeRegExp,
+		});
+
+		if (existingProduct && existingProduct._id.toString() !== id) {
+			return res.status(200).json({
+				statusCode: 400,
+				statusMessage: 'failed',
+				message: 'Sản phẩm sửa đã tồn tại tên và size trong kho.Vui lòng thay đổi lại.',
+			});
+		}
+		// Thiết lập giá trị mặc định cho discount nếu không được truyền lên
+		req.body.discount = discount || 5;
+
 		let result = await Product.findByIdAndUpdate(id, req.body, {
-			new: true, // trả về dữ liệu mới sau khi cập nhật thay vì dữ liệu cũ
-			runValidators: true, // bảo rằng dữ liệu mới cập nhật đáp ứng ràng buộc trong model .
+			new: true,
+			runValidators: true,
 		});
 		return res.status(200).json({
 			statusCode: 200,
@@ -110,7 +200,7 @@ export const updateProduct = async (req, res, next) => {
 			data: result,
 		});
 	} catch (error) {
-		console.log(error);
+		console.error(error);
 		return next(httpError(500, error));
 	}
 };
@@ -150,7 +240,7 @@ export const deleteProduct = async (req, res, next) => {
 export const deleteManyProduct = async (req, res, next) => {
 	try {
 		const { ids } = req.body;
-		console.log(ids);
+
 		if (!ids) {
 			return res.status(200).json({
 				statusCode: 400,
