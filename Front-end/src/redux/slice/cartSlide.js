@@ -7,6 +7,7 @@ const initialState = {
 	cartItemsSelected: [],
 	totalCart: 0,
 	user: '',
+	isLoggedIn: false,
 	isLoadingAddToCart: false,
 	isLoadingGetCart: false,
 };
@@ -50,6 +51,32 @@ export const removeFromCart = createAsyncThunk('cart/remove', async ({ idProduct
 	} else {
 		console.log({ idProduct });
 		// return { idProduct };
+	}
+});
+export const decreaseAmountAsync = createAsyncThunk('cart/decreaseAmountAsync', async ({ idProduct }, { getState }) => {
+	const { user } = getState();
+	const userId = user.id;
+
+	if (user?.id) {
+		const response = await CartService.decreaseAmount({ idProduct, userId });
+		Message.success(response.message);
+		return response;
+	} else {
+		// Xử lý khi user không tồn tại
+		return { error: 'User not found' };
+	}
+});
+export const increaseAmountAsync = createAsyncThunk('cart/increaseAmountAsync', async ({ idProduct }, { getState }) => {
+	const { user } = getState();
+	const userId = user.id;
+
+	if (user?.id) {
+		const response = await CartService.increaseAmount({ idProduct, userId });
+		Message.success(response.message);
+		return response;
+	} else {
+		// Xử lý khi user không tồn tại
+		return { error: 'User not found' };
 	}
 });
 
@@ -110,6 +137,17 @@ export const cartSlide = createSlice({
 
 			state.totalCart = totalQuantity;
 		},
+		selectedCart: (state, action) => {
+			const { listChecked } = action.payload;
+
+			const cartSelected = [];
+			state?.cartItems?.forEach((cart) => {
+				if (listChecked?.includes(cart.product)) {
+					cartSelected.push(cart);
+				}
+			});
+			state.cartItemsSelected = cartSelected;
+		},
 		removeCart: (state, action) => {
 			const { idProduct } = action.payload;
 
@@ -141,17 +179,7 @@ export const cartSlide = createSlice({
 			const totalQuantity = foundItem?.reduce((total, item) => total + item.amount, 0);
 			state.totalCart = totalQuantity;
 		},
-		selectedCart: (state, action) => {
-			const { listChecked } = action.payload;
 
-			const cartSelected = [];
-			state?.cartItems?.forEach((cart) => {
-				if (listChecked?.includes(cart.product)) {
-					cartSelected.push(cart);
-				}
-			});
-			state.cartItemsSelected = cartSelected;
-		},
 		setCart: (state, action) => {
 			const { cartItems, totalCart } = action.payload;
 			state.cartItems = cartItems;
@@ -195,11 +223,29 @@ export const cartSlide = createSlice({
 					state.cartItems = action.payload.cartItems;
 					state.totalCart = action.payload.totalCart;
 					state.isLoadingGetCart = false;
+					state.isLoggedIn = true;
 				}
 			})
 			.addCase(getCartUser.rejected, (state, action) => {
 				// Xử lý khi có lỗi khi lấy dữ liệu giỏ hàng
 				console.error('Error fetching cart:', action.error);
+			})
+			.addCase(increaseAmountAsync.fulfilled, (state, action) => {
+				if (action.payload) {
+					state.cartItems = action.payload.cartItems;
+					state.totalCart = action.payload.totalCart;
+					state.cartItems.amount = action.payload.cartItems.amount;
+					state.isLoadingGetCart = false;
+					state.isLoggedIn = false;
+				}
+			})
+			.addCase(decreaseAmountAsync.fulfilled, (state, action) => {
+				if (action.payload) {
+					state.cartItems = action.payload.cartItems;
+					state.totalCart = action.payload.totalCart;
+					state.cartItems.amount = action.payload.cartItems.amount;
+					state.isLoadingGetCart = false;
+				}
 			});
 	},
 });

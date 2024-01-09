@@ -119,3 +119,53 @@ export const getCartUser = async (req, res, next) => {
 		return next(httpError(400, error));
 	}
 };
+
+export const decreaseAmountCart = async (req, res, next) => {
+	try {
+		await updateCart(req, res, next, -1);
+	} catch (error) {
+		console.log(error);
+		return next(httpError(400, error));
+	}
+};
+
+export const increaseAmountCart = async (req, res, next) => {
+	try {
+		await updateCart(req, res, next, 1);
+	} catch (error) {
+		console.log(error);
+		return next(httpError(400, error));
+	}
+};
+
+const updateCart = async (req, res, next, amountModifier) => {
+	try {
+		const { idProduct, userId } = req.body;
+		const validAmountModifier = amountModifier === 1 ? 1 : -1; // Nếu là increase thì validAmountModifier là 1, ngược lại là -1
+		let existingCart = await Cart.findOne({ user: userId });
+
+		if (existingCart && existingCart.cartItems) {
+			const existingProduct = existingCart.cartItems.find((p) => p.product.toString() === idProduct);
+
+			if (existingProduct) {
+				// Nếu sản phẩm tồn tại trong giỏ hàng, thì tăng/giảm số lượng
+				existingProduct.amount = Math.max(existingProduct.amount + validAmountModifier, 1); // Đảm bảo amount không nhỏ hơn 1
+
+				await existingCart.save();
+
+				const responseData = {
+					cartItems: existingCart.cartItems,
+					totalCart: calculateTotalCart(existingCart.cartItems),
+					message: 'Cập nhật giỏ hàng thành công',
+				};
+				return res.status(200).json(responseData);
+			}
+		}
+
+		// Nếu sản phẩm không tồn tại trong giỏ hàng hoặc không tìm thấy giỏ hàng, trả về thông báo lỗi.
+		return res.status(404).json({ message: 'Sản phẩm không tồn tại trong giỏ hàng' });
+	} catch (error) {
+		console.log(error);
+		return next(httpError(400, error));
+	}
+};

@@ -21,14 +21,16 @@ import { Form } from 'antd';
 import * as Message from '../../components/Message/Message';
 import InputComponent from '../../components/InputComponent/InputComponent';
 import ButtonComponent from '../../components/ButtonComponent/ButtonComponent';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { convertPrice } from '../../util';
 import { WrapperInputNumber } from '../../components/ProductDetailsComponent/style';
 import {
 	deCreaseAmount,
+	decreaseAmountAsync,
 	getCartUser,
 	inCreaseAmount,
+	increaseAmountAsync,
 	removeAllCart,
 	removeAllFromCart,
 	removeCart,
@@ -39,21 +41,30 @@ import {
 import ModalComponent from '../../components/ModalComponent/ModalComponent';
 import { useMutation } from '@tanstack/react-query';
 import Loading from '../../components/LoadingComponent/Loading';
-import { updateUser } from '../../redux/slice/userSlide';
+import { resetUser, updateUser } from '../../redux/slice/userSlide';
 
 const CartPage = () => {
 	const cart = useSelector((state) => state.cart);
 	const user = useSelector((state) => state.user);
+	const token = localStorage.getItem('accessToken');
+
 	const navigate = useNavigate();
 	const dispatch = useDispatch();
 	useEffect(() => {
-		if (user) {
+		if (user?.id) {
 			dispatch(getCartUser(user?.id));
-		}
-		if (!user?.id || !user?.accessToken || !user?.name || !user?.email) {
+		} else if (!token) {
 			dispatch(resetCart());
+			dispatch(resetUser());
 		}
 	}, [user, dispatch]);
+
+	useEffect(() => {
+		if (!token) {
+			Message.error('Bạn không đăng nhập.Vui lòng đăng nhập lại');
+			navigate('/');
+		}
+	}, [user]);
 
 	const [form] = Form.useForm();
 	const [listChecked, setListChecked] = useState([]);
@@ -82,15 +93,16 @@ const CartPage = () => {
 			cart?.cartItems?.forEach((item) => {
 				newListChecked.push(item?.product);
 			});
+			console.log(newListChecked);
 			setListChecked(newListChecked);
 		} else {
 			setListChecked([]);
 		}
 	};
 
-	useEffect(() => {
-		dispatch(selectedCart({ listChecked }));
-	}, [listChecked]);
+	// useEffect(() => {
+	// 	dispatch(selectedCart({ listChecked }));
+	// }, [listChecked]);
 
 	useEffect(() => {
 		if (isOpenModalUpdateInfo) {
@@ -115,11 +127,11 @@ const CartPage = () => {
 	const handleChangeCount = (type, idProduct, limited) => {
 		if (type === 'increase') {
 			if (!limited) {
-				dispatch(inCreaseAmount({ idProduct }));
+				dispatch(increaseAmountAsync({ idProduct }));
 			}
 		} else {
 			if (!limited) {
-				dispatch(deCreaseAmount({ idProduct }));
+				dispatch(decreaseAmountAsync({ idProduct }));
 			}
 		}
 	};
@@ -151,14 +163,14 @@ const CartPage = () => {
 	};
 
 	const priceMemo = useMemo(() => {
-		const result = cart?.cartItemsSelected?.reduce((total, cur) => {
+		const result = cart?.cartItems?.reduce((total, cur) => {
 			return total + cur.price * cur.amount;
 		}, 0);
 		return result;
 	}, [cart]);
 
 	const priceDiscountMemo = useMemo(() => {
-		const result = cart?.cartItemsSelected?.reduce((total, cur) => {
+		const result = cart?.cartItems?.reduce((total, cur) => {
 			return total + cur.discount;
 		}, 0);
 		if (Number(result)) {
@@ -192,9 +204,7 @@ const CartPage = () => {
 		dispatch(updateUser({ ...res?.data, accessToken: token }));
 	};
 	const handleAddCard = () => {
-		if (!cart?.cartItemsSelected?.length) {
-			Message.error('Vui lòng chọn sản phẩm');
-		} else if (!user?.phone || !user?.address || !user?.name || !user?.city) {
+		if (!user?.phone || !user?.address || !user?.name || !user?.city) {
 			setIsOpenModalUpdateInfo(true);
 		} else {
 			navigate('/payment');
@@ -265,7 +275,7 @@ const CartPage = () => {
 									<span style={{ display: 'inline-block', width: '400px' }}>
 										<CustomCheckbox
 											onChange={handleOnchangeCheckAll}
-											checked={listChecked?.length === cart?.totalCart}
+											checked={listChecked?.length === cart?.cartItems.length}
 										></CustomCheckbox>
 
 										<span> Tất cả ({cart.totalCart} sản phẩm)</span>
@@ -382,7 +392,7 @@ const CartPage = () => {
 							<WrapperInfo>
 								<div>
 									<span>Địa chỉ: </span>
-									<span style={{ fontWeight: 'bold' }}>{`${user?.address} ${user?.city}`} </span>
+									<span style={{ fontWeight: 'bold' }}>{user?.address} </span>
 									<span
 										onClick={handleChangeAddress}
 										style={{

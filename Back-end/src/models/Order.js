@@ -3,7 +3,7 @@ import mongoose_delete from 'mongoose-delete';
 
 const orderSchema = new mongoose.Schema(
 	{
-		listProduct: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
+		cartItems: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Cart' }],
 		shippingAddress: {
 			fullName: String,
 			address: String,
