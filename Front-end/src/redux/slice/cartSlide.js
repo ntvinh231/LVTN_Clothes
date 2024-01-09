@@ -145,7 +145,7 @@ export const cartSlide = createSlice({
 			const { listChecked } = action.payload;
 
 			const cartSelected = [];
-			state.cartItems.forEach((cart) => {
+			state?.cartItems?.forEach((cart) => {
 				if (listChecked?.includes(cart.product)) {
 					cartSelected.push(cart);
 				}
@@ -194,6 +194,7 @@ export const cartSlide = createSlice({
 				if (action.payload) {
 					state.cartItems = action.payload.cartItems;
 					state.totalCart = action.payload.totalCart;
+					state.isLoadingGetCart = false;
 				}
 			})
 			.addCase(getCartUser.rejected, (state, action) => {

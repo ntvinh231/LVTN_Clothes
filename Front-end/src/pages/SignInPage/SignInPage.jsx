@@ -11,6 +11,7 @@ import * as Message from '../../components/Message/Message';
 import { useDispatch, useSelector } from 'react-redux';
 import { jwtDecode } from 'jwt-decode';
 import { updateUser } from '../../redux/slice/userSlide';
+
 const SignInPage = () => {
 	const dispatch = useDispatch();
 	const navigate = useNavigate();
@@ -41,8 +42,8 @@ const SignInPage = () => {
 				} else {
 					navigate('/');
 				}
-				localStorage.setItem('accessToken', JSON.stringify(data?.accessToken));
 				if (data?.accessToken) {
+					localStorage.setItem('accessToken', JSON.stringify(data?.accessToken));
 					const decoded = jwtDecode(data?.accessToken);
 					if (decoded?.payload) {
 						await handleGetDetailsUser(decoded?.payload, data?.accessToken);
@@ -77,6 +78,7 @@ const SignInPage = () => {
 			email,
 			password,
 		});
+		data?.data?.statusCode === 400 && Message.error(data?.data?.message);
 	};
 
 	const handleNavigateRegister = () => {
@@ -129,9 +131,7 @@ const SignInPage = () => {
 							onChange={handleOnChangePassword}
 						></InputForm>
 					</div>
-					{data?.data?.statusCode === 400 && (
-						<span style={{ color: 'red', margin: '10px 0 0 4px' }}>{data?.data?.message}</span>
-					)}
+
 					<Loading isLoading={loading || isLoading}>
 						<ButtonComponent
 							onClick={handleSignIn}

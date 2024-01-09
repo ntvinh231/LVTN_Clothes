@@ -243,138 +243,140 @@ const CartPage = () => {
 			<div style={{ height: '100%', width: '1215px', margin: '0 auto' }}>
 				<h3 style={{ fontWeight: 'bold', marginTop: '10px' }}>Giỏ hàng</h3>
 				<div style={{ display: 'flex', justifyContent: 'center' }}>
-					<WrapperLeft>
-						{cart?.totalCart > 0 ? <h4>Phí giao hàng</h4> : ''}
-						<WrapperStyleHeaderDilivery>
-							<WrapperStyleHeaderDilivery
-							// items={itemsDelivery}
-							// current={
-							// 	diliveryPriceMemo === 10000
-							// 		? 2
-							// 		: diliveryPriceMemo === 20000
-							// 		? 1
-							// 		: order.orderItemsSlected.length === 0
-							// 		? 0
-							// 		: 3
-							// }
-							/>
-						</WrapperStyleHeaderDilivery>
-						{cart?.totalCart > 0 ? (
-							<WrapperStyleHeader>
-								<span style={{ display: 'inline-block', width: '400px' }}>
-									<CustomCheckbox
-										onChange={handleOnchangeCheckAll}
-										checked={listChecked?.length === cart?.totalCart}
-									></CustomCheckbox>
+					<Loading isLoading={cart?.isLoadingGetCart}>
+						<WrapperLeft>
+							{cart?.totalCart > 0 ? <h4>Phí giao hàng</h4> : ''}
+							<WrapperStyleHeaderDilivery>
+								<WrapperStyleHeaderDilivery
+								// items={itemsDelivery}
+								// current={
+								// 	diliveryPriceMemo === 10000
+								// 		? 2
+								// 		: diliveryPriceMemo === 20000
+								// 		? 1
+								// 		: order.orderItemsSlected.length === 0
+								// 		? 0
+								// 		: 3
+								// }
+								/>
+							</WrapperStyleHeaderDilivery>
+							{cart?.totalCart > 0 ? (
+								<WrapperStyleHeader>
+									<span style={{ display: 'inline-block', width: '400px' }}>
+										<CustomCheckbox
+											onChange={handleOnchangeCheckAll}
+											checked={listChecked?.length === cart?.totalCart}
+										></CustomCheckbox>
 
-									<span> Tất cả ({cart.totalCart} sản phẩm)</span>
-								</span>
-								<div
-									style={{
-										flex: 1,
-										display: 'flex',
-										alignItems: 'center',
-										justifyContent: 'space-between',
-									}}
-								>
-									<span>Đơn giá</span>
-									<span style={{ marginLeft: '50px' }}>Số lượng</span>
-									<span style={{ marginLeft: '10px' }}>Thành tiền</span>
-									<DeleteOutlined style={{ cursor: 'pointer' }} onClick={handleRemoveAllCart} />
-								</div>
-							</WrapperStyleHeader>
-						) : (
-							<WrapperStyleHeader style={{ background: 'rgb(255,255,255)' }}>
-								<WrapperStyleEmpty>
-									<img src={cart_empty_background} alt="Empty Cart" />
-									<span style={{ fontSize: '22px', fontWeight: '500', lineHeight: '1.2', marginBottom: '1rem' }}>
-										Hiện giỏ hàng của bạn không có sản phẩm nào!
+										<span> Tất cả ({cart.totalCart} sản phẩm)</span>
 									</span>
 									<div
 										style={{
-											cursor: 'pointer',
-											borderRadius: '5px',
-											borderColor: '#080808',
-											border: '2px solid #080808',
-											padding: '8px 12px',
-											transition: 'background-color 0.3s, color 0.3s',
-										}}
-										onClick={() => navigate('/product/collections', { state: 'all' })}
-										onMouseOver={(e) => {
-											e.currentTarget.style.backgroundColor = '#080808';
-											e.currentTarget.style.color = '#fff';
-										}}
-										onMouseOut={(e) => {
-											e.currentTarget.style.backgroundColor = 'transparent';
-											e.currentTarget.style.color = '#080808';
+											flex: 1,
+											display: 'flex',
+											alignItems: 'center',
+											justifyContent: 'space-between',
 										}}
 									>
-										Mua sắm ngay
+										<span>Đơn giá</span>
+										<span style={{ marginLeft: '50px' }}>Số lượng</span>
+										<span style={{ marginLeft: '10px' }}>Thành tiền</span>
+										<DeleteOutlined style={{ cursor: 'pointer' }} onClick={handleRemoveAllCart} />
 									</div>
-								</WrapperStyleEmpty>
-							</WrapperStyleHeader>
-						)}
-						<WrapperListCart>
-							{cart?.cartItems?.map((cart, index, array) => {
-								return (
-									<WrapperItemCart key={cart?.product} $lastitem={String(index === array.length - 1)}>
-										<div style={{ width: '390px', display: 'flex', alignItems: 'center', gap: 4 }}>
-											<CustomCheckbox
-												onChange={onChange}
-												value={cart?.product}
-												checked={listChecked.includes(cart?.product)}
-											></CustomCheckbox>
-											<img
-												src={cart?.image}
-												alt={cart?.name}
-												style={{ width: '77px', height: '79px', objectFit: 'cover' }}
-											/>
-											<div
-												style={{
-													width: 260,
-													overflow: 'hidden',
-													whiteSpace: 'nowrap',
-													fontWeight: '550',
-													marginLeft: '4px',
-												}}
-											>
-												{cart?.name} ({cart?.size?.toUpperCase()})
+								</WrapperStyleHeader>
+							) : (
+								<WrapperStyleHeader style={{ background: 'rgb(255,255,255)' }}>
+									<WrapperStyleEmpty>
+										<img src={cart_empty_background} alt="Empty Cart" />
+										<span style={{ fontSize: '22px', fontWeight: '500', lineHeight: '1.2', marginBottom: '1rem' }}>
+											Hiện giỏ hàng của bạn không có sản phẩm nào!
+										</span>
+										<div
+											style={{
+												cursor: 'pointer',
+												borderRadius: '5px',
+												borderColor: '#080808',
+												border: '2px solid #080808',
+												padding: '8px 12px',
+												transition: 'background-color 0.3s, color 0.3s',
+											}}
+											onClick={() => navigate('/product/collections', { state: 'all' })}
+											onMouseOver={(e) => {
+												e.currentTarget.style.backgroundColor = '#080808';
+												e.currentTarget.style.color = '#fff';
+											}}
+											onMouseOut={(e) => {
+												e.currentTarget.style.backgroundColor = 'transparent';
+												e.currentTarget.style.color = '#080808';
+											}}
+										>
+											Mua sắm ngay
+										</div>
+									</WrapperStyleEmpty>
+								</WrapperStyleHeader>
+							)}
+							<WrapperListCart>
+								{cart?.cartItems?.map((cart, index, array) => {
+									return (
+										<WrapperItemCart key={cart?.product} $lastitem={String(index === array.length - 1)}>
+											<div style={{ width: '390px', display: 'flex', alignItems: 'center', gap: 4 }}>
+												<CustomCheckbox
+													onChange={onChange}
+													value={cart?.product}
+													checked={listChecked.includes(cart?.product)}
+												></CustomCheckbox>
+												<img
+													src={cart?.image}
+													alt={cart?.name}
+													style={{ width: '77px', height: '79px', objectFit: 'cover' }}
+												/>
+												<div
+													style={{
+														width: 260,
+														overflow: 'hidden',
+														whiteSpace: 'nowrap',
+														fontWeight: '550',
+														marginLeft: '4px',
+													}}
+												>
+													{cart?.name} ({cart?.size?.toUpperCase()})
+												</div>
 											</div>
-										</div>
-										<div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-											<span>
-												<span style={{ fontSize: '13px', color: '#242424' }}>
-													{convertPrice(cart?.price)}(-{cart?.discount}%)
+											<div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+												<span>
+													<span style={{ fontSize: '13px', color: '#242424' }}>
+														{convertPrice(cart?.price)}(-{cart?.discount}%)
+													</span>
 												</span>
-											</span>
-											<WrapperCountCart>
-												<button
-													style={{ border: 'none', background: 'transparent', cursor: 'pointer' }}
-													onClick={() => handleChangeCount('decrease', cart?.product)}
-												>
-													<MinusOutlined style={{ color: '#000', fontSize: '10px' }} />
-												</button>
-												<WrapperInputNumber defaultValue={cart?.amount} value={cart?.amount} size="small" />
-												<button
-													style={{ border: 'none', background: 'transparent', cursor: 'pointer' }}
-													onClick={() => handleChangeCount('increase', cart?.product)}
-												>
-													<PlusOutlined style={{ color: '#000', fontSize: '10px' }} />
-												</button>
-											</WrapperCountCart>
-											<span style={{ color: 'rgb(255, 66, 78)', fontSize: '13px', fontWeight: 500 }}>
-												{cart?.price && cart?.amount && convertPrice(cart?.price * cart?.amount)}
-											</span>
-											<DeleteOutlined
-												style={{ cursor: 'pointer' }}
-												onClick={() => handleRemoveCartItem(cart?.product)}
-											/>
-										</div>
-									</WrapperItemCart>
-								);
-							})}
-						</WrapperListCart>
-					</WrapperLeft>
+												<WrapperCountCart>
+													<button
+														style={{ border: 'none', background: 'transparent', cursor: 'pointer' }}
+														onClick={() => handleChangeCount('decrease', cart?.product)}
+													>
+														<MinusOutlined style={{ color: '#000', fontSize: '10px' }} />
+													</button>
+													<WrapperInputNumber defaultValue={cart?.amount} value={cart?.amount} size="small" />
+													<button
+														style={{ border: 'none', background: 'transparent', cursor: 'pointer' }}
+														onClick={() => handleChangeCount('increase', cart?.product)}
+													>
+														<PlusOutlined style={{ color: '#000', fontSize: '10px' }} />
+													</button>
+												</WrapperCountCart>
+												<span style={{ color: 'rgb(255, 66, 78)', fontSize: '13px', fontWeight: 500 }}>
+													{cart?.price && cart?.amount && convertPrice(cart?.price * cart?.amount)}
+												</span>
+												<DeleteOutlined
+													style={{ cursor: 'pointer' }}
+													onClick={() => handleRemoveCartItem(cart?.product)}
+												/>
+											</div>
+										</WrapperItemCart>
+									);
+								})}
+							</WrapperListCart>
+						</WrapperLeft>
+					</Loading>
 					<WrapperRight>
 						<div style={{ width: '100%' }}>
 							<WrapperInfo>

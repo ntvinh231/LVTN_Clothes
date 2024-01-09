@@ -51,6 +51,7 @@ export default function App() {
 				// Lưu access token vào cookie
 
 				Cookies.set('jwt', data?.accessToken, cookieOptions);
+				localStorage.setItem('accessToken', JSON.stringify(data?.accessToken));
 			}
 			return config;
 		} catch (error) {
@@ -71,6 +72,7 @@ export default function App() {
 				config.headers['token'] = `Bearer ${data?.accessToken}`;
 				// Lưu access token vào cookie
 				Cookies.set('jwt', data?.accessToken, cookieOptions);
+				localStorage.setItem('accessToken', JSON.stringify(data?.accessToken));
 			}
 			return config;
 		} catch (error) {

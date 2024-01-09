@@ -56,7 +56,7 @@ export const refreshToken = async () => {
 
 export const loggoutUser = async () => {
 	try {
-		const res = await axios.post(`${process.env.REACT_APP_API_URL}/user/loggout`);
+		const res = await axiosJWT.post(`${process.env.REACT_APP_API_URL}/user/loggout`);
 		return res.data;
 	} catch (error) {
 		console.log(error);

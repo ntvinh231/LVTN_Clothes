@@ -36,10 +36,10 @@ export const getProductAdmin = async (id) => {
 		let res;
 		if (!id) {
 			//getAll
-			res = await axios.get(`${process.env.REACT_APP_API_URL}/product/admin`);
+			res = await axiosJWTC.get(`${process.env.REACT_APP_API_URL}/product/admin`);
 		} else {
 			//getDetails
-			res = await axios.get(`${process.env.REACT_APP_API_URL}/product/admin/?id=${id}`);
+			res = await axiosJWTC.get(`${process.env.REACT_APP_API_URL}/product/admin/?id=${id}`);
 		}
 
 		return res.data;
@@ -50,7 +50,9 @@ export const getProductAdmin = async (id) => {
 
 export const getNameCollection = async (collection) => {
 	try {
-		const res = await axios.get(`${process.env.REACT_APP_API_URL}/product/collections?collections_name=${collection}`);
+		const res = await axiosJWTC.get(
+			`${process.env.REACT_APP_API_URL}/product/collections?collections_name=${collection}`
+		);
 
 		return res.data;
 	} catch (error) {
@@ -63,10 +65,10 @@ export const getProductCollection = async (page, limit, id) => {
 		let res;
 		if (!id) {
 			//getAll
-			res = await axios.get(`${process.env.REACT_APP_API_URL}/product?page=${page}&limit=${limit}`);
+			res = await axiosJWTC.get(`${process.env.REACT_APP_API_URL}/product?page=${page}&limit=${limit}`);
 		} else {
 			//getOne
-			res = await axios.get(
+			res = await axiosJWTC.get(
 				`${process.env.REACT_APP_API_URL}/product?page=${page}&limit=${limit}&collections_id=${id}`
 			);
 		}
