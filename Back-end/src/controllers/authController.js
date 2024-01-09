@@ -81,13 +81,7 @@ export const updateUserForAdmin = async (req, res, next) => {
 				statusMessage: 'failed',
 				message: 'Email already exists',
 			});
-		if (!data.name || !data.phone || !data.email) {
-			return res.status(200).json({
-				statusCode: 400,
-				statusMessage: 'failed',
-				message: 'Name, phone, and email are required.',
-			});
-		}
+
 		if (!data.name) {
 			return res.status(200).json({
 				statusCode: 400,
@@ -148,6 +142,7 @@ export const updateUserForAdmin = async (req, res, next) => {
 export const updateUser = async (req, res, next) => {
 	try {
 		const data = req.body;
+
 		const existingUser = await User.findOne({ email: req.body.email });
 		if (existingUser && existingUser.id !== req.user.id)
 			return res.status(200).json({
@@ -155,11 +150,11 @@ export const updateUser = async (req, res, next) => {
 				statusMessage: 'failed',
 				message: 'Email already exists',
 			});
-		if (!data.name || !data.phone || !data.email) {
+		if (!data.name || !data.phone) {
 			return res.status(200).json({
 				statusCode: 400,
 				statusMessage: 'success',
-				message: 'Name, phone, and email are required.',
+				message: 'Name, phone are required.',
 			});
 		} else if (data.name.length > 25) {
 			return res.status(200).json({

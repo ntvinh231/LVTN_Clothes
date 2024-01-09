@@ -10,7 +10,7 @@ const cartSchema = new mongoose.Schema(
 				image: String,
 				price: Number,
 				size: String,
-				discount_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Discount' },
+				discount: Number,
 				product: {
 					type: mongoose.Schema.Types.ObjectId,
 					ref: 'Product',

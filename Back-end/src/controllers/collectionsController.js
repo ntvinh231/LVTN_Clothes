@@ -90,27 +90,46 @@ export const deleteCollectionsController = async (req, res, next) => {
 export const updateCollection = async (req, res, next) => {
 	try {
 		const id = req.params.id;
-		if (!id) {
+		const { collections_name } = req.body;
+
+		if (!collections_name) {
 			return res.status(200).json({
-				statusCode: 200,
+				statusCode: 400,
 				statusMessage: 'failed',
-				message: 'The collections is required',
+				message: 'The collections name field is required',
 			});
 		}
+
+		const existingCollection = await Collections.findOne({
+			collections_name: collections_name,
+			_id: { $ne: id },
+		});
+
+		if (existingCollection) {
+			return res.status(200).json({
+				statusCode: 400,
+				statusMessage: 'failed',
+				message: 'Tên collection đã tồn tài.Vui lòng thay đổi tên',
+			});
+		}
+
 		const checkCollections = await Collections.findOne({
 			_id: id,
 		});
+
 		if (checkCollections == null) {
-			return res.status(404).json({
+			return res.status(200).json({
 				statusCode: 404,
 				statusMessage: 'failed',
-				message: 'The collections is not defined',
+				message: 'The collection is not defined',
 			});
 		}
+
 		let result = await Collections.findByIdAndUpdate(id, req.body, {
-			new: true, // trả về dữ liệu mới sau khi cập nhật thay vì dữ liệu cũ
-			runValidators: true, // bảo rằng dữ liệu mới cập nhật đáp ứng ràng buộc trong model .
+			new: true,
+			runValidators: true,
 		});
+
 		return res.status(200).json({
 			statusCode: 200,
 			statusMessage: 'success',
