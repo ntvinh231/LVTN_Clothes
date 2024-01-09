@@ -25,7 +25,7 @@ import Loading from '../LoadingComponent/Loading';
 import { useDispatch, useSelector } from 'react-redux';
 import { checkProduct } from '../../redux/slice/checkProductSlide';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { addCart } from '../../redux/slice/cartSlide';
+import { addToCart } from '../../redux/slice/cartSlide';
 import { convertPrice } from '../../util';
 const ProductDetailsComponent = ({ idProduct }) => {
 	const dispatch = useDispatch();
@@ -36,7 +36,6 @@ const ProductDetailsComponent = ({ idProduct }) => {
 	const [nameProduct, setNameProduct] = useState('');
 	const [numProduct, setNumProduct] = useState(1);
 	const [sizeProduct, setSizeProduct] = useState('S');
-	const [discount, setDiscount] = useState(5);
 	const [collectionName, setCollectionName] = useState('Loading...');
 	const checkSoldOut = useSelector((state) => state.checkProduct);
 
@@ -131,11 +130,7 @@ const ProductDetailsComponent = ({ idProduct }) => {
 		}
 	};
 
-	// useEffect(() => {
-	// 	//Thực hiện lấy data nếu còn hàng
-	// }, [checkProductDetails]);
-
-	const handleAddCart = () => {
+	const handleAddCart = async () => {
 		if (!isLoadingSoldOut) {
 			if (!user?.id) {
 				navigate('/sign-in', { state: location?.pathname });
@@ -144,19 +139,22 @@ const ProductDetailsComponent = ({ idProduct }) => {
 					Message.error('Sản phẩm phải lớn hơn 1');
 					setNumProduct(1);
 				} else {
-					dispatch(
-						addCart({
-							cartItem: {
-								name: checkProductDetails?.data?.name,
-								amount: numProduct,
-								image: productDetails?.image,
-								price: checkProductDetails?.data?.price,
-								discount: checkProductDetails?.data?.discount,
-								size: checkProductDetails?.data?.size,
-								product: checkProductDetails?.data?._id,
-							},
-						})
-					);
+					// Tạo cartItem từ dữ liệu sản phẩm
+					const cartItem = {
+						name: checkProductDetails?.data?.name,
+						amount: numProduct,
+						image: productDetails?.image,
+						price: checkProductDetails?.data?.price,
+						discount: checkProductDetails?.data?.discount,
+						size: checkProductDetails?.data?.size,
+						product: checkProductDetails?.data?._id,
+					};
+
+					try {
+						dispatch(addToCart({ cartItem }));
+					} catch (error) {
+						console.error('Lỗi khi thêm vào giỏ hàng:', error);
+					}
 				}
 			}
 		}
@@ -187,80 +185,79 @@ const ProductDetailsComponent = ({ idProduct }) => {
 					</div>
 				</Col>
 				<Col span={14} style={{ padding: '0 16px' }}>
-					<Loading isLoading={isLoading}>
-						<WrapperStyleNameProduct>{productDetails?.name}</WrapperStyleNameProduct>
-						<WrapperGroupStatus>
-							<WrapperStatusTextName>Loại:</WrapperStatusTextName>
-							<WrapperStatusTextAvailabel>{collectionName}</WrapperStatusTextAvailabel>
-						</WrapperGroupStatus>
-						<WrapperGroupStatus>
-							<WrapperStatusTextName>Tình trạng:</WrapperStatusTextName>
-							<WrapperStatusTextAvailabel>
-								{checkSoldOut.statusCode && checkSoldOut.statusCode === 200 ? 'Còn hàng' : 'Hết hàng'}
-							</WrapperStatusTextAvailabel>
-						</WrapperGroupStatus>
-						{productDetails?.price ? (
-							<WrapperPriceBox>
-								<WraperPriceProduct>
-									{convertPrice(productDetails?.price - (productDetails?.price * productDetails.discount) / 100)}
-								</WraperPriceProduct>
-								<WrapperComparePriceProduct>{convertPrice(productDetails?.price)}</WrapperComparePriceProduct>
-							</WrapperPriceBox>
-						) : (
-							<WrapperPriceBox>
-								<WraperPriceProduct></WraperPriceProduct>
-								<WrapperComparePriceProduct></WrapperComparePriceProduct>
-							</WrapperPriceBox>
-						)}
+					<WrapperStyleNameProduct>{productDetails?.name}</WrapperStyleNameProduct>
+					<WrapperGroupStatus>
+						<WrapperStatusTextName>Loại:</WrapperStatusTextName>
+						<WrapperStatusTextAvailabel>{collectionName}</WrapperStatusTextAvailabel>
+					</WrapperGroupStatus>
+					<WrapperGroupStatus>
+						<WrapperStatusTextName>Tình trạng:</WrapperStatusTextName>
+						<WrapperStatusTextAvailabel>
+							{checkSoldOut.statusCode && checkSoldOut.statusCode === 200 ? 'Còn hàng' : 'Hết hàng'}
+						</WrapperStatusTextAvailabel>
+					</WrapperGroupStatus>
+					{productDetails?.price ? (
+						<WrapperPriceBox>
+							<WraperPriceProduct>
+								{convertPrice(productDetails?.price - (productDetails?.price * productDetails.discount) / 100)}
+							</WraperPriceProduct>
+							<WrapperComparePriceProduct>{convertPrice(productDetails?.price)}</WrapperComparePriceProduct>
+						</WrapperPriceBox>
+					) : (
+						<WrapperPriceBox>
+							<WraperPriceProduct></WraperPriceProduct>
+							<WrapperComparePriceProduct></WrapperComparePriceProduct>
+						</WrapperPriceBox>
+					)}
 
-						<WrapperFormProduct>
-							<WrapperHeader>Kích thước</WrapperHeader>
-							<Radio.Group onChange={onChangeSize} defaultValue="S" buttonStyle="solid">
-								<Radio.Button checked value="S">
-									S
-								</Radio.Button>
-								<Radio.Button value="M">M</Radio.Button>
-								<Radio.Button value="L">L</Radio.Button>
-								<Radio.Button value="XL">XL</Radio.Button>
-							</Radio.Group>
-							<div style={{ margin: '30px 0' }}>Số lượng:</div>
-							<WrapperQualityProduct>
-								<WrapperBtnQualityProduct>
-									<MinusOutlined
-										style={{ color: '#000', fontSize: '20px', cursor: 'pointer' }}
-										onClick={() => handleChangeCount('decrease')}
-									/>
-								</WrapperBtnQualityProduct>
-								<WrapperInputNumber value={numProduct} onChange={onChangeNumber} size="small" />
-								<WrapperBtnQualityProduct>
-									<PlusOutlined
-										style={{ color: '#000', fontSize: '20px', cursor: 'pointer' }}
-										onClick={() => handleChangeCount('increase')}
-									/>
-								</WrapperBtnQualityProduct>
-							</WrapperQualityProduct>
-						</WrapperFormProduct>
-						<ButtonComponent
-							bordered="false"
-							size={40}
-							disabled={checkSoldOut.statusCode && checkSoldOut.statusCode === 200 ? false : true}
-							backgroundHover={checkSoldOut.statusCode && checkSoldOut.statusCode === 200 ? '#0089ff' : 'disabled'}
-							styleButton={{
-								background: 'rgb(255, 57, 69)',
-								height: '48px',
-								width: '150px',
-								border: 'none',
-								borderRadius: '4px',
-								transition: 'background 0.3s ease',
-								margin: '40px 0 10px',
-								opacity: checkSoldOut.statusCode && checkSoldOut.statusCode === 200 ? 1 : 0.5,
-								cursor: checkSoldOut.statusCode && checkSoldOut.statusCode === 200 ? 'pointer' : 'default',
-							}}
-							onClick={handleAddCart}
-							textButton={checkSoldOut.statusCode && checkSoldOut.statusCode === 200 ? 'Chọn Mua' : 'Hết hàng'}
-							styleTextButton={{ color: '#fff', fontSize: '15px', fontWeight: '700' }}
-						></ButtonComponent>
-					</Loading>
+					<WrapperFormProduct>
+						<WrapperHeader>Kích thước</WrapperHeader>
+						<Radio.Group onChange={onChangeSize} defaultValue="S" buttonStyle="solid">
+							<Radio.Button checked value="S">
+								S
+							</Radio.Button>
+							<Radio.Button value="M">M</Radio.Button>
+							<Radio.Button value="L">L</Radio.Button>
+							<Radio.Button value="XL">XL</Radio.Button>
+						</Radio.Group>
+						<div style={{ margin: '30px 0' }}>Số lượng:</div>
+						<WrapperQualityProduct>
+							<WrapperBtnQualityProduct>
+								<MinusOutlined
+									style={{ color: '#000', fontSize: '20px', cursor: 'pointer' }}
+									onClick={() => handleChangeCount('decrease')}
+								/>
+							</WrapperBtnQualityProduct>
+							<WrapperInputNumber value={numProduct} onChange={onChangeNumber} size="small" />
+							<WrapperBtnQualityProduct>
+								<PlusOutlined
+									style={{ color: '#000', fontSize: '20px', cursor: 'pointer' }}
+									onClick={() => handleChangeCount('increase')}
+								/>
+							</WrapperBtnQualityProduct>
+						</WrapperQualityProduct>
+					</WrapperFormProduct>
+					<ButtonComponent
+						isLoading={cart.isLoadingAddToCart}
+						bordered="false"
+						size={40}
+						disabled={checkSoldOut.statusCode && checkSoldOut.statusCode === 200 ? false : true}
+						backgroundHover={checkSoldOut.statusCode && checkSoldOut.statusCode === 200 ? '#0089ff' : 'disabled'}
+						styleButton={{
+							background: 'rgb(255, 57, 69)',
+							height: '48px',
+							width: '150px',
+							border: 'none',
+							borderRadius: '4px',
+							transition: 'background 0.3s ease',
+							margin: '40px 0 10px',
+							opacity: checkSoldOut.statusCode && checkSoldOut.statusCode === 200 ? 1 : 0.5,
+							cursor: checkSoldOut.statusCode && checkSoldOut.statusCode === 200 ? 'pointer' : 'default',
+						}}
+						onClick={handleAddCart}
+						textButton={checkSoldOut.statusCode && checkSoldOut.statusCode === 200 ? 'Chọn Mua' : 'Hết hàng'}
+						styleTextButton={{ color: '#fff', fontSize: '15px', fontWeight: '700' }}
+					></ButtonComponent>
 				</Col>
 			</Row>
 		</Loading>

@@ -1,4 +1,4 @@
-import { Button } from 'antd';
+import { Button, Spin } from 'antd';
 import React, { useState } from 'react';
 
 const ButtonComponent = ({
@@ -21,9 +21,11 @@ const ButtonComponent = ({
 			}}
 			onMouseEnter={() => setIsHovered(true)}
 			onMouseLeave={() => setIsHovered(false)}
+			loading={isLoading}
+			disabled={isLoading}
 			{...rest}
 		>
-			<span style={styleTextButton}>{textButton}</span>
+			{isLoading ? <span style={styleTextButton}>Loading...</span> : <span style={styleTextButton}>{textButton}</span>}
 		</Button>
 	);
 };

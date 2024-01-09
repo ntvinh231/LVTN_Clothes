@@ -8,20 +8,32 @@ import { useQuery } from '@tanstack/react-query';
 import * as ProductService from '../../service/ProductService.js';
 import { WrapperButtonMore, WrapperMore, WrapperProducts, WrapperTypeProduct } from './style.js';
 import TypeProduct from '../../components/TypeProduct/TypeProduct';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import Loading from '../../components/LoadingComponent/Loading.jsx';
 import { useDebounce } from '../../hooks/useDebounce.js';
 import { useNavigate } from 'react-router-dom';
 import { convertPrice } from '../../util.js';
+import { getCartUser, resetCart } from '../../redux/slice/cartSlide.js';
 
 const HomePage = () => {
 	const navigate = useNavigate();
+	const dispatch = useDispatch();
 	const [initialLoad, setInitialLoad] = useState(true);
 	const [isNull, setIsNull] = useState(false);
 	const [loading, setLoading] = useState(false);
 	const searchProduct = useSelector((state) => state.product.search);
+	const user = useSelector((state) => state.user);
+	const cart = useSelector((state) => state.cart);
 	const searchDebounce = useDebounce(searchProduct, 500);
 	const queryRef = useRef();
+
+	useEffect(() => {
+		if (user?.id) {
+			dispatch(getCartUser(user?.id));
+		} else {
+			dispatch(resetCart());
+		}
+	}, [user, dispatch]);
 
 	const fetchProduct = async (context) => {
 		setLoading(true);

@@ -16,7 +16,7 @@ import {
 	WrapperTotal,
 	labelEmpty,
 } from './style';
-
+import * as CartService from '../../service/CartService';
 import { Form } from 'antd';
 import * as Message from '../../components/Message/Message';
 import InputComponent from '../../components/InputComponent/InputComponent';
@@ -25,7 +25,17 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { convertPrice } from '../../util';
 import { WrapperInputNumber } from '../../components/ProductDetailsComponent/style';
-import { deCreaseAmount, inCreaseAmount, removeAllCart, removeCart, selectedCart } from '../../redux/slice/cartSlide';
+import {
+	deCreaseAmount,
+	getCartUser,
+	inCreaseAmount,
+	removeAllCart,
+	removeAllFromCart,
+	removeCart,
+	removeFromCart,
+	resetCart,
+	selectedCart,
+} from '../../redux/slice/cartSlide';
 import ModalComponent from '../../components/ModalComponent/ModalComponent';
 import { useMutation } from '@tanstack/react-query';
 import Loading from '../../components/LoadingComponent/Loading';
@@ -34,9 +44,17 @@ import { updateUser } from '../../redux/slice/userSlide';
 const CartPage = () => {
 	const cart = useSelector((state) => state.cart);
 	const user = useSelector((state) => state.user);
-
 	const navigate = useNavigate();
 	const dispatch = useDispatch();
+	useEffect(() => {
+		if (user) {
+			dispatch(getCartUser(user?.id));
+		}
+		if (!user?.id || !user?.accessToken || !user?.name || !user?.email) {
+			dispatch(resetCart());
+		}
+	}, [user, dispatch]);
+
 	const [form] = Form.useForm();
 	const [listChecked, setListChecked] = useState([]);
 	const [isOpenModalUpdateInfo, setIsOpenModalUpdateInfo] = useState(false);
@@ -46,6 +64,7 @@ const CartPage = () => {
 		phone: '',
 		city: '',
 	});
+
 	const onChange = (e) => {
 		//Check thêm -> nếu chưa checked(chưa có trong listChecked) thì thêm vào
 		//Check bỏ -> nếu đã check(có trong listChecked) thì bỏ ra vào tạo list
@@ -107,11 +126,27 @@ const CartPage = () => {
 	const handleDeleteCart = (idProduct) => {
 		dispatch(removeCart({ idProduct }));
 	};
+	const handleRemoveCartItem = async (idProduct) => {
+		try {
+			dispatch(removeFromCart({ idProduct }));
 
-	const handleRemoveAllCart = () => {
-		if (listChecked?.length > 0) {
-			dispatch(removeAllCart({ listChecked }));
-			setListChecked([]);
+			// Lọc các phần tử đã được xóa khỏi listChecked
+			const newListChecked = listChecked.filter((item) => item !== idProduct);
+			setListChecked(newListChecked);
+		} catch (error) {
+			console.error('Lỗi khi xóa sản phẩm từ giỏ hàng:', error);
+		}
+	};
+
+	const handleRemoveAllCart = async () => {
+		try {
+			if (listChecked?.length > 0) {
+				dispatch(removeAllFromCart({ listChecked }));
+
+				setListChecked([]);
+			}
+		} catch (error) {
+			console.error('Lỗi khi xóa toàn bộ giỏ hàng:', error);
 		}
 	};
 
@@ -161,6 +196,8 @@ const CartPage = () => {
 			Message.error('Vui lòng chọn sản phẩm');
 		} else if (!user?.phone || !user?.address || !user?.name || !user?.city) {
 			setIsOpenModalUpdateInfo(true);
+		} else {
+			navigate('/payment');
 		}
 	};
 
@@ -174,7 +211,7 @@ const CartPage = () => {
 		form.resetFields();
 		setIsOpenModalUpdateInfo(false);
 	};
-	console.log(user);
+
 	const handleUpdateInfoUser = () => {
 		const { name, phone, address, city } = stateUserDetails;
 		if (name && phone && address && city) {
@@ -195,6 +232,10 @@ const CartPage = () => {
 			...stateUserDetails,
 			[e.target.name]: e.target.value,
 		});
+	};
+
+	const handleChangeAddress = () => {
+		setIsOpenModalUpdateInfo(true);
 	};
 
 	return (
@@ -292,13 +333,12 @@ const CartPage = () => {
 												style={{
 													width: 260,
 													overflow: 'hidden',
-													// textOverflow: 'ellipsis',
 													whiteSpace: 'nowrap',
 													fontWeight: '550',
 													marginLeft: '4px',
 												}}
 											>
-												{cart?.name} ({cart?.size.toUpperCase()})
+												{cart?.name} ({cart?.size?.toUpperCase()})
 											</div>
 										</div>
 										<div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -314,13 +354,7 @@ const CartPage = () => {
 												>
 													<MinusOutlined style={{ color: '#000', fontSize: '10px' }} />
 												</button>
-												<WrapperInputNumber
-													defaultValue={cart?.amount}
-													value={cart?.amount}
-													size="small"
-													// min={1}
-													// max={cart?.quantity}
-												/>
+												<WrapperInputNumber defaultValue={cart?.amount} value={cart?.amount} size="small" />
 												<button
 													style={{ border: 'none', background: 'transparent', cursor: 'pointer' }}
 													onClick={() => handleChangeCount('increase', cart?.product)}
@@ -331,7 +365,10 @@ const CartPage = () => {
 											<span style={{ color: 'rgb(255, 66, 78)', fontSize: '13px', fontWeight: 500 }}>
 												{cart?.price && cart?.amount && convertPrice(cart?.price * cart?.amount)}
 											</span>
-											<DeleteOutlined style={{ cursor: 'pointer' }} onClick={() => handleDeleteCart(cart?.product)} />
+											<DeleteOutlined
+												style={{ cursor: 'pointer' }}
+												onClick={() => handleRemoveCartItem(cart?.product)}
+											/>
 										</div>
 									</WrapperItemCart>
 								);
@@ -343,10 +380,19 @@ const CartPage = () => {
 							<WrapperInfo>
 								<div>
 									<span>Địa chỉ: </span>
-									{/* <span style={{ fontWeight: 'bold' }}>{`${user?.address} ${user?.city}`} </span> */}
-									{/* <span onClick={handleChangeAddress} style={{ color: '#9255FD', cursor: 'pointer' }}>
+									<span style={{ fontWeight: 'bold' }}>{`${user?.address} ${user?.city}`} </span>
+									<span
+										onClick={handleChangeAddress}
+										style={{
+											color: '#9255FD',
+											cursor: 'pointer',
+											transition: 'color 0.3s',
+										}}
+										onMouseOver={(e) => (e.target.style.color = 'red')}
+										onMouseOut={(e) => (e.target.style.color = '#9255FD')}
+									>
 										Thay đổi
-									</span> */}
+									</span>
 								</div>
 							</WrapperInfo>
 							<WrapperInfo>
