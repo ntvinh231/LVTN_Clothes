@@ -109,7 +109,7 @@ export const updateCollection = async (req, res, next) => {
 			return res.status(200).json({
 				statusCode: 400,
 				statusMessage: 'failed',
-				message: 'Tên collection đã tồn tài.Vui lòng thay đổi tên',
+				message: 'Tên collection đã tồn tại.Vui lòng thay đổi tên',
 			});
 		}
 
