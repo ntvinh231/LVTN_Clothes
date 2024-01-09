@@ -763,7 +763,7 @@ const AdminProduct = () => {
 								},
 								{
 									validator: (_, value) => {
-										if (!isNaN(value) && parseInt(value, 10) === parseFloat(value)) {
+										if (!isNaN(value) && parseInt(value, 10) === parseFloat(value) && value > 0) {
 											return Promise.resolve();
 										}
 										return Promise.reject('Please enter a valid number!');
@@ -783,7 +783,7 @@ const AdminProduct = () => {
 								},
 								{
 									validator: (_, value) => {
-										if (!isNaN(value) && parseInt(value, 10) === parseFloat(value)) {
+										if (!isNaN(value) && parseInt(value, 10) === parseFloat(value) && value > 0) {
 											return Promise.resolve();
 										}
 										return Promise.reject('Please enter a valid number for Price!');
@@ -951,7 +951,7 @@ const AdminProduct = () => {
 								},
 								{
 									validator: (_, value) => {
-										if (!isNaN(value) && parseInt(value, 10) === parseFloat(value)) {
+										if (!isNaN(value) && parseInt(value, 10) === parseFloat(value) && value > 0) {
 											return Promise.resolve();
 										}
 										return Promise.reject('Please enter a valid number!');
@@ -971,7 +971,7 @@ const AdminProduct = () => {
 								},
 								{
 									validator: (_, value) => {
-										if (!isNaN(value) && parseInt(value, 10) === parseFloat(value)) {
+										if (!isNaN(value) && parseInt(value, 10) === parseFloat(value) && value > 0) {
 											return Promise.resolve();
 										}
 										return Promise.reject('Please enter a valid number for Price!');

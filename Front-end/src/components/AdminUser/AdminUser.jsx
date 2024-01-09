@@ -444,40 +444,13 @@ const AdminUser = () => {
 								/>
 							</Form.Item>
 						)}
-						<Form.Item
-							label="Address"
-							name="address"
-							rules={[
-								{
-									required: true,
-									message: 'Please input address!',
-								},
-							]}
-						>
+						<Form.Item label="Address" name="address">
 							<InputComponent value={stateUserDetails.address} onChange={handleOnChangeDetails} name="address" />
 						</Form.Item>
-						<Form.Item
-							label="Phone"
-							name="phone"
-							rules={[
-								{
-									required: true,
-									message: 'Please input phone!',
-								},
-							]}
-						>
+						<Form.Item label="Phone" name="phone">
 							<InputComponent value={stateUserDetails.phone} onChange={handleOnChangeDetails} name="phone" />
 						</Form.Item>
-						<Form.Item
-							label="Avatar"
-							name="avatar"
-							rules={[
-								{
-									required: true,
-									message: 'Please input your avatar!',
-								},
-							]}
-						>
+						<Form.Item label="Avatar" name="avatar">
 							<WrapperUploadFile
 								fileList={stateUserDetails.avatar ? [{ uid: '-1', url: stateUserDetails.avatar }] : []}
 								onChange={handleOnChangeDetailsAvatar}

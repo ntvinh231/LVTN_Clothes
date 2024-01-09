@@ -17,6 +17,7 @@ import {
 	WrapperStyleImageSmall,
 	WrapperStyleNameProduct,
 } from './style';
+import * as Message from '../../components/Message/Message';
 import ButtonComponent from '../ButtonComponent/ButtonComponent';
 import * as ProductService from '../../service/ProductService';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -139,19 +140,24 @@ const ProductDetailsComponent = ({ idProduct }) => {
 			if (!user?.id) {
 				navigate('/sign-in', { state: location?.pathname });
 			} else {
-				dispatch(
-					addCart({
-						cartItem: {
-							name: checkProductDetails?.data?.name,
-							amount: numProduct,
-							image: productDetails?.image,
-							price: checkProductDetails?.data?.price,
-							discount: checkProductDetails?.data?.discount,
-							size: checkProductDetails?.data?.size,
-							product: checkProductDetails?.data?._id,
-						},
-					})
-				);
+				if (numProduct < 1) {
+					Message.error('Sản phẩm phải lớn hơn 1');
+					setNumProduct(1);
+				} else {
+					dispatch(
+						addCart({
+							cartItem: {
+								name: checkProductDetails?.data?.name,
+								amount: numProduct,
+								image: productDetails?.image,
+								price: checkProductDetails?.data?.price,
+								discount: checkProductDetails?.data?.discount,
+								size: checkProductDetails?.data?.size,
+								product: checkProductDetails?.data?._id,
+							},
+						})
+					);
+				}
 			}
 		}
 	};
@@ -196,7 +202,7 @@ const ProductDetailsComponent = ({ idProduct }) => {
 						{productDetails?.price ? (
 							<WrapperPriceBox>
 								<WraperPriceProduct>
-									{convertPrice((productDetails?.price * productDetails.discount) / 100)}
+									{convertPrice(productDetails?.price - (productDetails?.price * productDetails.discount) / 100)}
 								</WraperPriceProduct>
 								<WrapperComparePriceProduct>{convertPrice(productDetails?.price)}</WrapperComparePriceProduct>
 							</WrapperPriceBox>

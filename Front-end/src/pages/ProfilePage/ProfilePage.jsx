@@ -27,6 +27,7 @@ const ProfilePage = () => {
 	const [phone, setPhone] = useState(user?.phone);
 	const [address, setAddress] = useState(user?.address);
 	const [avatar, setAvatar] = useState(user?.avatar);
+	const [city, setCity] = useState(user?.city);
 	const [isLoading, setIsLoading] = useState(false);
 
 	const mutation = useMutation({
@@ -40,6 +41,7 @@ const ProfilePage = () => {
 		setEmail(user?.email);
 		setPhone(user?.phone);
 		setAddress(user?.address);
+		setCity(user?.city);
 		setAvatar(user?.avatar);
 	}, [user]);
 	useEffect(() => {
@@ -72,6 +74,10 @@ const ProfilePage = () => {
 	const handleOnChangeAddress = (value) => {
 		setAddress(value);
 	};
+	const handleOnChangeCity = (value) => {
+		setCity(value);
+	};
+
 	const handleOnchangeAvatar = async ({ fileList }) => {
 		const file = fileList[0];
 		if (!file.url && !file.preview) {
@@ -87,6 +93,7 @@ const ProfilePage = () => {
 			phone,
 			address,
 			avatar,
+			city,
 		});
 	};
 	return (
@@ -129,7 +136,16 @@ const ProfilePage = () => {
 							value={address}
 							onChange={handleOnChangeAddress}
 						></InputForm>
-					</WrapperInput>{' '}
+					</WrapperInput>
+					<WrapperInput>
+						<WrapperLabel htmlFor="city">City</WrapperLabel>
+						<InputForm
+							style={{ width: '300px' }}
+							placeholder="Email"
+							value={city}
+							onChange={handleOnChangeCity}
+						></InputForm>
+					</WrapperInput>
 					<WrapperInputFile>
 						<WrapperUploadFile onChange={handleOnchangeAvatar} maxCount={1}>
 							<Button icon={<UploadOutlined />}>Select Avatar</Button>

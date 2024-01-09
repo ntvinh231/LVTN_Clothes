@@ -4,10 +4,10 @@ const success = (mess = 'Success') => {
 	message.success(mess);
 };
 const error = (mess = 'Error') => {
-	message.success(mess);
+	message.error(mess);
 };
 const warning = (mess = 'Warning') => {
-	message.success(mess);
+	message.warning(mess);
 };
 
 export { success, error, warning };

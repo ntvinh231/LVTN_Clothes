@@ -132,12 +132,13 @@ const CollectionProduct = () => {
 		}
 	}, [rowSelected]);
 
+	console.log(dataUpdate);
 	useEffect(() => {
 		if (dataUpdate?.statusMessage === 'success') {
 			message.success('Cập nhật thành công');
 			handleCancelDrawer();
 		} else if (dataUpdate?.statusMessage === 'failed') {
-			message.error('Cập nhật thất bại');
+			message.error(dataUpdate?.message);
 		}
 	}, [dataUpdate?.statusMessage]);
 

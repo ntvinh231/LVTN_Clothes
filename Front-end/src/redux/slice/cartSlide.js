@@ -30,7 +30,7 @@ export const cartSlide = createSlice({
 			const { idProduct } = action.payload;
 			const foundItem = state?.cartItems?.find((item) => item.product === idProduct);
 			const itemCartSelected = state?.cartItemsSelected?.find((item) => item?.product === idProduct);
-
+			foundItem.amount++;
 			if (itemCartSelected) {
 				itemCartSelected.amount++;
 			}
