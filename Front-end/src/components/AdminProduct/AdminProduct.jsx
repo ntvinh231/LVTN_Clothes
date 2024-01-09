@@ -324,7 +324,6 @@ const AdminProduct = () => {
 		});
 	}, [form, stateProduct]);
 	useEffect(() => {
-		console.log(stateProductDetails);
 		form.setFieldsValue({
 			name: stateProductDetails?.name,
 			quantity: stateProductDetails?.quantity,

@@ -49,8 +49,8 @@ const ProductDetailsComponent = ({ idProduct }) => {
 	const fetchProductDetails = async (context) => {
 		const id = context?.queryKey && context?.queryKey[1];
 		const res = await ProductService.getProduct(id);
-		setNameProduct(res?.data[0].name);
-		const res2 = await ProductService.getCollectionProduct(res?.data[0].collections_id);
+		setNameProduct(res?.data[0]?.name);
+		const res2 = await ProductService.getCollectionProduct(res?.data[0]?.collections_id);
 		setCollectionName(res2?.data[0].collections_name);
 		return res.data[0];
 	};

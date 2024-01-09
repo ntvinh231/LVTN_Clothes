@@ -17,6 +17,7 @@ import {
 	getCartUser,
 	inCreaseAmount,
 	removeAllCart,
+	removeAllFromCart,
 	removeCart,
 	resetCart,
 	selectedCart,
@@ -48,15 +49,14 @@ const PaymentPage = () => {
 	useEffect(() => {
 		if (user?.id) {
 			dispatch(getCartUser(user?.id));
-		}
-		if (!token) {
+		} else if (!token || token === 'undefined') {
 			dispatch(resetCart());
 			dispatch(resetUser());
 		}
 	}, [user, dispatch]);
 
 	useEffect(() => {
-		if (!token) {
+		if (!token || token === 'undefined') {
 			navigate('/');
 			Message.error('Bạn không đăng nhập.Vui lòng đăng nhập lại');
 		}
@@ -65,14 +65,6 @@ const PaymentPage = () => {
 	const mutationAddOrder = useMutation({
 		mutationFn: (data) => OrderService.createOrder(data),
 	});
-
-	const mutationUpdate = useMutation({
-		mutationFn: (data) => UserService.updateUser(data),
-	});
-
-	// useEffect(() => {
-	// 	dispatch(selectedCart({ listChecked }));
-	// }, [listChecked]);
 
 	useEffect(() => {
 		if (isOpenModalUpdateInfo) {
@@ -136,10 +128,38 @@ const PaymentPage = () => {
 		dispatch(updateUser({ ...res?.data, accessToken: token }));
 	};
 
+	console.log(cart);
+	useEffect(() => {
+		if (dataAddOrder !== undefined) {
+			if (dataAddOrder?.statusMessage) {
+				const arrayOrdered = [];
+				cart?.cartItems?.forEach((element) => {
+					arrayOrdered.push(element.product);
+				});
+				dispatch(removeAllFromCart({ listChecked: arrayOrdered }));
+				Message.success('Đặt hàng thành công');
+				navigate('/ordersuccess', {
+					state: {
+						delivery,
+						payment,
+						orders: cart?.cartItems,
+						totalPriceMemo: totalPriceMemo,
+					},
+				});
+			} else {
+				console.log(dataAddOrder);
+				Message.error('Đặt hàng thất bại');
+			}
+		}
+	}, [dataAddOrder?.statusMessage]);
 	const handlePaymentChange = (e) => {
 		setPayment(e.target.value);
 	};
 	const handleAddOrder = () => {
+		if (!token || token === 'undefined') {
+			Message.error('Vui lòng chọn phương thức thanh toán');
+			navigate('/');
+		}
 		if (!payment) {
 			Message.error('Vui lòng chọn phương thức thanh toán');
 			return;
@@ -167,14 +187,7 @@ const PaymentPage = () => {
 					user: user?.id,
 				},
 				{
-					onSuccess: () => {
-						if (dataAddOrder?.statusMessage === 'success') {
-							Message.success('Đặt hàng thành công');
-						} else {
-							Message.error('Đặt hàng thất bại');
-							console.log(dataAddOrder);
-						}
-					},
+					onSuccess: () => {},
 				}
 			);
 		}
@@ -218,9 +231,9 @@ const PaymentPage = () => {
 	};
 
 	return (
-		<div style={{ background: '#f5f5fa', with: '100%', height: '100vh' }}>
+		<div style={{ background: '#fff', with: '100%', height: '100vh' }}>
 			<Loading isLoading={isLoadingAddOrder}>
-				<div style={{ height: '100%', width: '1270px', margin: '0 auto' }}>
+				<div style={{ height: '100%', width: '1270px', margin: '0 auto', padding: '0 26px' }}>
 					<h3>Thanh toán</h3>
 					<div style={{ display: 'flex', justifyContent: 'center' }}>
 						<WrapperLeft>

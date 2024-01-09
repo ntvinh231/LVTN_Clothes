@@ -16,6 +16,7 @@ export const WrapperStyleHeader = styled.div`
 
 export const WrapperLeft = styled.div`
 	width: 910px;
+	padding: 0 17px;
 `;
 
 export const WrapperListOrder = styled.div``;

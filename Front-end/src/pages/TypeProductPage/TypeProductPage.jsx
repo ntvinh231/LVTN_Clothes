@@ -16,8 +16,7 @@ const TypeProductPage = () => {
 	const searchDebounce = useDebounce(searchProduct, 500);
 	const [collection, setCollection] = useState('');
 	let { state } = useLocation();
-	let data = useLocation();
-	console.log(data);
+
 	const { pathname } = useLocation();
 	const match = pathname.match(/\/product\/([^\/]+)(\/|$)/);
 	let result = match ? match[1].replace(/-/g, ' ') : null;
@@ -67,12 +66,12 @@ const TypeProductPage = () => {
 			setLoading(true);
 			let res, collectionsId, data;
 			if (state === 'all') {
-				data = await ProductService.getProductCollection(page, limit);
+				data = await ProductService.getProductTypePagi(page, limit);
 			} else {
 				res = await ProductService.getNameCollection(state);
 				collectionsId = res?.data[0]?._id;
 
-				data = await ProductService.getProductCollection(page, limit, collectionsId);
+				data = await ProductService.getProductTypePagi(page, limit, collectionsId);
 			}
 			setCollection(collectionsId);
 			if (data?.statusCode === 200) {
@@ -128,26 +127,20 @@ const TypeProductPage = () => {
 						<Row>
 							<WrapperProducts>
 								{products
-									?.filter((pro) => {
-										if (searchDebounce === '') {
-											return pro;
-										} else if (pro?.name?.toLowerCase()?.includes(searchDebounce?.toLowerCase())) {
-											return pro;
-										}
-									})
-									?.map((data) => {
-										return (
-											<CardComponent
-												key={data._id}
-												description={data.description}
-												image={data.image}
-												name={data.name}
-												discount={data.discount}
-												price={data.price}
-												id={data._id}
-											></CardComponent>
-										);
-									})}
+									?.filter(
+										(pro) => searchDebounce === '' || pro?.name?.toLowerCase()?.includes(searchDebounce?.toLowerCase())
+									)
+									?.map((data) => (
+										<CardComponent
+											key={data._id}
+											description={data.description}
+											image={data.image}
+											name={data.name}
+											discount={data.discount}
+											price={data.price}
+											id={data._id}
+										/>
+									))}
 							</WrapperProducts>
 						</Row>
 						<Pagination

@@ -42,6 +42,7 @@ import ModalComponent from '../../components/ModalComponent/ModalComponent';
 import { useMutation } from '@tanstack/react-query';
 import Loading from '../../components/LoadingComponent/Loading';
 import { resetUser, updateUser } from '../../redux/slice/userSlide';
+import StepComponent from '../../components/StepComponent/StepComponent';
 
 const CartPage = () => {
 	const cart = useSelector((state) => state.cart);
@@ -53,14 +54,14 @@ const CartPage = () => {
 	useEffect(() => {
 		if (user?.id) {
 			dispatch(getCartUser(user?.id));
-		} else if (!token) {
+		} else if (!token || token === 'undefined') {
 			dispatch(resetCart());
 			dispatch(resetUser());
 		}
 	}, [user, dispatch]);
 
 	useEffect(() => {
-		if (!token) {
+		if (!token || token === 'undefined') {
 			Message.error('Bạn không đăng nhập.Vui lòng đăng nhập lại');
 			navigate('/');
 		}
@@ -180,12 +181,13 @@ const CartPage = () => {
 	}, [cart]);
 
 	const diliveryPriceMemo = useMemo(() => {
-		if (priceMemo > 200000) {
+		const totalPrice = Number(priceMemo) - (Number(priceMemo) * Number(priceDiscountMemo)) / 100;
+		if (totalPrice >= 200000 && totalPrice < 500000 && cart?.cartItems.length !== 0) {
 			return 10000;
-		} else if (priceMemo === 0) {
-			return 0;
-		} else {
+		} else if (totalPrice < 200000 && cart?.cartItems.length !== 0) {
 			return 20000;
+		} else {
+			return 0;
 		}
 	}, [priceMemo]);
 
@@ -248,28 +250,49 @@ const CartPage = () => {
 		setIsOpenModalUpdateInfo(true);
 	};
 
+	const itemsDelivery = [
+		{
+			title: '20.000 VND',
+			description: 'Dưới 200.000 VND',
+		},
+		{
+			title: '10.000 VND',
+			description: 'Từ 200.000 VND đến dưới 500.000 VND',
+		},
+		{
+			title: 'Free ship',
+			description: 'Trên 500.000 VND',
+		},
+	];
+
 	return (
 		<div style={{ background: '#fff', with: '100%', height: '100vh' }}>
-			<div style={{ height: '100%', width: '1215px', margin: '0 auto' }}>
+			<div style={{ height: '100%', width: '1270px', margin: '0 auto', padding: '0 26px' }}>
 				<h3 style={{ fontWeight: 'bold', marginTop: '10px' }}>Giỏ hàng</h3>
 				<div style={{ display: 'flex', justifyContent: 'center' }}>
 					<Loading isLoading={cart?.isLoadingGetCart}>
 						<WrapperLeft>
-							{cart?.totalCart > 0 ? <h4>Phí giao hàng</h4> : ''}
-							<WrapperStyleHeaderDilivery>
-								<WrapperStyleHeaderDilivery
-								// items={itemsDelivery}
-								// current={
-								// 	diliveryPriceMemo === 10000
-								// 		? 2
-								// 		: diliveryPriceMemo === 20000
-								// 		? 1
-								// 		: order.orderItemsSlected.length === 0
-								// 		? 0
-								// 		: 3
-								// }
-								/>
-							</WrapperStyleHeaderDilivery>
+							{cart?.totalCart > 0 ? (
+								<>
+									<h2 style={{ textAlign: 'center' }}>Phí giao hàng</h2>
+									<WrapperStyleHeaderDilivery>
+										<StepComponent
+											items={itemsDelivery}
+											current={
+												diliveryPriceMemo === 10000
+													? 2
+													: diliveryPriceMemo === 20000
+													? 1
+													: diliveryPriceMemo === 0 && cart?.cartItems?.length !== 0
+													? 3
+													: 0
+											}
+										/>
+									</WrapperStyleHeaderDilivery>
+								</>
+							) : (
+								''
+							)}
 							{cart?.totalCart > 0 ? (
 								<WrapperStyleHeader>
 									<span style={{ display: 'inline-block', width: '400px' }}>

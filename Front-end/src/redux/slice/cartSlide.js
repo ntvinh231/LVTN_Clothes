@@ -32,7 +32,7 @@ export const removeAllFromCart = createAsyncThunk('cart/removeAll', async ({ lis
 
 	if (user?.id) {
 		const response = await CartService.removeAllFromCart({ listChecked, userId });
-		Message.success(response.message);
+		// Message.success(response.message);
 		return response;
 	} else {
 		console.log({ listChecked });
@@ -85,6 +85,7 @@ export const getCartUser = createAsyncThunk('cart/getCartUser', async (userId, {
 
 	if (user?.id) {
 		const response = await CartService.getCartUser(user?.id);
+
 		return response;
 	} else {
 		// Xử lý khi không có user.id

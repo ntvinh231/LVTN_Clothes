@@ -2,7 +2,6 @@ export const isJsonString = (data) => {
 	try {
 		if (data) JSON.parse(data);
 	} catch (error) {
-		console.log(error);
 		return false;
 	}
 	return true;
