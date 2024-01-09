@@ -41,14 +41,19 @@ export const signUp = async (req, res, next) => {
 export const signIn = async (req, res, next) => {
 	try {
 		const userValidationSchema = joi.object({
-			email: joi.string().email().required(),
+			email: joi.string(),
 			password: joi.string().pattern(new RegExp('^[a-zA-Z0-9]{3,30}$')).required(),
 		});
 		const validatedData = await userValidationSchema.validateAsync(req.body);
+
+		if (validatedData.email && !isValidEmail(validatedData.email)) {
+			return next(httpError(400, 'Email phải đúng dịnh dạng'));
+		}
+
 		const user = await User.findOne({ email: validatedData.email }).select('+password').select('+role');
 
 		if (!user || !(await bcrypt.compare(validatedData.password, user.password)))
-			return next(httpError(400, 'Incorrect Email or Password'));
+			return next(httpError(400, 'Sai tài khoản hoặc mật khẩu vui lòng kiểm tra lại'));
 
 		req.user = user;
 		const response = await generateTokens(user.id);

@@ -27,7 +27,7 @@ const isLoggedIn = async (req, res, next) => {
 		console.log(error);
 		return res.status(200).json({
 			statusCode: 401,
-			statusMessage: 'success',
+			statusMessage: 'failed',
 			message: error,
 		});
 	}

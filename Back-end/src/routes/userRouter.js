@@ -23,8 +23,8 @@ router.post('/loggout', loggout);
 router.use(isLoggedIn);
 router.post('/update', updateUser);
 router.post('/updateForAdmin/:id', restricTo('admin', 'superadmin'), updateUserForAdmin);
-router.get('/getAll', authMiddle, getAllUser);
-router.get('/details/:id', authMiddle, getDetailsUser);
+router.get('/getAll', isLoggedIn, authMiddle, getAllUser);
+router.get('/details/:id', isLoggedIn, authMiddle, getDetailsUser);
 router.delete('/delete/:id', restricTo('admin', 'superadmin'), deleteUser);
 router.delete('/delete-many', restricTo('admin', 'superadmin'), deleteManyUser);
 
