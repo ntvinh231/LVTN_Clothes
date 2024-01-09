@@ -2,11 +2,10 @@ import httpError from 'http-errors';
 import Order from '../models/Order.js';
 
 export const createOrder = async (req, res, next) => {
-	console.log(req.body);
 	try {
 		const { cartItems, paymentMethod, itemsPrice, shippingPrice, totalPrice, fullName, address, phone, city, user } =
 			req.body;
-		console.log(paymentMethod, itemsPrice, shippingPrice, totalPrice, fullName, address, phone, city, user);
+
 		if (
 			!cartItems ||
 			!paymentMethod ||

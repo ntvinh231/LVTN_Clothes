@@ -3,6 +3,59 @@ import httpError from 'http-errors';
 import Product from '../models/Product.js';
 import apq from 'api-query-params';
 
+let displayedProductIds = [];
+
+export const getProductTypePagi = async (req, res, next) => {
+	try {
+		const page = req.query.page;
+		const { filter, limit, sort } = apq(req.query);
+		delete filter.page;
+
+		const filterData = filter.id ? { _id: filter.id } : filter;
+		const offset = limit * (page - 1);
+
+		// Lấy danh sách sản phẩm đã hiển thị
+		const displayedProducts = displayedProductIds.slice();
+
+		// Lấy tất cả sản phẩm từ database một lần
+		const allProducts = await Product.find(filterData).sort(sort);
+
+		// Lọc bớt các sản phẩm đã xuất hiện trước đó khỏi kết quả mới
+		const uniqueProducts = allProducts.filter((product) => {
+			const key = `${product.name}_${product.collections_id}`;
+			if (!displayedProducts.includes(key)) {
+				displayedProducts.push(key); // Thêm sản phẩm vào danh sách đã hiển thị
+				return true;
+			}
+			return false;
+		});
+
+		// Phân trang dữ liệu đã lấy được
+		const paginatedProducts = uniqueProducts.slice(offset, offset + limit);
+
+		const totalProductCount = displayedProducts.length; // Đếm số sản phẩm đã hiển thị, không đếm trùng
+
+		if (filter.id && uniqueProducts.length === 0) {
+			return res.status(404).json({
+				statusCode: 404,
+				statusMessage: 'failed',
+				message: 'Sản phẩm không được định nghĩa',
+			});
+		}
+
+		return res.status(200).json({
+			statusCode: 200,
+			statusMessage: 'success',
+			data: paginatedProducts,
+			totalProduct: totalProductCount,
+			totalPage: Math.ceil(totalProductCount / (limit || 10)),
+		});
+	} catch (error) {
+		console.log(error);
+		return next(httpError(400, error));
+	}
+};
+
 export const getProduct = async (req, res, next) => {
 	try {
 		let page = req.query.page;

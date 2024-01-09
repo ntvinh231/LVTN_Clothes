@@ -103,6 +103,7 @@ export const getCartUser = async (req, res, next) => {
 		const { userId } = req.params;
 
 		const existingCart = await Cart.findOne({ user: userId });
+
 		if (existingCart) {
 			const responseData = {
 				user: existingCart.user,
@@ -112,7 +113,12 @@ export const getCartUser = async (req, res, next) => {
 
 			res.status(200).json(responseData);
 		} else {
-			res.status(404).json({ message: 'No cart found for the user' });
+			const responseData = {
+				user: '',
+				cartItems: [],
+				totalCart: 0,
+			};
+			res.status(200).json(responseData);
 		}
 	} catch (error) {
 		console.log(error);

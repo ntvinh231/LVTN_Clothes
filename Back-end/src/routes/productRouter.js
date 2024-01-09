@@ -8,6 +8,7 @@ import {
 	getProduct,
 	updateProduct,
 	getProductAdmin,
+	getProductTypePagi,
 } from '../controllers/productController.js';
 import isLoggedIn from '../middleware/isLoggedIn.js';
 import restricTo from '../middleware/checkRole.js';
@@ -17,6 +18,8 @@ import { checkProductDetails } from '../controllers/productDetailsController.js'
 //Product Details
 router.post('/checkProductDetails', checkProductDetails);
 router.get('/', getProduct);
+router.get('/getProductTypePagi', getProductTypePagi);
+
 router.get('/admin', getProductAdmin);
 router.use('/', collectionsRouter);
 router.post('/create', isLoggedIn, restricTo('admin', 'superadmin'), createProduct);
