@@ -7,18 +7,27 @@ export const createOrder = async (req, res, next) => {
 		const { cartItems, paymentMethod, itemsPrice, shippingPrice, totalPrice, fullName, address, phone, city, user } =
 			req.body;
 
-		// Kiểm tra các trường bắt buộc
 		if (
-			!cartItems ||
-			!paymentMethod ||
-			!itemsPrice ||
-			!shippingPrice ||
-			!totalPrice ||
-			!fullName ||
-			!address ||
-			!phone ||
-			!city ||
-			!user
+			cartItems === undefined ||
+			cartItems === null ||
+			paymentMethod === undefined ||
+			paymentMethod === null ||
+			itemsPrice === undefined ||
+			itemsPrice === null ||
+			shippingPrice === undefined ||
+			shippingPrice === null ||
+			totalPrice === undefined ||
+			totalPrice === null ||
+			fullName === undefined ||
+			fullName === null ||
+			address === undefined ||
+			address === null ||
+			phone === undefined ||
+			phone === null ||
+			city === undefined ||
+			city === null ||
+			user === undefined ||
+			user === null
 		) {
 			return res.status(200).json({
 				statusCode: 400,
@@ -187,5 +196,90 @@ export const getOrderDetails = async (req, res, next) => {
 	} catch (e) {
 		console.log(e);
 		return next(httpError(500, e));
+	}
+};
+
+export const DeleteOrder = async (req, res, next) => {
+	try {
+		const data = req.body.orderItems;
+		const orderId = req.body.orderId;
+		const userId = req.body.userId;
+
+		if (!orderId || !userId) {
+			return res.status(400).json({
+				statusCode: 400,
+				statusMessage: 'failed',
+				message: 'The orderId and userId are required',
+			});
+		}
+
+		const existingOrder = await Order.findOne({ _id: orderId, user: userId });
+
+		if (!existingOrder) {
+			return res.status(400).json({
+				statusCode: 400,
+				statusMessage: 'failed',
+				message: 'Không tìm thấy đơn hàng hoặc bạn không có quyền xóa',
+			});
+		}
+
+		let order = null;
+
+		const promises = data.map(async (orderItem) => {
+			const productData = await Product.findOneAndUpdate(
+				{
+					_id: orderItem.product,
+					selled: { $gte: orderItem.amount },
+				},
+				{
+					$inc: {
+						quantity: +orderItem.amount,
+						selled: -orderItem.amount,
+					},
+				},
+				{ new: true }
+			);
+
+			if (productData) {
+				order = await Order.findByIdAndDelete(orderId);
+
+				if (!order) {
+					return {
+						status: 'failed',
+						message: 'Không tìm thấy đơn hàng',
+					};
+				}
+			} else {
+				return {
+					status: 'failed',
+					message: `Failed to update product with id: ${orderItem.product}`,
+				};
+			}
+		});
+
+		const results = await Promise.all(promises);
+
+		if (results.some((result) => result.status === 'failed')) {
+			const errorResult = results.find((result) => result.status === 'failed');
+			return res.status(400).json({
+				statusCode: 400,
+				statusMessage: errorResult.status,
+				message: errorResult.message,
+			});
+		}
+
+		return res.status(200).json({
+			statusCode: 200,
+			statusMessage: 'success',
+			message: 'Hủy thành công đơn hàng',
+			data: order,
+		});
+	} catch (error) {
+		console.error(error);
+		return res.status(500).json({
+			statusCode: 500,
+			statusMessage: 'failed',
+			message: 'Internal Server Error',
+		});
 	}
 };
