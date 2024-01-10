@@ -56,5 +56,6 @@ export const WrapperProducts = styled.div`
 	display: flex;
 	gap: 14px;
 	margin-top: 20px;
+	justify-content: center;
 	flex-wrap: wrap;
 `;

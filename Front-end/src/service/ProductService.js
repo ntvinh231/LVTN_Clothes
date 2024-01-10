@@ -117,6 +117,23 @@ export const getProductSearch = async (search, limit) => {
 	}
 };
 
+export const getBestSellingProductSearch = async (search, limit) => {
+	try {
+		let res;
+		if (!(search?.length > 0)) {
+			// getAll
+			res = await axios.get(`${process.env.REACT_APP_API_URL}/product/best-sellers?limit=${limit}`);
+		} else {
+			// getDataSearch
+			res = await axios.get(`${process.env.REACT_APP_API_URL}/product/best-sellers?name=/${search}/i&limit=${limit}`);
+		}
+
+		return res.data;
+	} catch (error) {
+		return error?.response;
+	}
+};
+
 export const getCollectionProduct = async (id) => {
 	try {
 		let res;

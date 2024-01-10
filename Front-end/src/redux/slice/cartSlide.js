@@ -235,16 +235,24 @@ export const cartSlide = createSlice({
 				if (action.payload) {
 					state.cartItems = action.payload.cartItems;
 					state.totalCart = action.payload.totalCart;
-					state.cartItems.amount = action.payload.cartItems.amount;
+					// Kiểm tra state.cartItems.amount có tồn tại hay không trước khi sử dụng
+					if (state.cartItems && state.cartItems.amount !== undefined) {
+						state.cartItems.amount = action.payload.cartItems.amount;
+					}
 					state.isLoadingGetCart = false;
 					state.isLoggedIn = false;
 				}
 			})
 			.addCase(decreaseAmountAsync.fulfilled, (state, action) => {
-				if (action.payload) {
+				if (action.payload && action.payload.cartItems) {
 					state.cartItems = action.payload.cartItems;
 					state.totalCart = action.payload.totalCart;
-					state.cartItems.amount = action.payload.cartItems.amount;
+
+					// Kiểm tra state.cartItems.amount có tồn tại hay không trước khi sử dụng
+					if (state.cartItems && state.cartItems.amount !== undefined) {
+						state.cartItems.amount = action.payload.cartItems.amount;
+					}
+
 					state.isLoadingGetCart = false;
 				}
 			});

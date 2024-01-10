@@ -131,7 +131,7 @@ const PaymentPage = () => {
 	console.log(cart);
 	useEffect(() => {
 		if (dataAddOrder !== undefined) {
-			if (dataAddOrder?.statusMessage) {
+			if (dataAddOrder?.statusMessage === 'success') {
 				const arrayOrdered = [];
 				cart?.cartItems?.forEach((element) => {
 					arrayOrdered.push(element.product);
@@ -148,7 +148,7 @@ const PaymentPage = () => {
 				});
 			} else {
 				console.log(dataAddOrder);
-				Message.error('Đặt hàng thất bại');
+				Message.error(dataAddOrder.message);
 			}
 		}
 	}, [dataAddOrder?.statusMessage]);

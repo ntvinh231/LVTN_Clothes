@@ -482,6 +482,11 @@ const AdminProduct = () => {
 			width: 200,
 		},
 		{
+			title: 'Selled',
+			dataIndex: 'selled',
+			sorter: (a, b) => a.selled - b.selled,
+		},
+		{
 			title: 'Quantity',
 			dataIndex: 'quantity',
 			sorter: (a, b) => a.quantity - b.quantity,
@@ -598,7 +603,7 @@ const AdminProduct = () => {
 			...stateProductDetails,
 			collections_id: collections_id,
 		};
-		console.log('configDataonF', configData);
+
 		mutationUpdateProduct.mutate(
 			{ id: rowSelected, configData },
 			{

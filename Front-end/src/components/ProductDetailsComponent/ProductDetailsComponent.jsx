@@ -132,7 +132,8 @@ const ProductDetailsComponent = ({ idProduct }) => {
 
 	const handleAddCart = async () => {
 		if (!isLoadingSoldOut) {
-			if (!user?.id) {
+			if (!user?.id || localStorage.getItem('accessToken') === 'undefined' || !localStorage.getItem('accessToken')) {
+				Message.error('Bạn chưa đăng nhập.Vui lòng đăng nhập');
 				navigate('/sign-in', { state: location?.pathname });
 			} else {
 				if (numProduct < 1) {

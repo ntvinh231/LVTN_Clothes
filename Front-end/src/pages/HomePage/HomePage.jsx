@@ -40,27 +40,55 @@ const HomePage = () => {
 		const limit = 10;
 		const searchValue = context?.queryKey && context?.queryKey[1];
 		const res = await ProductService.getProductSearch(searchValue, limit);
-		setIsNull(false);
-		if (res?.data?.length === 0) {
-			setIsNull(true);
-		}
+		setIsNull(res?.data?.length === 0);
 		setLoading(false);
 		return res;
 	};
 
+	const fetchBestSellers = async (context) => {
+		setLoading(true);
+		const limit = 10;
+		const searchValue = context?.queryKey && context?.queryKey[1];
+		const res = await ProductService.getBestSellingProductSearch(searchValue, limit);
+		setIsNull(res?.data?.length === 0);
+		setLoading(false);
+		return res;
+	};
+
+	const categories = [
+		{ title: 'Sản phẩm mới', fetchFunction: fetchProduct },
+		{ title: 'Sản phẩm bán chạy', fetchFunction: fetchBestSellers },
+		// Thêm các danh mục khác nếu cần
+	];
+
 	const {
 		isLoading,
 		data: products,
-		refetch,
-	} = useQuery(['products', searchDebounce], fetchProduct, {
+		refetch: refetchProducts,
+	} = useQuery(['products', searchDebounce], categories[0].fetchFunction, {
 		retry: 2,
 		retryDelay: 500,
 		keepPreviousData: true,
 		enabled: initialLoad,
 	});
+
+	const {
+		isLoadingSelled,
+		data: productsSelled,
+		refetch: refetchBestSellers,
+	} = useQuery(['bestSellers', searchDebounce], categories[1].fetchFunction, {
+		retry: 2,
+		retryDelay: 500,
+		keepPreviousData: true,
+		enabled: initialLoad,
+	});
+
 	useEffect(() => {
-		queryRef.current = refetch;
-	}, [refetch]);
+		queryRef.current = () => {
+			refetchProducts();
+			refetchBestSellers();
+		};
+	}, [refetchProducts, refetchBestSellers]);
 
 	useEffect(() => {
 		if (!initialLoad) {
@@ -85,31 +113,58 @@ const HomePage = () => {
 				}}
 			>
 				<Loading isLoading={loading}>
-					<WrapperProducts>
-						<div style={{ width: '1270px', margin: '0 auto', display: 'flex', justifyContent: 'center' }}>
-							{isNull ? (
-								<div style={{ fontWeight: 'bold', fontSize: '20px' }}>
-									Không tìm thấy bất kỳ kết quả nào với từ khóa trên.
-								</div>
-							) : (
-								''
-							)}
-						</div>
+					{categories.map((category) => (
+						<WrapperProducts key={category.title}>
+							<div
+								style={{
+									marginTop: '20px',
+									textAlign: 'center',
+									color: 'black',
+									fontWeight: 'bold',
+									fontStyle: 'normal',
+									fontSize: '18px',
+								}}
+							>
+								{category.title}
+							</div>
 
-						{products?.data?.map((product) => {
-							return (
-								<CardComponent
-									key={product._id}
-									description={product.description}
-									image={product.image}
-									name={product.name}
-									discount={product.discount}
-									price={product.price}
-									id={product._id}
-								></CardComponent>
-							);
-						})}
-					</WrapperProducts>
+							<div style={{ width: '1270px', margin: '0 auto', display: 'flex', justifyContent: 'center' }}>
+								{isNull ? (
+									<div style={{ fontWeight: 'bold', fontSize: '20px' }}>
+										Không tìm thấy bất kỳ kết quả nào với từ khóa trên.
+									</div>
+								) : (
+									''
+								)}
+							</div>
+							{category.title === 'Sản phẩm mới' && products && Array.isArray(products.data)
+								? products.data.map((product) => (
+										<CardComponent
+											key={product._id}
+											description={product.description}
+											image={product.image}
+											name={product.name}
+											discount={product.discount}
+											price={product.price}
+											id={product._id}
+										></CardComponent>
+								  ))
+								: category.title === 'Sản phẩm bán chạy' && productsSelled && Array.isArray(productsSelled.data)
+								? productsSelled.data.map((product) => (
+										<CardComponent
+											key={product._id}
+											description={product.description}
+											image={product.image}
+											name={product.name}
+											discount={product.discount}
+											price={product.price}
+											id={product._id}
+										></CardComponent>
+								  ))
+								: // Thêm các trường hợp khác nếu cần
+								  null}
+						</WrapperProducts>
+					))}
 				</Loading>
 			</div>
 
