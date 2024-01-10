@@ -27,3 +27,18 @@ export const getDetailsOrder = async (id) => {
 		return error?.response;
 	}
 };
+
+export const deleteOrder = async (id, orderItems, userId) => {
+	try {
+		// Thay đổi cách gọi API để truyền dữ liệu qua body
+		const res = await axiosJWT.post(`${process.env.REACT_APP_API_URL}/order/delete`, {
+			orderId: id,
+			orderItems: orderItems,
+			userId,
+			// Thêm các trường dữ liệu khác nếu cần
+		});
+		return res.data;
+	} catch (error) {
+		return error?.response;
+	}
+};

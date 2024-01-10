@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-
+import cartEmptyBackground from '../../assets/images/cart_empty_background.webp';
 import * as message from '../../components/Message/Message';
 
 import ButtonComponent from '../../components/ButtonComponent/ButtonComponent';
@@ -10,6 +10,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import Loading from '../../components/LoadingComponent/Loading';
 import * as OrderService from '../../service/OrderService';
 import {
+	EmptyOrderWrapper,
 	WrapperContainer,
 	WrapperFooterItem,
 	WrapperHeaderItem,
@@ -59,34 +60,41 @@ const MyOrder = () => {
 
 	const mutation = useMutation({
 		mutationFn: (data) => {
-			// const { id, orderItems, userId } = data;
-			// const res = OrderService.cancelOrder(id, orderItems, userId);
-			// return res;
+			const { id, orderItems, userId } = data;
+			const res = OrderService.deleteOrder(id, orderItems, userId);
+			return res;
 		},
 	});
 
 	const handleCanceOrder = (order) => {
-		mutation.mutate(
-			{ id: order._id, token: state?.token, orderItems: order?.orderItems, userId: user.id },
-			{
-				onSuccess: () => {
-					queryOrder.refetch();
-				},
-			}
-		);
+		const userConfirmed = window.confirm('Bạn có chắc chắn muốn hủy đơn hàng?');
+		if (userConfirmed) {
+			mutation.mutate(
+				{ id: order._id, orderItems: order?.cartOrder, userId: user.id },
+				{
+					onSuccess: () => {
+						queryOrder.refetch();
+					},
+					onError: (error) => {
+						console.error('Error cancelling order:', error);
+						alert('Đã xảy ra lỗi khi hủy đơn hàng. Vui lòng thử lại sau.');
+					},
+				}
+			);
+		}
 	};
 
-	// const { isLoading: isLoadingCancel, isSuccess: isSuccessCancel, isError: isErrorCancle, data: dataCancel } = mutation;
+	const { isLoading: isLoadingCancel, isSuccess: isSuccessCancel, isError: isErrorCancle, data: dataCancel } = mutation;
 
-	// useEffect(() => {
-	// 	if (isSuccessCancel && dataCancel?.status === 'OK') {
-	// 		message.success();
-	// 	} else if (isSuccessCancel && dataCancel?.status === 'ERR') {
-	// 		message.error(dataCancel?.message);
-	// 	} else if (isErrorCancle) {
-	// 		message.error();
-	// 	}
-	// }, [isErrorCancle, isSuccessCancel]);
+	useEffect(() => {
+		if (isSuccessCancel && dataCancel?.status === 'OK') {
+			message.success();
+		} else if (isSuccessCancel && dataCancel?.status === 'ERR') {
+			message.error(dataCancel?.message);
+		} else if (isErrorCancle) {
+			message.error();
+		}
+	}, [isErrorCancle, isSuccessCancel]);
 
 	const renderProduct = (data) => {
 		return data?.cartOrder?.map((order) => (
@@ -121,15 +129,13 @@ const MyOrder = () => {
 		));
 	};
 
-	console.log(data);
 	return (
 		<Loading isLoading={isLoading}>
 			<WrapperContainer>
 				<div style={{ height: '100%', width: '1270px', margin: '0 auto' }}>
-					<h2 style={{ textAlign: 'center' }}>Đơn hàng của tôi</h2>
-					<WrapperListOrder>
-						{Array.isArray(data) &&
-							data.map((order) => (
+					{Array.isArray(data) && data.length > 0 ? (
+						<WrapperListOrder>
+							{data.map((order) => (
 								<WrapperItemOrder key={order?._id}>
 									<WrapperStatus>
 										<span style={{ fontSize: '14px', fontWeight: 'bold' }}>Trạng thái</span>
@@ -186,7 +192,27 @@ const MyOrder = () => {
 									</WrapperFooterItem>
 								</WrapperItemOrder>
 							))}
-					</WrapperListOrder>
+						</WrapperListOrder>
+					) : (
+						<EmptyOrderWrapper>
+							<p>Hiện bạn chưa có đơn hàng nào.</p>
+							<img src={cartEmptyBackground} alt="Empty Cart" />
+							<ButtonComponent
+								backgroundHover="#9255FD"
+								textHover="#fff"
+								onClick={() => navigate('/product/collections', { state: 'all' })}
+								size={40}
+								styleButton={{
+									height: '36px',
+									border: '1px solid #9255FD',
+									borderRadius: '4px',
+									transition: 'color 0.3s ease',
+								}}
+								textButton={'Mua sắm ngay'}
+								styleTextButton={{ color: '#9255FD', fontSize: '14px' }}
+							></ButtonComponent>
+						</EmptyOrderWrapper>
+					)}
 				</div>
 			</WrapperContainer>
 		</Loading>

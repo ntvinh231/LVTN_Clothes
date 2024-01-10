@@ -38,6 +38,7 @@ import {
 	resetCart,
 	selectedCart,
 } from '../../redux/slice/cartSlide';
+import * as message from '../../components/Message/Message';
 import ModalComponent from '../../components/ModalComponent/ModalComponent';
 import { useMutation } from '@tanstack/react-query';
 import Loading from '../../components/LoadingComponent/Loading';
@@ -51,14 +52,17 @@ const CartPage = () => {
 
 	const navigate = useNavigate();
 	const dispatch = useDispatch();
+
 	useEffect(() => {
 		if (user?.id) {
 			dispatch(getCartUser(user?.id));
 		} else if (!token || token === 'undefined') {
+			message.error('Bạn không đăng nhập. Vui lòng đăng nhập lại');
 			dispatch(resetCart());
 			dispatch(resetUser());
+			navigate('/');
 		}
-	}, [user, dispatch]);
+	}, [user, token]);
 
 	const [form] = Form.useForm();
 	const [listChecked, setListChecked] = useState([]);
@@ -330,6 +334,7 @@ const CartPage = () => {
 												borderColor: '#080808',
 												border: '2px solid #080808',
 												padding: '8px 12px',
+												marginRight: '12px',
 												transition: 'background-color 0.3s, color 0.3s',
 											}}
 											onClick={() => navigate('/product/collections', { state: 'all' })}

@@ -54,7 +54,7 @@ export const WrapperButtonMore = styled(ButtonComponent)`
 
 export const WrapperProducts = styled.div`
 	display: flex;
-	gap: 14px;
+	gap: 25px;
 	margin-top: 20px;
 	justify-content: center;
 	flex-wrap: wrap;

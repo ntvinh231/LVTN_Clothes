@@ -40,7 +40,7 @@ export default function App() {
 		return () => {
 			isMounted = false;
 		};
-	}, []);
+	}, [user]);
 
 	UserService.axiosJWT.interceptors.request.use(async (config) => {
 		try {

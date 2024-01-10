@@ -12,6 +12,38 @@ export const WrapperStyleHeader = styled.div`
 		font-size: 13px;
 	}
 `;
+
+export const EmptyOrderWrapper = styled.div`
+	text-align: center;
+	margin-top: 20px;
+
+	p {
+		font-size: 16px;
+		font-weight: 500;
+		color: #555;
+	}
+
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+
+	img {
+		max-width: 100%;
+		height: auto;
+	}
+
+	ButtonComponent {
+		margin-top: 10px;
+	}
+`;
+
+export const WrapperContent = styled.div`
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	margin-top: 20px;
+`;
+
 export const WrapperStyleHeaderDilivery = styled.div`
 	background: rgb(255, 255, 255);
 	padding: 9px 16px;
@@ -28,7 +60,6 @@ export const WrapperStyleHeaderDilivery = styled.div`
 
 export const WrapperContainer = styled.div`
 	width: 100%;
-	background-color: #f5f5fa;
 `;
 
 export const WrapperLeft = styled.div`
@@ -41,6 +72,7 @@ export const WrapperListOrder = styled.div`
 	gap: 20px;
 	padding-top: 20px;
 `;
+
 export const WrapperFooterItem = styled.div`
 	display: flex;
 	flex-direction: column;
@@ -75,7 +107,7 @@ export const WrapperItemOrder = styled.div`
 
 export const WrapperStatus = styled.div`
 	display: flex;
-	align-item: flex-start;
+	align-items: flex-start;
 	width: 100%;
 	margin-bottom: 10px;
 	padding-bottom: 10px;

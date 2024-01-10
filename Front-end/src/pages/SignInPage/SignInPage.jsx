@@ -78,9 +78,11 @@ const SignInPage = () => {
 			email,
 			password,
 		});
-		data?.data?.statusCode === 400 && Message.error(data?.data?.message);
 	};
 
+	if (data?.data?.statusCode === 400) {
+		Message.error(data?.data?.message);
+	}
 	const handleNavigateRegister = () => {
 		navigate('/sign-up');
 	};

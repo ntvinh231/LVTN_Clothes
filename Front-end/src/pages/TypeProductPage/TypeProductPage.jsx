@@ -32,7 +32,7 @@ const TypeProductPage = () => {
 	const [loading, setLoading] = useState(false);
 	const [paginate, setPaginate] = useState({
 		page: 1,
-		limit: 4,
+		limit: 5,
 		totalPage: 1,
 	});
 

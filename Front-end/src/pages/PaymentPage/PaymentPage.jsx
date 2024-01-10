@@ -73,6 +73,7 @@ const PaymentPage = () => {
 	const mutationAddOrder = useMutation({
 		mutationFn: (data) => OrderService.createOrder(data),
 	});
+	console.log(state);
 
 	useEffect(() => {
 		if (isOpenModalUpdateInfo) {

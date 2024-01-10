@@ -25,8 +25,10 @@ import Loading from '../LoadingComponent/Loading';
 import { useDispatch, useSelector } from 'react-redux';
 import { checkProduct } from '../../redux/slice/checkProductSlide';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { addToCart } from '../../redux/slice/cartSlide';
+import { addToCart, getCartUser, resetCart } from '../../redux/slice/cartSlide';
 import { convertPrice } from '../../util';
+import { resetUser } from '../../redux/slice/userSlide';
+import * as message from '../../components/Message/Message';
 const ProductDetailsComponent = ({ idProduct }) => {
 	const dispatch = useDispatch();
 	const navigate = useNavigate();
@@ -38,6 +40,7 @@ const ProductDetailsComponent = ({ idProduct }) => {
 	const [sizeProduct, setSizeProduct] = useState('S');
 	const [collectionName, setCollectionName] = useState('Loading...');
 	const checkSoldOut = useSelector((state) => state.checkProduct);
+	const token = localStorage.getItem('accessToken');
 
 	const [checkProductDetails, setCheckProductDetails] = useState({
 		name: nameProduct,
@@ -45,6 +48,17 @@ const ProductDetailsComponent = ({ idProduct }) => {
 		quantity: numProduct,
 		collections_id: '',
 	});
+
+	useEffect(() => {
+		if (user?.id) {
+			dispatch(getCartUser(user?.id));
+		} else if (!token || token === 'undefined') {
+			message.error('Bạn không đăng nhập. Vui lòng đăng nhập lại');
+			dispatch(resetCart());
+			dispatch(resetUser());
+			navigate('/');
+		}
+	}, [user, token]);
 
 	const fetchProductDetails = async (context) => {
 		const id = context?.queryKey && context?.queryKey[1];
@@ -132,8 +146,9 @@ const ProductDetailsComponent = ({ idProduct }) => {
 
 	const handleAddCart = async () => {
 		if (!isLoadingSoldOut) {
-			if (!user?.id || localStorage.getItem('accessToken') === 'undefined' || !localStorage.getItem('accessToken')) {
+			if (!user?.id || !localStorage.getItem('accessToken') || localStorage.getItem('accessToken') === 'undefined') {
 				Message.error('Bạn chưa đăng nhập.Vui lòng đăng nhập');
+				dispatch(resetUser());
 				navigate('/sign-in', { state: location?.pathname });
 			} else {
 				if (numProduct < 1) {

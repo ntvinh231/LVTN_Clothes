@@ -25,7 +25,7 @@ const CardComponent = (props) => {
 			onClick={() => handleDetails(id)}
 			hoverable
 			headStyle={{ width: '200px', height: '200px' }}
-			style={{ width: 200 }}
+			style={{ width: 180 }}
 			bodyStyle={{ padding: '15px 20px' }}
 			cover={<CardImage alt={name} src={image} />}
 		>

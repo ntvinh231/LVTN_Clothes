@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 export const WrapperProducts = styled.div`
 	display: flex;
-	gap: 30px;
+	gap: 20px;
 	margin-top: 20px;
 	flex-wrap: wrap;
 `;

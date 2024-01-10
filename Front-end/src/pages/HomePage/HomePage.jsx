@@ -128,7 +128,7 @@ const HomePage = () => {
 								{category.title}
 							</div>
 
-							<div style={{ width: '1270px', margin: '0 auto', display: 'flex', justifyContent: 'center' }}>
+							<div style={{ width: '1150px', margin: '0 -100px 0 0', display: 'flex', justifyContent: 'center' }}>
 								{isNull ? (
 									<div style={{ fontWeight: 'bold', fontSize: '20px' }}>
 										Không tìm thấy bất kỳ kết quả nào với từ khóa trên.
