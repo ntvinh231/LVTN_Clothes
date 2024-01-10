@@ -132,7 +132,6 @@ const CollectionProduct = () => {
 		}
 	}, [rowSelected]);
 
-	console.log(dataUpdate);
 	useEffect(() => {
 		if (dataUpdate?.statusMessage === 'success') {
 			message.success('Cập nhật thành công');

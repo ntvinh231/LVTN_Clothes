@@ -6,6 +6,7 @@ const ButtonComponent = ({
 	backgroundHover,
 	styleButton,
 	styleTextButton,
+	textHover = '#fff',
 	textButton,
 	isLoading = false,
 	...rest
@@ -25,7 +26,11 @@ const ButtonComponent = ({
 			disabled={isLoading}
 			{...rest}
 		>
-			{isLoading ? <span style={styleTextButton}>Loading...</span> : <span style={styleTextButton}>{textButton}</span>}
+			{isLoading ? (
+				<span style={{ ...styleTextButton, color: isHovered ? textHover : styleTextButton.color }}>Loading...</span>
+			) : (
+				<span style={{ ...styleTextButton, color: isHovered ? textHover : styleTextButton.color }}>{textButton}</span>
+			)}
 		</Button>
 	);
 };

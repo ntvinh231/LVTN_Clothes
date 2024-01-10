@@ -21,14 +21,26 @@ const BreadCrumbComponent = () => {
 			case locationPath.startsWith('/cart'):
 				setBreadCrumb('Giỏ hàng');
 				break;
+			case locationPath.startsWith('/my-order'):
+				setBreadCrumb('Lịch sử mua hàng');
+				break;
+			case locationPath.startsWith('/payment'):
+				setBreadCrumb('Thanh toán');
+				break;
+			case locationPath.startsWith('/ordersuccess'):
+				setBreadCrumb('Đơn hàng đã đăt');
+				break;
 
+			case locationPath.startsWith('/order-details'):
+				setBreadCrumb('Chi tiết đơn hàng');
+				break;
 			default:
 				break;
 		}
 	}, [locationPath]);
 	return (
 		<div>
-			<Row style={{ padding: '14px 130px', marginTop: '80px', backgroundColor: '#f6f6f6' }}>
+			<Row style={{ padding: '14px 135px', marginTop: '80px', backgroundColor: '#f6f6f6' }}>
 				<div>
 					<span onClick={() => navigate('/')} style={{ color: '#2f80ed', cursor: 'pointer' }}>
 						Trang chủ

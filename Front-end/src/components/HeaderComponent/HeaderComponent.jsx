@@ -7,7 +7,7 @@ import {
 	WrapperHeaderCart,
 	WrapperTextHeader,
 } from './style';
-import { Badge, Col } from 'antd';
+import { Badge, Col, Popover } from 'antd';
 import { UserOutlined, ShoppingCartOutlined } from '@ant-design/icons';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
@@ -25,6 +25,7 @@ const HeaderComponent = ({ isHiddentSearch = false, isHiddenCart = false }) => {
 	const cart = useSelector((state) => state.cart);
 	const location = useLocation();
 	const user = useSelector((state) => state.user);
+	const [isOpenPopup, setIsOpenPopup] = useState(false);
 	const handleNavigateLogin = () => {
 		if (!user?.name || !user?.accessToken) navigate('/sign-in');
 	};
@@ -45,18 +46,35 @@ const HeaderComponent = ({ isHiddentSearch = false, isHiddenCart = false }) => {
 		setUserAvatar(user?.avatar);
 		setIsLoading(false);
 	}, [user?.name, user?.avatar]);
-	const content = user?.email ? (
-		<div>
-			<WrapperContentPopup onClick={() => navigate('/profile-user')}>Thông tin người dùng</WrapperContentPopup>
-			{user.role === 'admin' || user.role === 'superadmin' ? (
-				<WrapperContentPopup onClick={() => navigate('/system/admin')}>Quản lý hệ thống</WrapperContentPopup>
-			) : (
-				<></>
-			)}
 
-			<WrapperContentPopup onClick={handleLogout}>Đăng xuất</WrapperContentPopup>
+	const content = (
+		<div>
+			<WrapperContentPopup onClick={() => handleClickNavigate('profile')}>Thông tin người dùng</WrapperContentPopup>
+			{(user?.role === 'admin' || user?.role === 'superadmin') && (
+				<WrapperContentPopup onClick={() => handleClickNavigate('admin')}>Quản lí hệ thống</WrapperContentPopup>
+			)}
+			<WrapperContentPopup onClick={() => handleClickNavigate(`my-order`)}>Đơn hàng của tôi</WrapperContentPopup>
+			<WrapperContentPopup onClick={() => handleClickNavigate()}>Đăng xuất</WrapperContentPopup>
 		</div>
-	) : null;
+	);
+
+	const handleClickNavigate = (type) => {
+		if (type === 'profile') {
+			navigate('/profile-user');
+		} else if (type === 'admin' || type === 'superadmin') {
+			navigate('/system/admin');
+		} else if (type === 'my-order') {
+			navigate('/my-order', {
+				state: {
+					id: user?.id,
+					token: user?.accessToken,
+				},
+			});
+		} else {
+			handleLogout();
+		}
+		setIsOpenPopup(false);
+	};
 
 	const onSearch = (e) => {
 		setSearch(e.target.value);
@@ -90,7 +108,7 @@ const HeaderComponent = ({ isHiddentSearch = false, isHiddenCart = false }) => {
 						style={{ display: 'flex', cursor: 'pointer', marginRight: isHiddenCart && isHiddentSearch ? '340px' : '0' }}
 					>
 						<>
-							<WrapperAccount content={content} trigger="click">
+							<WrapperAccount>
 								{userAvatar ? (
 									<img
 										src={userAvatar}
@@ -101,13 +119,23 @@ const HeaderComponent = ({ isHiddentSearch = false, isHiddenCart = false }) => {
 											objectFit: 'cover',
 										}}
 										alt="avatar"
+										onClick={() => setIsOpenPopup((prev) => !prev)}
 									></img>
 								) : (
 									<UserOutlined style={{ fontSize: '20px' }} />
 								)}
 
 								{user?.accessToken && user?.id ? (
-									<div style={{ cursor: 'pointer', marginLeft: '5px' }}>{userName || 'User' || user?.email}</div>
+									<>
+										<Popover content={content} trigger="click" open={isOpenPopup}>
+											<div
+												style={{ cursor: 'pointer', marginLeft: '5px' }}
+												onClick={() => setIsOpenPopup((prev) => !prev)}
+											>
+												{userName || 'User' || user?.email}
+											</div>
+										</Popover>
+									</>
 								) : (
 									<div>
 										<WrapperTextHeader>Đăng nhập/Đăng ký</WrapperTextHeader>

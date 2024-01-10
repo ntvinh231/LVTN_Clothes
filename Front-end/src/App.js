@@ -8,7 +8,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import * as UserService from './service/UserService';
 import * as ProductService from './service/ProductService';
 
-import { updateUser } from './redux/slice/userSlide';
+import { resetUser, updateUser } from './redux/slice/userSlide';
 import Cookies from 'js-cookie';
 import Loading from './components/LoadingComponent/Loading';
 
@@ -22,14 +22,19 @@ export default function App() {
 		const fetchData = async () => {
 			setIsLoading(true);
 			const { storageData, decoded } = handleDecoded();
+
 			if (decoded?.payload) {
 				await handleGetDetailsUser(decoded?.payload, storageData);
+			} else {
+				dispatch(resetUser());
 			}
 			if (isMounted) {
 				setIsLoading(false);
 			}
+			if (storageData === 'undefined') {
+				localStorage.removeItem('accessToken');
+			}
 		};
-
 		fetchData();
 
 		return () => {
@@ -49,7 +54,6 @@ export default function App() {
 				const data = await UserService.refreshToken();
 				config.headers['token'] = `Bearer ${data?.accessToken}`;
 				// Lưu access token vào cookie
-
 				Cookies.set('jwt', data?.accessToken, cookieOptions);
 				localStorage.setItem('accessToken', JSON.stringify(data?.accessToken));
 			}

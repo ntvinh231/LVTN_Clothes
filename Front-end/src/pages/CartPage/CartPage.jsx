@@ -60,13 +60,6 @@ const CartPage = () => {
 		}
 	}, [user, dispatch]);
 
-	useEffect(() => {
-		if (!token || token === 'undefined') {
-			Message.error('Bạn không đăng nhập.Vui lòng đăng nhập lại');
-			navigate('/');
-		}
-	}, [user]);
-
 	const [form] = Form.useForm();
 	const [listChecked, setListChecked] = useState([]);
 	const [isOpenModalUpdateInfo, setIsOpenModalUpdateInfo] = useState(false);
@@ -189,7 +182,7 @@ const CartPage = () => {
 		} else {
 			return 0;
 		}
-	}, [priceMemo]);
+	}, [priceMemo, priceDiscountMemo, cart]);
 
 	const totalPriceMemo = useMemo(() => {
 		return Number(priceMemo) - (Number(priceMemo) * Number(priceDiscountMemo)) / 100 + Number(diliveryPriceMemo);
@@ -209,7 +202,14 @@ const CartPage = () => {
 		if (!user?.phone || !user?.address || !user?.name || !user?.city) {
 			setIsOpenModalUpdateInfo(true);
 		} else {
-			navigate('/payment');
+			navigate('/payment', {
+				state: {
+					priceMemo,
+					totalPriceMemo,
+					priceDiscountMemo,
+					diliveryPriceMemo,
+				},
+			});
 		}
 	};
 
@@ -267,8 +267,7 @@ const CartPage = () => {
 
 	return (
 		<div style={{ background: '#fff', with: '100%', height: '100vh' }}>
-			<div style={{ height: '100%', width: '1270px', margin: '0 auto', padding: '0 26px' }}>
-				<h3 style={{ fontWeight: 'bold', marginTop: '10px' }}>Giỏ hàng</h3>
+			<div style={{ height: '100%', width: '910px', margin: '0 auto', padding: '0 26px' }}>
 				<div style={{ display: 'flex', justifyContent: 'center' }}>
 					<Loading isLoading={cart?.isLoadingGetCart}>
 						<WrapperLeft>
@@ -461,6 +460,7 @@ const CartPage = () => {
 						<ButtonComponent
 							onClick={() => handleAddCard()}
 							backgroundHover="#0089ff"
+							textHover="#fff"
 							size={40}
 							styleButton={{
 								background: 'rgb(255, 57, 69)',

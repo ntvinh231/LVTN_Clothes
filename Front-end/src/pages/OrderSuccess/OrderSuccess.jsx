@@ -13,8 +13,8 @@ import * as OrderService from '../../service/OrderService';
 
 import { useMutation } from '@tanstack/react-query';
 import Loading from '../../components/LoadingComponent/Loading';
-import { resetUser, updateUser } from '../../redux/slice/userSlide';
-import { WrapperCountCart, WrapperItemCart } from '../CartPage/style';
+import { resetUser } from '../../redux/slice/userSlide';
+import { WrapperItemCart } from '../CartPage/style';
 import { orderContant } from '../../contant';
 
 const OrderSuccess = () => {
@@ -24,30 +24,39 @@ const OrderSuccess = () => {
 	const dispatch = useDispatch();
 	const location = useLocation();
 	const { state } = location;
+
 	const token = localStorage.getItem('accessToken');
-	console.log(state);
+
 	useEffect(() => {
 		if (user?.id) {
 			dispatch(getCartUser(user?.id));
 		}
-		if (!token || token === 'undefined') {
+		if (
+			!user ||
+			!user.accessToken ||
+			!user.name ||
+			user.accessToken === '' ||
+			user.name === '' ||
+			!token ||
+			token === 'undefined'
+		) {
 			dispatch(resetCart());
 			dispatch(resetUser());
+			Message.error('Bạn không đăng nhập. Vui lòng đăng nhập lại');
+			navigate('/');
 		}
-	}, [user, dispatch]);
+	}, [user, token]);
 
 	useEffect(() => {
-		if (!token || token === 'undefined') {
-			navigate('/');
-			Message.error('Bạn không đăng nhập.Vui lòng đăng nhập lại');
+		if (state === null) {
+			navigate('/payment');
 		}
-	}, [user]);
+	}, [state]);
 
 	return (
 		<div style={{ background: '#f5f5fa', with: '100%', height: '100vh' }}>
 			<Loading isLoading={false}>
 				<div style={{ height: '100%', width: '1270px', margin: '0 auto', padding: '0 26px' }}>
-					<h3>Đơn hàng đã đặt thành công</h3>
 					<div style={{ display: 'flex', justifyContent: 'center' }}>
 						<WrapperContainer>
 							<WrapperInfo>
@@ -84,41 +93,46 @@ const OrderSuccess = () => {
 										<span style={{ marginRight: '20px', fontWeight: 'bold' }}>Giá tiền</span>
 									</div>
 								</WrapperStyleHeader>
-								{state.orders?.map((order) => {
-									return (
-										<WrapperItemCart>
-											<div style={{ fontSize: '15px', width: '390px', display: 'flex', alignItems: 'center', gap: 4 }}>
-												<img
-													src={order?.image}
-													alt={order?.name}
-													style={{ width: '77px', height: '79px', objectFit: 'cover' }}
-												/>
-
+								{state &&
+									state.orders?.map((order) => {
+										return (
+											<WrapperItemCart>
 												<div
-													style={{
-														width: 260,
-														overflow: 'hidden',
-														whiteSpace: 'nowrap',
-														fontWeight: '550',
-														marginLeft: '4px',
-													}}
+													style={{ fontSize: '15px', width: '390px', display: 'flex', alignItems: 'center', gap: 4 }}
 												>
-													{order?.name} ({order?.size?.toUpperCase()})
+													<img
+														src={order?.image}
+														alt={order?.name}
+														style={{ width: '77px', height: '79px', objectFit: 'cover' }}
+													/>
+
+													<div
+														style={{
+															width: 260,
+															overflow: 'hidden',
+															whiteSpace: 'nowrap',
+															fontWeight: '550',
+															marginLeft: '4px',
+														}}
+													>
+														{order?.name} ({order?.size?.toUpperCase()})
+													</div>
 												</div>
-											</div>
-											<div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-												<span>
-													<span style={{ fontSize: '15px', color: '#242424', marginLeft: '40px' }}>
-														{order?.amount}
+												<div
+													style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
+												>
+													<span>
+														<span style={{ fontSize: '15px', color: '#242424', marginLeft: '40px' }}>
+															{order?.amount}
+														</span>
 													</span>
-												</span>
-												<span style={{ color: 'rgb(255, 66, 78)', fontSize: '13px', fontWeight: 500 }}>
-													<span style={{ fontSize: '15px', color: '#242424' }}>{convertPrice(order?.price)}</span>
-												</span>
-											</div>
-										</WrapperItemCart>
-									);
-								})}
+													<span style={{ color: 'rgb(255, 66, 78)', fontSize: '13px', fontWeight: 500 }}>
+														<span style={{ fontSize: '15px', color: '#242424' }}>{convertPrice(order?.price)}</span>
+													</span>
+												</div>
+											</WrapperItemCart>
+										);
+									})}
 							</WrapperInfo>
 							<div>
 								<span
