@@ -8,6 +8,10 @@ const productSchema = new mongoose.Schema(
 		size: String,
 		description: String,
 		quantity: Number,
+		selled: {
+			type: Number,
+			default: 0,
+		},
 		image: String,
 		collections_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Collections', required: true },
 		discount: Number,

@@ -9,6 +9,7 @@ import {
 	updateProduct,
 	getProductAdmin,
 	getProductTypePagi,
+	getProductBestSelled,
 } from '../controllers/productController.js';
 import isLoggedIn from '../middleware/isLoggedIn.js';
 import restricTo from '../middleware/checkRole.js';
@@ -18,6 +19,8 @@ import { checkProductDetails } from '../controllers/productDetailsController.js'
 //Product Details
 router.post('/checkProductDetails', checkProductDetails);
 router.get('/', getProduct);
+//Best Selled
+router.get('/best-sellers', getProductBestSelled);
 router.get('/getProductTypePagi', getProductTypePagi);
 
 router.get('/admin', getProductAdmin);

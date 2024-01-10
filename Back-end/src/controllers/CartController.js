@@ -52,7 +52,10 @@ export const removeCart = async (req, res, next) => {
 		const existingCart = await Cart.findOne({ user: userId });
 
 		if (existingCart) {
-			existingCart.cartItems = existingCart.cartItems.filter((item) => item.product.toString() !== idProduct);
+			existingCart.cartItems = existingCart.cartItems.filter((item) => {
+				// Kiểm tra xem item.product và item.product.toString có tồn tại
+				return item.product && item.product.toString() !== idProduct;
+			});
 
 			await existingCart.save();
 

@@ -98,6 +98,53 @@ export const getProduct = async (req, res, next) => {
 	}
 };
 
+export const getProductBestSelled = async (req, res, next) => {
+	try {
+		let page = req.query.page;
+		const { filter, limit, sort } = apq(req.query);
+		delete filter.page;
+
+		const filterData = filter.id ? { _id: filter.id } : filter;
+		const offset = limit * (page - 1);
+		const totalProductCount = await Product.countDocuments(filterData);
+
+		// Thêm trường sắp xếp theo selled giảm dần
+		const products = await Product.find(filterData)
+			.limit(limit)
+			.skip(offset)
+			.sort({ selled: -1, ...sort });
+
+		const uniqueProductsMap = {};
+		products.forEach((product) => {
+			const key = `${product.name}_${product.collections_id}`;
+			if (!uniqueProductsMap[key]) {
+				uniqueProductsMap[key] = product;
+			}
+		});
+
+		const uniqueProducts = Object.values(uniqueProductsMap);
+
+		if (filter.id && uniqueProducts.length === 0) {
+			return res.status(404).json({
+				statusCode: 404,
+				statusMessage: 'failed',
+				message: 'The product is not defined',
+			});
+		}
+
+		return res.status(200).json({
+			statusCode: 200,
+			statusMessage: 'success',
+			data: uniqueProducts,
+			totalProduct: totalProductCount,
+			totalPage: Math.ceil(totalProductCount / (limit || 10)),
+		});
+	} catch (error) {
+		console.log(error);
+		return next(httpError(400, error));
+	}
+};
+
 export const getProductAdmin = async (req, res, next) => {
 	try {
 		let page = req.query.page;
