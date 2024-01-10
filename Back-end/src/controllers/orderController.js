@@ -42,6 +42,7 @@ export const createOrder = async (req, res, next) => {
 					name: cart.name,
 				};
 			}
+			return productData;
 		});
 
 		// Đợi tất cả các promises hoàn thành
@@ -51,7 +52,7 @@ export const createOrder = async (req, res, next) => {
 		if (result.some((item) => item && item.statusCode === 400)) {
 			const insufficientStockProducts = result.filter((item) => item && item.statusCode === 400);
 			const arrName = insufficientStockProducts.map((item) => item.name);
-
+			console.log(insufficientStockProducts);
 			return res.status(200).json({
 				statusCode: 400,
 				statusMessage: 'failed',
@@ -61,7 +62,7 @@ export const createOrder = async (req, res, next) => {
 
 		// Tạo order
 		const order = await Order.create({
-			cartItems,
+			cartOrder: cartItems,
 			shippingAddress: {
 				fullName,
 				address,
@@ -119,19 +120,26 @@ export const createOrder = async (req, res, next) => {
 	}
 };
 
-export const getOrderDetails = async (req, res) => {
+export const getAllOrder = async (req, res, next) => {
 	try {
-		const orderId = req.params.id;
-		if (!orderId) {
+		const userId = req.params.id;
+
+		if (!userId) {
 			return res.status(200).json({
 				statusCode: 404,
 				statusMessage: 'failed',
 				message: 'The userId is required',
 			});
 		}
-		const order = await Order.findById({
-			_id: orderId,
-		});
+		const order = await Order.find({ user: userId });
+		if (!order) {
+			return res.status(200).json({
+				statusCode: 404,
+				statusMessage: 'failed',
+				message: 'The order is not defined',
+			});
+		}
+
 		if (order === null) {
 			return res.status(200).json({
 				statusCode: 404,
@@ -139,13 +147,45 @@ export const getOrderDetails = async (req, res) => {
 				message: 'The order is not defined',
 			});
 		}
+
 		return res.status(200).json({
 			statusCode: 200,
 			statusMessage: 'success',
 			data: order,
 		});
 	} catch (e) {
-		console.log(error);
-		return next(httpError(500, error));
+		console.log(e);
+		return next(httpError(500, e));
+	}
+};
+
+export const getOrderDetails = async (req, res, next) => {
+	try {
+		const orderId = req.params.id;
+
+		if (!orderId) {
+			return res.status(200).json({
+				statusCode: 404,
+				statusMessage: 'failed',
+				message: 'The orderId is required',
+			});
+		}
+		const order = await Order.findById({ _id: orderId });
+		if (!order) {
+			return res.status(200).json({
+				statusCode: 404,
+				statusMessage: 'failed',
+				message: 'The Order is not defined',
+			});
+		}
+
+		return res.status(200).json({
+			statusCode: 200,
+			statusMessage: 'success',
+			data: order,
+		});
+	} catch (e) {
+		console.log(e);
+		return next(httpError(500, e));
 	}
 };
