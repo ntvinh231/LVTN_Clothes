@@ -3,12 +3,20 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import userRouter from './src/routes/userRouter.js';
 import productRouter from './src/routes/productRouter.js';
+import cartRouter from './src/routes/cartRouter.js';
+import orderRouter from './src/routes/orderRouter.js';
 import connection from './src/database/connection.js';
 import cookieParser from 'cookie-parser';
 import httpError from 'http-errors';
 import fileUpload from 'express-fileupload';
 
 const app = express();
+// Sử dụng cors() một lần với tùy chọn
+const corsOptions = {
+	origin: 'http://localhost:3000',
+	credentials: true, //access-control-allow-credentials:true
+};
+app.use(cors(corsOptions));
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(fileUpload({ createParentPath: true }));
@@ -19,13 +27,6 @@ dotenv.config();
 
 const port = process.env.PORT || 8888;
 const hostname = process.env.HOST_NAME;
-
-// Sử dụng cors() một lần với tùy chọn
-const corsOptions = {
-	origin: 'http://localhost:3000',
-	credentials: true, //access-control-allow-credentials:true
-};
-app.use(cors(corsOptions));
 
 app.get('/', (req, res) => {
 	res.setHeader('Access-Control-Allow-Origin', '*');
@@ -39,6 +40,8 @@ app.get('/', (req, res) => {
 
 app.use('/api/user', userRouter);
 app.use('/api/product', productRouter);
+app.use('/api/cart', cartRouter);
+app.use('/api/order', orderRouter);
 
 //404 handler and pass to error handler
 app.all('*', (req, res, next) => {
