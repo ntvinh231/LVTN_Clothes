@@ -10,7 +10,7 @@ import Loading from '../LoadingComponent/Loading';
 import ModalComponent from '../ModalComponent/ModalComponent';
 import DrawerComponent from '../DrawerComponent/DrawerComponent';
 
-const CollectionProduct = () => {
+const ColorProduct = () => {
 	const [isModalOpenDelete, setIsModalOpenDelete] = useState(false);
 	const [isModalOpen, setIsModelOpen] = useState(false);
 	const [rowSelected, setRowSelected] = useState('');
@@ -18,45 +18,44 @@ const CollectionProduct = () => {
 	const [isLoadingDetails, setIsLoadingDetails] = useState(false);
 	const searchInput = useRef(null);
 	const inittial = () => ({
-		collections_name: '',
+		color: '',
 		quantity: '',
 	});
-	const [stateCollection, setStateCollection] = useState(inittial());
+	const [stateColors, setStateColors] = useState(inittial());
 
-	const [stateCollectionDetails, setStateCollectionDetails] = useState(inittial());
+	const [stateColorsDetails, setStateColorsDetails] = useState(inittial());
 
 	//Form
 	const [form] = Form.useForm();
-	const mutationCollection = useMutation({
+	const mutationColor = useMutation({
 		mutationFn: (data) => {
-			const res = ProductService.createCollection({ collections_name: data.collections_name });
+			const res = ProductService.createColor({ color: data.color });
 			return res;
 		},
 	});
 
-	const { data, isLoading: isLoadingCreate, isSuccess, isError } = mutationCollection;
+	const { data, isLoading: isLoadingCreate, isSuccess, isError } = mutationColor;
 
-	//GetAllCollections
-	const fetchAllCollections = async () => {
-		const res = await ProductService.getAllCollections();
-
+	const fetchAllColor = async () => {
+		const res = await ProductService.getAllColors();
 		return res;
 	};
-	const queryCollections = useQuery(['collections'], fetchAllCollections);
-	const { isLoading, data: collections } = queryCollections;
+	const queryColors = useQuery(['colors'], fetchAllColor);
+	const { isLoading, data: colors } = queryColors;
 
+	console.log(colors);
 	//Delete
-	const mutationDeleteCollection = useMutation({
+	const mutationDeleteColor = useMutation({
 		mutationFn: async (id) => {
 			try {
-				const res = await ProductService.deleteCollection(id);
+				const res = await ProductService.deleteColor(id);
 				return res;
 			} catch (error) {
 				console.log(error);
 			}
 		},
 	});
-	const { data: dataDelete, isLoading: isLoadingDelete } = mutationDeleteCollection;
+	const { data: dataDelete, isLoading: isLoadingDelete } = mutationDeleteColor;
 
 	useEffect(() => {
 		if (dataDelete?.statusMessage === 'success') {
@@ -70,21 +69,20 @@ const CollectionProduct = () => {
 	const handleCancelDelete = () => {
 		setIsModalOpenDelete(false);
 	};
-	const handleDeleteCollection = () => {
-		mutationDeleteCollection.mutate(rowSelected, {
+	const handleDeleteColor = () => {
+		mutationDeleteColor.mutate(rowSelected, {
 			onSettled: () => {
-				queryCollections.refetch();
+				queryColors.refetch();
 			},
 		});
 	};
 
-	//updateCollection
-	const mutationUpdateCollection = useMutation({
+	const mutationUpdateColor = useMutation({
 		mutationFn: async (data) => {
 			try {
-				const { collections_name } = data;
-				const res = await ProductService.updateCollection(data.id, {
-					collections_name,
+				const { color } = data;
+				const res = await ProductService.updateColor(data.id, {
+					color,
 				});
 				return res;
 			} catch (error) {
@@ -92,45 +90,45 @@ const CollectionProduct = () => {
 			}
 		},
 	});
-	const { data: dataUpdate, isLoading: isLoadingUpdate, isSuccess: isSuccessUpdate } = mutationUpdateCollection;
+	const { data: dataUpdate, isLoading: isLoadingUpdate, isSuccess: isSuccessUpdate } = mutationUpdateColor;
 
 	//Update
 	const handleCancelDrawer = () => {
 		setIsDrawerOpen(false);
 	};
 
-	const fetchDetailsCollection = async (rowSelected) => {
+	const fetchDetailsColor = async (rowSelected) => {
 		setIsLoadingDetails(true);
-		const res = await ProductService.getAllCollections(rowSelected);
+		const res = await ProductService.getAllColors(rowSelected);
 		if (res?.data) {
-			setStateCollectionDetails({
-				collections_name: res.data[0].collections_name,
+			setStateColorsDetails({
+				color: res.data[0].color,
 			});
 		}
 		setIsLoadingDetails(false);
 	};
 
 	const onFinishUpdate = () => {
-		mutationUpdateCollection.mutate(
-			{ id: rowSelected, ...stateCollectionDetails },
+		mutationUpdateColor.mutate(
+			{ id: rowSelected, ...stateColorsDetails },
 			{
 				onSettled: () => {
-					queryCollections.refetch();
+					queryColors.refetch();
 				},
 			}
 		);
 	};
 	useEffect(() => {
 		if (!isModalOpen) {
-			form.setFieldsValue(stateCollectionDetails);
+			form.setFieldsValue(stateColorsDetails);
 		} else {
 			form.setFieldsValue(inittial());
 		}
-	}, [form, stateCollectionDetails, isModalOpen]);
+	}, [form, stateColorsDetails, isModalOpen]);
 	useEffect(() => {
 		if (rowSelected) {
 			setIsLoadingDetails(true);
-			fetchDetailsCollection(rowSelected);
+			fetchDetailsColor(rowSelected);
 		}
 	}, [rowSelected]);
 
@@ -143,14 +141,14 @@ const CollectionProduct = () => {
 		}
 	}, [dataUpdate?.statusMessage]);
 
-	const handleDetailsCollections = () => {
+	const handleDetailsColors = () => {
 		setIsDrawerOpen(true);
 	};
 	const renderAction = () => {
 		return (
 			<div style={{ fontSize: '18px', display: 'flex', gap: '10px' }}>
 				<DeleteOutlined style={{ color: 'red', cursor: 'pointer' }} onClick={() => setIsModalOpenDelete(true)} />
-				<EditOutlined style={{ color: 'green', cursor: 'pointer' }} onClick={handleDetailsCollections} />
+				<EditOutlined style={{ color: 'green', cursor: 'pointer' }} onClick={handleDetailsColors} />
 			</div>
 		);
 	};
@@ -172,7 +170,7 @@ const CollectionProduct = () => {
 			>
 				<InputComponent
 					ref={searchInput}
-					placeholder={`Search collection name`}
+					placeholder={`Search color`}
 					value={selectedKeys[0]}
 					onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
 					onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
@@ -223,11 +221,11 @@ const CollectionProduct = () => {
 
 	const columns = [
 		{
-			title: 'Collection Name',
-			dataIndex: 'collections_name',
+			title: 'Color',
+			dataIndex: 'color',
 			render: (text) => <a>{text}</a>,
-			...getColumnSearchProps('collections_name'),
-			sorter: (a, b) => a.collections_name.length - b.collections_name.length,
+			...getColumnSearchProps('color'),
+			sorter: (a, b) => a.color.length - b.color.length,
 		},
 		{
 			title: 'Quantity',
@@ -258,14 +256,14 @@ const CollectionProduct = () => {
 	];
 
 	const dataTable =
-		collections?.data?.length &&
-		collections?.data?.map((collection) => {
-			const totalQuantity = collection?.list_product.reduce((sum, product) => sum + (product?.quantity || 0), 0);
+		colors?.data?.length &&
+		colors?.data?.map((color) => {
+			const totalQuantity = color?.list_product.reduce((sum, product) => sum + (product?.quantity || 0), 0);
 
 			return {
-				key: collection._id,
+				key: color._id,
 				quantity: totalQuantity,
-				...collection,
+				...color,
 			};
 		});
 
@@ -279,15 +277,15 @@ const CollectionProduct = () => {
 	}, [isSuccess, isError]);
 
 	const handleOnChange = (e) => {
-		setStateCollection({
-			...stateCollection,
+		setStateColors({
+			...stateColors,
 			[e.target.name]: e.target.value,
 		});
 	};
 
 	const handleOnChangeDetails = (e) => {
-		setStateCollectionDetails({
-			...stateCollectionDetails,
+		setStateColorsDetails({
+			...stateColorsDetails,
 			[e.target.name]: e.target.value,
 		});
 	};
@@ -296,34 +294,34 @@ const CollectionProduct = () => {
 	};
 
 	const onFinish = () => {
-		mutationCollection.mutate(stateCollection, {
+		mutationColor.mutate(stateColors, {
 			onSettled: () => {
-				queryCollections.refetch();
+				queryColors.refetch();
 			},
 		});
-		setStateCollection({
-			...stateCollection,
+		setStateColors({
+			...stateColors,
 		});
 	};
 
 	//Delete-many
-	const mutationDeleteManyCollection = useMutation({
+	const mutationDeleteManyColor = useMutation({
 		mutationFn: async (ids) => {
 			try {
-				const res = await ProductService.deleteManyCollection(ids);
+				const res = await ProductService.deleteManyColor(ids);
 				return res;
 			} catch (error) {
 				console.log(error);
 			}
 		},
 	});
-	const { data: dataDeleteMany, isLoading: isLoadingDeleteMany } = mutationDeleteManyCollection;
-	const handleDeleteManyCollection = (ids) => {
-		mutationDeleteManyCollection.mutate(
+	const { data: dataDeleteMany, isLoading: isLoadingDeleteMany } = mutationDeleteManyColor;
+	const handleDeleteManyColor = (ids) => {
+		mutationDeleteManyColor.mutate(
 			{ ids },
 			{
 				onSettled: () => {
-					queryCollections.refetch();
+					queryColors.refetch();
 				},
 			}
 		);
@@ -337,7 +335,7 @@ const CollectionProduct = () => {
 	}, [dataDeleteMany?.statusMessage]);
 	return (
 		<div style={{ padding: '20px' }}>
-			<WrapperHeader>Quản lý loại</WrapperHeader>
+			<WrapperHeader>Quản lý màu sắc</WrapperHeader>
 			<div style={{ marginTop: '10px' }}>
 				<Button
 					style={{ height: '150px', width: '150px', borderRadius: '6px', borderStyle: 'dashed' }}
@@ -348,7 +346,7 @@ const CollectionProduct = () => {
 			</div>
 			<div style={{ marginTop: '20px' }}>
 				<TableComponent
-					handleDeleteMany={handleDeleteManyCollection}
+					handleDeleteMany={handleDeleteManyColor}
 					isLoadingDeleteMany={isLoadingDeleteMany}
 					dataTable={dataTable}
 					columns={columns}
@@ -363,7 +361,7 @@ const CollectionProduct = () => {
 				></TableComponent>
 			</div>
 			<Loading isLoading={isLoadingCreate}>
-				<Modal title="Tạo loại sản phẩm" open={isModalOpen} onCancel={handleCancel} footer={null}>
+				<Modal title="Tạo màu" open={isModalOpen} onCancel={handleCancel} footer={null}>
 					<Form
 						name="basic"
 						labelCol={{
@@ -382,20 +380,20 @@ const CollectionProduct = () => {
 						autoComplete="off"
 					>
 						<Form.Item
-							label="Collection"
-							name="collections_name"
+							label="Color"
+							name="color"
 							rules={[
 								{
 									required: true,
-									message: 'Please input Collection!',
+									message: 'Please input color!',
 								},
 								{
-									pattern: /^[a-zA-Z0-9\s]+$/,
-									message: 'Collection chỉ được đặt chữ hoặc số, không có kí tự',
+									pattern: /^[a-zA-Z\s]+$/,
+									message: 'Màu chỉ được đặt chữ cái, không có ký tự đặc biệt.',
 								},
 							]}
 						>
-							<InputComponent value={stateCollection.collection} onChange={handleOnChange} name="collections_name" />
+							<InputComponent value={stateColors.color} onChange={handleOnChange} name="color" />
 						</Form.Item>
 						<Form.Item wrapperCol={{ offset: 8, span: 16 }}>
 							<Button type="primary" htmlType="submit">
@@ -405,10 +403,10 @@ const CollectionProduct = () => {
 					</Form>
 				</Modal>
 			</Loading>
-			<DrawerComponent title="Chi tiết loại" isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)} width="30%">
+			<DrawerComponent title="Chi tiết màu" isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)} width="30%">
 				<Loading isLoading={isLoadingDetails || isLoadingUpdate}>
 					<Form
-						name="CollectionProduct"
+						name="ColorProduct"
 						labelCol={{
 							span: 8,
 						}}
@@ -426,24 +424,20 @@ const CollectionProduct = () => {
 						form={form}
 					>
 						<Form.Item
-							label="Collection Name"
-							name="collections_name"
+							label="Color"
+							name="color"
 							rules={[
 								{
 									required: true,
-									message: 'Please input Collection Name!',
+									message: 'Please input Color Name!',
 								},
 								{
-									pattern: /^[a-zA-Z0-9\s]+$/,
-									message: 'Collection chỉ được đặt chữ hoặc số, không có kí tự',
+									pattern: /^[a-zA-Z\s]+$/,
+									message: 'Color chỉ được đặt chữ hoặc số, không có kí tự',
 								},
 							]}
 						>
-							<InputComponent
-								value={stateCollectionDetails.collections_name}
-								onChange={handleOnChangeDetails}
-								name="collections_name"
-							/>
+							<InputComponent value={stateColorsDetails.color} onChange={handleOnChangeDetails} name="color" />
 						</Form.Item>
 						<Form.Item wrapperCol={{ offset: 4, span: 16 }}>
 							<Button type="primary" htmlType="submit">
@@ -455,17 +449,17 @@ const CollectionProduct = () => {
 			</DrawerComponent>
 			<ModalComponent
 				style={{ textAlign: 'center' }}
-				title="Xóa collection"
+				title="Xóa màu"
 				open={isModalOpenDelete}
 				onCancel={handleCancelDelete}
-				onOk={handleDeleteCollection}
+				onOk={handleDeleteColor}
 			>
 				<Loading isLoading={isLoadingDelete}>
-					<div>Bạn có chắc xóa Collection này không?</div>
+					<div>Bạn có chắc xóa màu này không?</div>
 				</Loading>
 			</ModalComponent>
 		</div>
 	);
 };
 
-export default CollectionProduct;
+export default ColorProduct;

@@ -14,7 +14,6 @@ import {
 	WrapperStyleHeader,
 	WrapperStyleHeaderDilivery,
 	WrapperTotal,
-	labelEmpty,
 } from './style';
 import * as CartService from '../../service/CartService';
 import { Form } from 'antd';
@@ -26,17 +25,13 @@ import { useDispatch, useSelector } from 'react-redux';
 import { convertPrice } from '../../util';
 import { WrapperInputNumber } from '../../components/ProductDetailsComponent/style';
 import {
-	deCreaseAmount,
 	decreaseAmountAsync,
 	getCartUser,
-	inCreaseAmount,
 	increaseAmountAsync,
-	removeAllCart,
 	removeAllFromCart,
 	removeCart,
 	removeFromCart,
 	resetCart,
-	selectedCart,
 } from '../../redux/slice/cartSlide';
 import * as message from '../../components/Message/Message';
 import ModalComponent from '../../components/ModalComponent/ModalComponent';
@@ -376,7 +371,7 @@ const CartPage = () => {
 														marginLeft: '4px',
 													}}
 												>
-													{cart?.name} ({cart?.size?.toUpperCase()})
+													{cart?.name} - {cart?.color} ({cart?.size?.toUpperCase()})
 												</div>
 											</div>
 											<div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>

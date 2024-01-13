@@ -80,9 +80,6 @@ const SignInPage = () => {
 		});
 	};
 
-	if (data?.data?.statusCode === 400) {
-		Message.error(data?.data?.message);
-	}
 	const handleNavigateRegister = () => {
 		navigate('/sign-up');
 	};
@@ -133,7 +130,7 @@ const SignInPage = () => {
 							onChange={handleOnChangePassword}
 						></InputForm>
 					</div>
-
+					<span style={{ color: 'red', margin: '10px 0 0 4px' }}>{data?.message}</span>
 					<Loading isLoading={loading || isLoading}>
 						<ButtonComponent
 							onClick={handleSignIn}

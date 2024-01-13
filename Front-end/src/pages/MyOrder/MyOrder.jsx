@@ -120,7 +120,7 @@ const MyOrder = () => {
 					}}
 				>
 					<span style={{ color: '#001F5D', fontWeight: '500' }}>
-						{order?.name} ({order?.size.toUpperCase()}) x {order?.amount}
+						{order?.name} - {order?.color} ({order?.size.toUpperCase()}) x {order?.amount}
 					</span>
 				</div>
 

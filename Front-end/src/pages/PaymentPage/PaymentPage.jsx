@@ -1,30 +1,18 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import * as UserService from '../../service/UserService';
-import { DeleteOutlined, MinusOutlined, PlusOutlined } from '@ant-design/icons';
-import cart_empty_background from '../../assets/images/cart_empty_background.webp';
 import { LabelText, WrapperInfo, WrapperLeft, WrapperRadio, WrapperRight, WrapperTotal } from './style';
 
-import { Form, Radio, message } from 'antd';
+import { Form, Radio } from 'antd';
 import * as Message from '../../components/Message/Message';
 import InputComponent from '../../components/InputComponent/InputComponent';
 import ButtonComponent from '../../components/ButtonComponent/ButtonComponent';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { convertPrice } from '../../util';
-import { WrapperInputNumber } from '../../components/ProductDetailsComponent/style';
-import {
-	deCreaseAmount,
-	getCartUser,
-	inCreaseAmount,
-	removeAllCart,
-	removeAllFromCart,
-	removeCart,
-	resetCart,
-	selectedCart,
-} from '../../redux/slice/cartSlide';
+import { getCartUser, removeAllFromCart, resetCart } from '../../redux/slice/cartSlide';
 import * as OrderService from '../../service/OrderService';
 import ModalComponent from '../../components/ModalComponent/ModalComponent';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import Loading from '../../components/LoadingComponent/Loading';
 import { resetUser, updateUser } from '../../redux/slice/userSlide';
 
@@ -36,7 +24,6 @@ const PaymentPage = () => {
 	const navigate = useNavigate();
 	const dispatch = useDispatch();
 	const [form] = Form.useForm();
-	const [listChecked, setListChecked] = useState([]);
 	const [payment, setPayment] = useState('');
 	const [delivery, setDelivery] = useState('fast');
 	const [isOpenModalUpdateInfo, setIsOpenModalUpdateInfo] = useState(false);
@@ -182,18 +169,6 @@ const PaymentPage = () => {
 			user?.city &&
 			state?.priceMemo
 		) {
-			console.log(
-				cart?.cartItems,
-				user?.name,
-				user?.address,
-				user?.phone,
-				user?.city,
-				payment,
-				state?.priceMemo,
-				state?.diliveryPriceMemo,
-				state?.totalPriceMemo,
-				user?.id
-			);
 			mutationAddOrder.mutate(
 				{
 					cartItems: cart?.cartItems,

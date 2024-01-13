@@ -85,7 +85,7 @@ export const getCartUser = createAsyncThunk('cart/getCartUser', async (userId, {
 
 	if (user?.id) {
 		const response = await CartService.getCartUser(user?.id);
-
+		console.log(response);
 		return response;
 	} else {
 		// Xử lý khi không có user.id

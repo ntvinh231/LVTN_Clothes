@@ -23,7 +23,7 @@ const SignUpPage = () => {
 
 	useEffect(() => {
 		if (data?.statusCode === 201) {
-			Message.success();
+			Message.success('Đăng kí thành công');
 			navigate('/sign-in');
 		}
 	}, [data?.statusCode]);
@@ -115,8 +115,8 @@ const SignUpPage = () => {
 							onChange={handleOnChangeConfirmPassword}
 						></InputForm>
 					</div>
-					{data?.data?.statusCode === 400 && (
-						<span style={{ color: 'red', margin: '10px 0 0 4px' }}>{data?.data?.message}</span>
+					{data?.statusMessage === 'failed' && (
+						<span style={{ color: 'red', margin: '10px 0 0 4px' }}>{data?.message}</span>
 					)}
 					<Loading isLoading={isLoading}>
 						<ButtonComponent

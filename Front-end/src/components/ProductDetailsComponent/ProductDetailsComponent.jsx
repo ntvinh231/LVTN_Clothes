@@ -26,7 +26,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { checkProduct } from '../../redux/slice/checkProductSlide';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { addToCart, getCartUser, resetCart } from '../../redux/slice/cartSlide';
-import { convertPrice } from '../../util';
+import { convertPrice, translateColorToVietnamese } from '../../util';
 import { resetUser } from '../../redux/slice/userSlide';
 import * as message from '../../components/Message/Message';
 const ProductDetailsComponent = ({ idProduct }) => {
@@ -38,27 +38,19 @@ const ProductDetailsComponent = ({ idProduct }) => {
 	const [nameProduct, setNameProduct] = useState('');
 	const [numProduct, setNumProduct] = useState(1);
 	const [sizeProduct, setSizeProduct] = useState('S');
+	const [arrayColor, setArrayColor] = useState([]);
 	const [collectionName, setCollectionName] = useState('Loading...');
 	const checkSoldOut = useSelector((state) => state.checkProduct);
 	const token = localStorage.getItem('accessToken');
+	const [selectedColor, setSelectedColor] = useState('');
 
 	const [checkProductDetails, setCheckProductDetails] = useState({
 		name: nameProduct,
 		size: sizeProduct,
 		quantity: numProduct,
+		colors_id: '',
 		collections_id: '',
 	});
-
-	useEffect(() => {
-		if (user?.id) {
-			dispatch(getCartUser(user?.id));
-		} else if (!token || token === 'undefined') {
-			message.error('Bạn không đăng nhập. Vui lòng đăng nhập lại');
-			dispatch(resetCart());
-			dispatch(resetUser());
-			navigate('/');
-		}
-	}, [user, token]);
 
 	const fetchProductDetails = async (context) => {
 		const id = context?.queryKey && context?.queryKey[1];
@@ -66,8 +58,15 @@ const ProductDetailsComponent = ({ idProduct }) => {
 		setNameProduct(res?.data[0]?.name);
 		const res2 = await ProductService.getCollectionProduct(res?.data[0]?.collections_id);
 		setCollectionName(res2?.data[0].collections_name);
+		const resColors = await ProductService.getAllColorOfProduct({
+			name: res?.data[0]?.name,
+			collections_id: res?.data[0]?.collections_id,
+		});
+
+		setArrayColor(resColors);
 		return res.data[0];
 	};
+
 	const queryProductDetail = useQuery(['products-details', idProduct], fetchProductDetails, {
 		enabled: !!idProduct,
 	});
@@ -76,6 +75,10 @@ const ProductDetailsComponent = ({ idProduct }) => {
 	const onChangeSize = (e) => {
 		setSizeProduct(e.target.value);
 		setNumProduct(1);
+	};
+
+	const onChangeColor = (e) => {
+		setSelectedColor(e.target.value);
 	};
 
 	const onChangeNumber = (value) => {
@@ -98,10 +101,11 @@ const ProductDetailsComponent = ({ idProduct }) => {
 				name: nameProduct,
 				size: sizeProduct,
 				quantity: numProduct,
+				colors_id: selectedColor,
 				collections_id: productDetails?.collections_id,
 			});
 		}
-	}, [sizeProduct, numProduct, nameProduct]);
+	}, [sizeProduct, numProduct, nameProduct, selectedColor]);
 	useEffect(() => {
 		if (productDetails) {
 			handleCheckSoldOut({
@@ -112,12 +116,10 @@ const ProductDetailsComponent = ({ idProduct }) => {
 			});
 		}
 	}, [productDetails]);
-
 	const mutationCheckProductDetails = useMutation({
 		mutationFn: async (data) => {
 			try {
 				const res = await ProductService.checkProductDetails(data);
-
 				return res;
 			} catch (error) {
 				console.log(error);
@@ -128,12 +130,11 @@ const ProductDetailsComponent = ({ idProduct }) => {
 	const [isLoadingSoldOut, setIsLoadingSoldOut] = useState(false);
 	const handleCheckSoldOut = async (data) => {
 		try {
-			let newData;
+			let newData = data;
 			setIsLoadingSoldOut(true);
 			if (productDetails?.collections_id) {
 				newData = { ...data, collections_id: productDetails?.collections_id };
 			}
-
 			const mutationResult = await mutationCheckProductDetails.mutateAsync(newData);
 			dispatch(checkProduct(mutationResult && mutationResult?.statusCode));
 			setCheckProductDetails(mutationResult);
@@ -154,17 +155,22 @@ const ProductDetailsComponent = ({ idProduct }) => {
 				if (numProduct < 1) {
 					Message.error('Sản phẩm phải lớn hơn 1');
 					setNumProduct(1);
+				} else if (selectedColor === '') {
+					Message.error('Bạn chưa chọn màu sắc');
 				} else {
 					// Tạo cartItem từ dữ liệu sản phẩm
+					console.log('checkProductDetails', checkProductDetails);
 					const cartItem = {
-						name: checkProductDetails?.data?.name,
+						name: checkProductDetails?.data && checkProductDetails?.data?.name,
 						amount: numProduct,
 						image: productDetails?.image,
-						price: checkProductDetails?.data?.price,
-						discount: checkProductDetails?.data?.discount,
-						size: checkProductDetails?.data?.size,
-						product: checkProductDetails?.data?._id,
+						price: checkProductDetails?.data && checkProductDetails?.data?.price,
+						discount: checkProductDetails?.data && checkProductDetails?.data?.discount,
+						size: checkProductDetails?.data && checkProductDetails?.data?.size,
+						colors_id: checkProductDetails?.data && checkProductDetails?.data?.colors_id,
+						product: checkProductDetails?.data && checkProductDetails?.data?._id,
 					};
+					console.log('cartItem', cartItem);
 
 					try {
 						dispatch(addToCart({ cartItem }));
@@ -235,6 +241,14 @@ const ProductDetailsComponent = ({ idProduct }) => {
 							<Radio.Button value="M">M</Radio.Button>
 							<Radio.Button value="L">L</Radio.Button>
 							<Radio.Button value="XL">XL</Radio.Button>
+						</Radio.Group>
+						<WrapperHeader>Màu sắc</WrapperHeader>
+						<Radio.Group onChange={onChangeColor} buttonStyle="solid">
+							{arrayColor?.data?.map((color) => (
+								<Radio.Button key={color.id} value={color.id}>
+									{translateColorToVietnamese(color.name)}
+								</Radio.Button>
+							))}
 						</Radio.Group>
 						<div style={{ margin: '30px 0' }}>Số lượng:</div>
 						<WrapperQualityProduct>

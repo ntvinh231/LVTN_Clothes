@@ -25,9 +25,8 @@ export const WrapperStyleNameProduct = styled.h1`
 `;
 
 export const WrapperPriceBox = styled.div`
-	margin: 20px 0 0px;
+	margin-top: 10px;
 	padding-top: 0px;
-	padding-bottom: 5px;
 	display: inline-block;
 	float: left;
 	margin-right: 15px;
@@ -53,7 +52,7 @@ export const WrapperGroupStatus = styled.div`
 	font-family: 'Roboto', sans-serif;
 	font-size: 14px;
 	margin-bottom: 12px;
-	margin-top: 20px;
+	margin-top: 3px;
 	width: 100%;
 	float: left;
 `;
@@ -89,7 +88,6 @@ export const WrapperFormProduct = styled.div`
 	padding: 0px;
 	width: 100%;
 	float: left;
-	margin-top: 30px;
 `;
 
 export const WrapperHeader = styled.div`
@@ -99,6 +97,7 @@ export const WrapperHeader = styled.div`
 	font-weight: 400;
 	font-size: 14px;
 	color: #707070;
+	margin-top: 20px;
 	font-family: 'Roboto', sans-serif;
 `;
 

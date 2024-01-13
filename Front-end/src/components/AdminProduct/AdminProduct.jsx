@@ -18,21 +18,11 @@ const AdminProduct = () => {
 	const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 	const [rowSelected, setRowSelected] = useState('');
 	const [isModalOpen, setIsModalOpen] = useState(false);
-	const [searchText, setSearchText] = useState('');
-	const [searchedColumn, setSearchedColumn] = useState('');
 	const searchInput = useRef(null);
-	const [stateProduct, setStateProduct] = useState({
-		name: '',
-		newName: '',
-		price: '',
-		size: '',
-		description: '',
-		quantity: '',
-		image: '',
-		discount: '',
-	});
+
 	const [collections_id, setCollections_id] = useState('');
-	const [stateProductDetails, setStateProductDetails] = useState({
+	const [colors_id, setColors_id] = useState('');
+	const inittial = () => ({
 		name: '',
 		newName: '',
 		price: '',
@@ -40,12 +30,13 @@ const AdminProduct = () => {
 		description: '',
 		quantity: '',
 		image: '',
-		collections_id: '',
 		discount: '',
 	});
+	const [stateProduct, setStateProduct] = useState(inittial());
+	const [stateProductDetails, setStateProductDetails] = useState(inittial());
 	//Form
 	const [form] = Form.useForm();
-	//Select
+	//Select Collection
 	const fetchCollectionProduct = async () => {
 		const res = await ProductService.getCollectionProduct();
 		return res;
@@ -66,6 +57,22 @@ const AdminProduct = () => {
 		  }))
 		: [];
 
+	//Select Color
+	const fetchColorProduct = async () => {
+		const res = await ProductService.getColorProduct();
+		return res;
+	};
+	const { isLoadingColorProduct, data: colorProduct } = useQuery(['colorProduct'], fetchColorProduct, {
+		retry: 3,
+		retryDelay: 500,
+	});
+	const dataColor = colorProduct?.data;
+	const OPTIONSColor = Array.isArray(dataColor)
+		? dataColor.map((item) => ({
+				value: item._id,
+				label: item.color,
+		  }))
+		: [];
 	const handleSelectChange = (value) => {
 		const existingProduct = products?.data.find((product) => product.name === value);
 		if (value === 'add_name') {
@@ -87,16 +94,21 @@ const AdminProduct = () => {
 		setCollections_id(value);
 	};
 
+	const onChangeColor = (value) => {
+		setColors_id(value);
+	};
+
 	// Filter `option.label` match the user type `input`
 	const filterOption = (input, option) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase());
 	const mutationProduct = useMutation({
 		mutationFn: async (data) => {
 			try {
-				const { name, price, size, description, quantity, image, collections_id, discount } = data;
+				const { name, price, size, colors_id, description, quantity, image, collections_id, discount } = data;
 				const res = await ProductService.createProduct({
 					name: name,
 					price: price,
 					size: size,
+					colors_id: colors_id,
 					description: description,
 					quantity: quantity,
 					image: image,
@@ -160,20 +172,13 @@ const AdminProduct = () => {
 
 	//Create
 	useEffect(() => {
-		if (isModalOpen) {
-			setStateProduct({
-				name: '',
-				collections_name: '',
-				price: '',
-				size: '',
-				description: '',
-				quantity: '',
-				image: '',
-				discount: '',
-			});
-			form.resetFields();
+		if (!isModalOpen) {
+			form.setFieldsValue(stateProductDetails);
+		} else {
+			form.setFieldsValue(inittial());
 		}
-	}, [isModalOpen]);
+		form.resetFields();
+	}, [stateProductDetails, isModalOpen, form]);
 	const handleCancel = () => {
 		setIsModalOpen(false);
 		setStateProduct({
@@ -181,6 +186,7 @@ const AdminProduct = () => {
 			price: '',
 			description: '',
 			discount: '',
+			color: '',
 			collections_name: '',
 			image: '',
 		});
@@ -197,13 +203,14 @@ const AdminProduct = () => {
 			name: stateProduct.name === 'add_name' ? stateProduct.newName : stateProduct.name,
 			price: stateProduct.price,
 			size: stateProduct.size,
+			colors_id: colors_id,
 			description: stateProduct.description,
 			quantity: stateProduct.quantity,
 			image: stateProduct.image,
 			discount: stateProduct?.discount,
 			collections_id: collections_id,
 		};
-		console.log('configData', configData);
+
 		mutationProduct.mutate(configData, {
 			onSettled: () => {
 				queryProduct.refetch();
@@ -248,17 +255,24 @@ const AdminProduct = () => {
 	const fetchDetailsProduct = async (rowSelected) => {
 		setIsLoadingDetails(true);
 		const res = await ProductService.getProduct(rowSelected);
+		//Get name collection
 		const resCollectionSelect = await ProductService.getCollectionProduct(res?.data[0]?.collections_id);
-		setCollections_id(res?.data[0]?.collections_id);
+		//Get name color
+		const resColorSelect = await ProductService.getColorProduct(res?.data[0]?.colors_id);
+
+		setCollections_id(res?.data[0]?.collections_id ? res?.data[0]?.collections_id : '');
+		setColors_id(res?.data[0]?.colors_id ? res?.data[0]?.colors_id : '');
+
 		if (res?.data) {
 			setStateProductDetails({
 				name: res?.data[0]?.name,
 				price: res?.data[0]?.price,
 				size: res?.data[0]?.size,
+				color: res?.data[0].colors_id ? resColorSelect.data[0]?.color : '',
 				description: res?.data[0]?.description,
 				quantity: res?.data[0]?.quantity,
 				image: res?.data[0]?.image,
-				collections_name: resCollectionSelect.data[0]?.collections_name,
+				collections_name: res?.data[0].collections_id ? resCollectionSelect.data[0]?.collections_name : '',
 				discount: res?.data[0].discount,
 			});
 			form.setFieldsValue({
@@ -281,11 +295,14 @@ const AdminProduct = () => {
 		const resCollectionSelect = await ProductService.getCollectionProduct(res?.data[0]?.collections_id);
 		setCollections_id(res?.data[0]?.collections_id);
 		setCollectionName(resCollectionSelect.data[0]?.collections_name);
+		const resColorSelect = await ProductService.getCollectionProduct(res?.data[0]?.colors_id);
+		setColors_id(res?.data[0]?.colors_id);
 		if (res?.data) {
 			setStateProduct({
 				name: res?.data[0]?.name,
 				price: res?.data[0]?.price,
 				size: '',
+				color: resColorSelect.data[0]?.color,
 				description: res?.data[0]?.description,
 				quantity: '',
 				image: res?.data[0]?.image,
@@ -357,11 +374,18 @@ const AdminProduct = () => {
 		acc[collection.value] = collection.label;
 		return acc;
 	}, {});
+
+	//Chuyển collection.value thành key
+	const colorMap = OPTIONSColor.reduce((acc, color) => {
+		acc[color.value] = color.label;
+		return acc;
+	}, {});
 	// Cập nhật dữ liệu products với collection name thành vì collections_id
 	const updatedProducts = Array.isArray(products?.data)
 		? products.data.map((product) => ({
 				...product,
 				collections_name: collectionMap[product.collections_id],
+				color: colorMap[product.colors_id],
 		  }))
 		: [];
 
@@ -473,6 +497,11 @@ const AdminProduct = () => {
 			],
 		},
 		{
+			title: 'Color',
+			dataIndex: 'color',
+			...getColumnSearchProps('color'),
+		},
+		{
 			title: 'Discount',
 			dataIndex: 'discount',
 		},
@@ -526,11 +555,13 @@ const AdminProduct = () => {
 	const mutationUpdateProduct = useMutation({
 		mutationFn: async (data) => {
 			try {
-				const { name, price, size, description, quantity, image, collections_id, discount } = data.configData;
+				const { name, price, size, colors_id, description, quantity, image, collections_id, discount } =
+					data.configData;
 				const res = await ProductService.updateProduct(data.id, {
 					name: name,
 					price: price,
 					size: size,
+					colors_id: colors_id,
 					description: description,
 					quantity: quantity,
 					image: image,
@@ -587,7 +618,7 @@ const AdminProduct = () => {
 		} else if (dataUpdate?.statusMessage === 'failed') {
 			message.error(dataUpdate?.message);
 		}
-	}, [isSuccessUpdate]);
+	}, [dataUpdate?.statusMessage]);
 
 	useEffect(() => {
 		if (isSuccessDelete && dataDelete?.statusMessage === 'success') {
@@ -602,6 +633,7 @@ const AdminProduct = () => {
 		const configData = {
 			...stateProductDetails,
 			collections_id: collections_id,
+			colors_id: colors_id,
 		};
 
 		mutationUpdateProduct.mutate(
@@ -758,6 +790,29 @@ const AdminProduct = () => {
 							<InputComponent value={stateProduct.size} onChange={handleOnChange} name="size" />
 						</Form.Item>
 						<Form.Item
+							label="Color"
+							name="color"
+							rules={[
+								{
+									required: true,
+									message: 'Please input color!',
+								},
+							]}
+						>
+							<Select
+								style={{ width: '100%' }}
+								dropdownStyle={{ maxHeight: '300px' }}
+								showSearch
+								placeholder="Select a color"
+								optionFilterProp="children"
+								onChange={onChangeColor}
+								filterOption={filterOption}
+								options={OPTIONSColor}
+								dropdownRender={(menu) => <div style={{ width: '100%' }}>{menu}</div>}
+								notFoundContent={isLoadingColorProduct ? <Spin size="large" /> : null}
+							/>
+						</Form.Item>
+						<Form.Item
 							label="Quatity"
 							name="quantity"
 							rules={[
@@ -854,8 +909,8 @@ const AdminProduct = () => {
 						</Form.Item>
 
 						<Form.Item wrapperCol={{ offset: 4, span: 16 }}>
-							<Button type="primary" htmlType="submit">
-								Submit
+							<Button type="primary" htmlType="create">
+								Create
 							</Button>
 						</Form.Item>
 					</Form>
@@ -898,7 +953,6 @@ const AdminProduct = () => {
 						>
 							<InputComponent value={stateProductDetails.name} onChange={handleOnChangeDetails} name="name" />
 						</Form.Item>
-
 						<Form.Item
 							label="Collection"
 							name="collections_name"
@@ -943,7 +997,30 @@ const AdminProduct = () => {
 								},
 							]}
 						>
-							<InputComponent value={stateProductDetails.size} onChange={handleOnChangeDetails} name="size" />
+							<InputComponent value={stateProductDetails.size} onChange={handleOnChange} name="size" />
+						</Form.Item>
+						<Form.Item
+							label="Color"
+							name="color"
+							rules={[
+								{
+									required: true,
+									message: 'Please input color!',
+								},
+							]}
+						>
+							<Select
+								style={{ width: '100%' }}
+								dropdownStyle={{ maxHeight: '300px' }}
+								showSearch
+								placeholder="Select a color"
+								optionFilterProp="children"
+								onChange={onChangeColor}
+								filterOption={filterOption}
+								options={OPTIONSColor}
+								dropdownRender={(menu) => <div style={{ width: '100%' }}>{menu}</div>}
+								notFoundContent={isLoadingColorProduct ? <Spin size="large" /> : null}
+							/>
 						</Form.Item>
 						<Form.Item
 							label="Quatity"

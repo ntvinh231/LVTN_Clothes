@@ -10,13 +10,13 @@ import CollectionProduct from '../../components/CollectionProduct/CollectionProd
 import { useSelector } from 'react-redux';
 import * as Message from '../../components/Message/Message';
 import { Navigate, useNavigate } from 'react-router-dom';
+import ColorProduct from '../../components/ColorProduct/ColorProduct';
 
 const AdminPage = () => {
 	const AdminPageRef = useRef(null);
 	const user = useSelector((state) => state.user);
 	const navigate = useNavigate();
 	const [keySelected, setKeySelected] = useState('');
-	console.log(keySelected);
 	const permission = ['admin', 'superadmin'];
 	// useEffect(() => {
 	// 	if (keySelected) {
@@ -32,6 +32,7 @@ const AdminPage = () => {
 		getItem('Quản lý sản phẩm', 'rootProduct', <AppstoreOutlined />, [
 			getItem('Thông tin sản phẩm', 'product'),
 			getItem('Thông tin loại', 'productCollection'),
+			getItem('Thông tin màu sắc', 'colorProduct'),
 			getItem('Đơn hàng', 'productOrder'),
 		]),
 	];
@@ -44,6 +45,8 @@ const AdminPage = () => {
 				return <AdminProduct></AdminProduct>;
 			case 'productCollection':
 				return <CollectionProduct></CollectionProduct>;
+			case 'colorProduct':
+				return <ColorProduct></ColorProduct>;
 			default:
 				return <></>;
 		}

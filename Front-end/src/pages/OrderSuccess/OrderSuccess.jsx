@@ -10,10 +10,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { convertPrice } from '../../util';
 import { getCartUser, resetCart } from '../../redux/slice/cartSlide';
 import * as OrderService from '../../service/OrderService';
-
-import { useMutation } from '@tanstack/react-query';
 import Loading from '../../components/LoadingComponent/Loading';
-import { resetUser } from '../../redux/slice/userSlide';
 import { WrapperItemCart } from '../CartPage/style';
 import { orderContant } from '../../contant';
 
@@ -24,34 +21,17 @@ const OrderSuccess = () => {
 	const dispatch = useDispatch();
 	const location = useLocation();
 	const { state } = location;
-
+	console.log(cart);
 	const token = localStorage.getItem('accessToken');
-
-	useEffect(() => {
-		if (user?.id) {
-			dispatch(getCartUser(user?.id));
-		}
-		if (
-			!user ||
-			!user.accessToken ||
-			!user.name ||
-			user.accessToken === '' ||
-			user.name === '' ||
-			!token ||
-			token === 'undefined'
-		) {
-			dispatch(resetCart());
-			dispatch(resetUser());
-			Message.error('Bạn không đăng nhập. Vui lòng đăng nhập lại');
-			navigate('/');
-		}
-	}, [user, token]);
 
 	useEffect(() => {
 		if (state === null) {
 			navigate('/payment');
 		}
 	}, [state]);
+	// useEffect(() => {
+	// 	navigate('/');
+	// }, []);
 
 	return (
 		<div style={{ background: '#f5f5fa', with: '100%', height: '100vh' }}>
@@ -115,7 +95,7 @@ const OrderSuccess = () => {
 															marginLeft: '4px',
 														}}
 													>
-														{order?.name} ({order?.size?.toUpperCase()})
+														{order?.name} - {order.color} ({order?.size?.toUpperCase()})
 													</div>
 												</div>
 												<div

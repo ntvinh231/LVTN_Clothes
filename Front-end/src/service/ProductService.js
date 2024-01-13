@@ -246,3 +246,80 @@ export const deleteManyCollection = async (data) => {
 		console.log(error);
 	}
 };
+
+export const getAllColors = async (id) => {
+	try {
+		let res;
+		if (id) {
+			//getOne
+			res = await axiosJWTC.get(`${process.env.REACT_APP_API_URL}/color?id=${id}`);
+		} else {
+			//GetDetails
+			res = await axiosJWTC.get(`${process.env.REACT_APP_API_URL}/color`);
+		}
+		return res.data;
+	} catch (error) {
+		return error?.response;
+	}
+};
+
+export const createColor = async (data) => {
+	try {
+		const res = await axiosJWTC.post(`${process.env.REACT_APP_API_URL}/color`, data);
+		return res.data;
+	} catch (error) {
+		return error?.response;
+	}
+};
+
+export const deleteColor = async (id) => {
+	try {
+		const res = await axiosJWTC.delete(`${process.env.REACT_APP_API_URL}/color?id=${id}`);
+		return res.data;
+	} catch (error) {
+		console.log(error);
+	}
+};
+
+export const updateColor = async (id, data) => {
+	try {
+		const res = await axiosJWTC.put(`${process.env.REACT_APP_API_URL}/color/${id}`, data);
+		return res.data;
+	} catch (error) {
+		console.log(error);
+	}
+};
+
+export const deleteManyColor = async (data) => {
+	try {
+		const res = await axiosJWTC.delete(`${process.env.REACT_APP_API_URL}/color/color-many`, { data });
+		return res.data;
+	} catch (error) {
+		console.log(error);
+	}
+};
+
+export const getColorProduct = async (id) => {
+	try {
+		let res;
+		if (!id) {
+			//getDetails
+			res = await axiosJWTC.get(`${process.env.REACT_APP_API_URL}/color`);
+		} else {
+			//getOne
+			res = await axiosJWTC.get(`${process.env.REACT_APP_API_URL}/color?id=${id}`);
+		}
+		return res.data;
+	} catch (error) {
+		return error?.response;
+	}
+};
+
+export const getAllColorOfProduct = async (data) => {
+	try {
+		const res = await axios.post(`${process.env.REACT_APP_API_URL}/color/getall-color-of-product`, data);
+		return res.data;
+	} catch (error) {
+		return error?.response;
+	}
+};
