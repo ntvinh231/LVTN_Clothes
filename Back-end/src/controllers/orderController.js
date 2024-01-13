@@ -6,7 +6,6 @@ export const createOrder = async (req, res, next) => {
 	try {
 		const { cartItems, paymentMethod, itemsPrice, shippingPrice, totalPrice, fullName, address, phone, city, user } =
 			req.body;
-
 		if (
 			cartItems === undefined ||
 			cartItems === null ||
@@ -256,17 +255,6 @@ export const DeleteOrder = async (req, res, next) => {
 				};
 			}
 		});
-
-		const results = await Promise.all(promises);
-
-		if (results.some((result) => result.status === 'failed')) {
-			const errorResult = results.find((result) => result.status === 'failed');
-			return res.status(400).json({
-				statusCode: 400,
-				statusMessage: errorResult.status,
-				message: errorResult.message,
-			});
-		}
 
 		return res.status(200).json({
 			statusCode: 200,

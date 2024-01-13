@@ -15,6 +15,7 @@ import isLoggedIn from '../middleware/isLoggedIn.js';
 import restricTo from '../middleware/checkRole.js';
 import collectionsRouter from './CollectionRouter.js';
 import { checkProductDetails } from '../controllers/productDetailsController.js';
+import colorRouter from './colorRouter.js';
 
 //Product Details
 router.post('/checkProductDetails', checkProductDetails);

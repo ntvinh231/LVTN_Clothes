@@ -4,7 +4,7 @@ import mongoose_delete from 'mongoose-delete';
 const discountSchema = new mongoose.Schema({
 	start_day: Date,
 	end_day: Date,
-	discount_percent: String,
+	percent: String,
 });
 
 discountSchema.set('toJSON', { virtuals: true });

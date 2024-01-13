@@ -10,6 +10,11 @@ const cartSchema = new mongoose.Schema(
 				image: String,
 				price: Number,
 				size: String,
+				colors_id: {
+					type: mongoose.Schema.Types.ObjectId,
+					ref: 'Color',
+				},
+				color: String,
 				discount: Number,
 				product: {
 					type: mongoose.Schema.Types.ObjectId,

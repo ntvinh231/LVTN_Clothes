@@ -1,5 +1,6 @@
 import httpError from 'http-errors';
 import Cart from '../models/Cart.js';
+import Colors from '../models/Color.js';
 
 const calculateTotalCart = (cartItems) => {
 	return cartItems.reduce((total, item) => total + item.amount, 0);
@@ -8,7 +9,7 @@ const calculateTotalCart = (cartItems) => {
 export const createCart = async (req, res, next) => {
 	try {
 		const { cartItem, userId } = req.body;
-		let existingCart = await Cart.findOne({ user: userId });
+		let existingCart = await Cart.findOne({ user: userId }).select('-image');
 
 		if (existingCart) {
 			if (existingCart.cartItems) {
@@ -104,7 +105,6 @@ export const removeAllFromCart = async (req, res, next) => {
 export const getCartUser = async (req, res, next) => {
 	try {
 		const { userId } = req.params;
-
 		const existingCart = await Cart.findOne({ user: userId });
 
 		if (existingCart) {
@@ -113,6 +113,16 @@ export const getCartUser = async (req, res, next) => {
 				cartItems: existingCart.cartItems,
 				totalCart: calculateTotalCart(existingCart.cartItems),
 			};
+
+			await Promise.all(
+				existingCart.cartItems.map(async (cart) => {
+					const colorDocument = await Colors.findOne({ _id: cart.colors_id });
+					const color = colorDocument ? colorDocument.color : null;
+
+					// Bổ sung trường color vào mỗi phần tử của cartItems
+					cart.color = color;
+				})
+			);
 
 			res.status(200).json(responseData);
 		} else {

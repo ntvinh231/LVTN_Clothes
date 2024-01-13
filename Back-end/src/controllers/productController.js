@@ -183,6 +183,7 @@ export const createProduct = async (req, res, next) => {
 			image: joi.string().required(),
 			price: joi.number(),
 			size: joi.string(),
+			colors_id: joi.string(),
 			quantity: joi.string(),
 			description: joi.string(),
 			collections_id: joi.string(),
@@ -196,6 +197,7 @@ export const createProduct = async (req, res, next) => {
 				message: 'Size nhập không hợp lệ',
 			});
 		}
+
 		const validatedData = await productValidationSchema.validateAsync(req.body);
 
 		if (
@@ -205,9 +207,10 @@ export const createProduct = async (req, res, next) => {
 			!validatedData.description ||
 			!validatedData.collections_id ||
 			!validatedData.size ||
-			!validatedData.quantity
+			!validatedData.quantity ||
+			!validatedData.colors_id
 		) {
-			return next(httpError(400, 'The input is required'));
+			return next(httpError(400, 'Cần điền đẩy đủ thông tin'));
 		}
 
 		validatedData.discount = validatedData.discount || 5;
@@ -217,6 +220,7 @@ export const createProduct = async (req, res, next) => {
 		const existingProduct = await Product.findOne({
 			name: nameRegExp,
 			size: sizeRegExp,
+			colors_id: validatedData.colors_id,
 		});
 
 		if (existingProduct) {
@@ -231,8 +235,9 @@ export const createProduct = async (req, res, next) => {
 			// Nếu sản phẩm đã tồn tại, cộng dồn quantity
 			updatedProduct = await Product.findOneAndUpdate(
 				{
-					name: validatedData.name,
+					name: nameRegExp,
 					size: sizeRegExp,
+					colors_id: validatedData.colors_id,
 				},
 				{ $inc: { quantity: parseInt(validatedData.quantity) || 0 } },
 				{ new: true } // Trả về sản phẩm sau khi cập nhật
@@ -273,29 +278,31 @@ export const updateProduct = async (req, res, next) => {
 			});
 		}
 
-		const { name, size, discount } = req.body;
+		const { name, size, discount, colors_id } = req.body;
 
 		const sizeRegExp = new RegExp(`^${size}$`, 'i');
 		const nameRegExp = new RegExp(`^${name}$`, 'i');
+
 		const existingProduct = await Product.findOne({
 			name: nameRegExp,
 			size: sizeRegExp,
+			colors_id: colors_id,
 		});
 
 		if (existingProduct && existingProduct._id.toString() !== id) {
 			return res.status(200).json({
 				statusCode: 400,
 				statusMessage: 'failed',
-				message: 'Sản phẩm sửa đã tồn tại tên và size trong kho.Vui lòng thay đổi lại.',
+				message: 'Sản phẩm sửa đã tồn tại tên, size và màu trong kho. Vui lòng thay đổi lại.',
 			});
 		}
-		// Thiết lập giá trị mặc định cho discount nếu không được truyền lên
-		req.body.discount = discount || 5;
 
+		req.body.discount = discount || 5;
 		let result = await Product.findByIdAndUpdate(id, req.body, {
 			new: true,
 			runValidators: true,
 		});
+
 		return res.status(200).json({
 			statusCode: 200,
 			statusMessage: 'success',
@@ -314,7 +321,7 @@ export const deleteProduct = async (req, res, next) => {
 			return res.status(200).json({
 				statusCode: 200,
 				statusMessage: 'failed',
-				message: 'The product is required',
+				message: 'The productId is required',
 			});
 		}
 		const checkProduct = await Product.findOne({

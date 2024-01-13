@@ -7,34 +7,64 @@ import bcrypt from 'bcrypt';
 
 export const signUp = async (req, res, next) => {
 	try {
-		const userValidationSchema = joi.object({
-			name: joi.string().min(3).max(30).required(),
-			email: joi.string().email(),
-			password: joi.string().pattern(new RegExp('^[a-zA-Z0-9]{3,30}$')).required(),
-			confirmPassword: joi.string(),
-			phone: joi.string(),
-			address: joi.string(),
-			avatar: joi.string(),
-			role: joi.string().default('user'),
-			list_favorite: joi.array().items(joi.string()),
+		const { name, email, password, confirmPassword, phone, address, avatar, role } = req.body;
+
+		if (!name || !email || !password || !confirmPassword) {
+			return res.status(200).json({
+				statusCode: 400,
+				statusMessage: 'failed',
+				message: 'Vui lòng điền đầy đủ thông tin.',
+			});
+		}
+		// Kiểm tra email không chứa ký tự đặc biệt ở đầu
+		const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+		if (!emailRegex.test(email)) {
+			return res.status(200).json({
+				statusCode: 400,
+				statusMessage: 'failed',
+				message: 'Email không hợp lệ.Vui lòng nhập email hợp lệ',
+			});
+		}
+		// Kiểm tra tên không chứa ký tự đặc biệt ở đầu và có từ 3 đến 30 ký tự
+		const nameRegex = /^[a-zA-Z0-9]{3,30}$/;
+		if (!nameRegex.test(name)) {
+			return res.status(200).json({
+				statusCode: 400,
+				statusMessage: 'failed',
+				message: 'Tên không hợp lệ. Tên phải có từ 3 đến 30 ký tự.',
+			});
+		}
+		// Kiểm tra xem mật khẩu có khớp nhau không
+		if (password !== confirmPassword) {
+			return res.status(200).json({
+				statusCode: 400,
+				statusMessage: 'failed',
+				message: 'Mật khẩu không khớp.Vui lòng kiểm tra lại',
+			});
+		}
+
+		const existingUser = await User.findOne({ email });
+		if (existingUser) {
+			return res.status(200).json({
+				statusCode: 400,
+				statusMessage: 'failed',
+				message: 'Email đã tồn tại.Vui lòng nhập email khác',
+			});
+		}
+
+		// Trả về một phản hồi thành công nếu dữ liệu hợp lệ
+		return res.status(201).json({
+			statusCode: 201,
+			statusMessage: 'success',
+			message: 'Đăng ký thành công.',
 		});
-
-		const validatedData = await userValidationSchema.validateAsync(req.body);
-		if (!validatedData.name || !validatedData.email || !validatedData.password || !validatedData.confirmPassword) {
-			return next(httpError(400, 'The input is required'));
-		}
-		const existingUser = await User.findOne({ email: validatedData.email });
-		if (existingUser) return next(httpError(400, 'Email already exists'));
-		if (validatedData.password != validatedData.confirmPassword) {
-			return next(httpError(400, 'Passwords do not match '));
-		}
-		const newUser = await User.create(validatedData);
-
-		const response = await generateTokens(newUser.id);
-		sendToken(response, 201, res);
 	} catch (error) {
-		console.log(error);
-		return next(httpError(400, error));
+		console.error(error);
+		return res.status(200).json({
+			statusCode: 400,
+			statusMessage: 'failed',
+			message: 'Đã xảy ra lỗi trong quá trình xử lý.',
+		});
 	}
 };
 
@@ -47,14 +77,21 @@ export const signIn = async (req, res, next) => {
 		const validatedData = await userValidationSchema.validateAsync(req.body);
 
 		if (validatedData.email && !isValidEmail(validatedData.email)) {
-			return next(httpError(400, 'Email phải đúng dịnh dạng'));
+			return res.status(200).json({
+				statusCode: 400,
+				statusMessage: 'failed',
+				message: 'Email không hợp lệ.Vui lòng nhập email hợp lệ',
+			});
 		}
 
 		const user = await User.findOne({ email: validatedData.email }).select('+password').select('+role');
 
 		if (!user || !(await bcrypt.compare(validatedData.password, user.password)))
-			return next(httpError(400, 'Sai tài khoản hoặc mật khẩu vui lòng kiểm tra lại'));
-
+			return res.status(200).json({
+				statusCode: 400,
+				statusMessage: 'failed',
+				message: 'Sai tài khoản hoặc mật khẩu vui lòng kiểm tra lại',
+			});
 		req.user = user;
 		const response = await generateTokens(user.id);
 

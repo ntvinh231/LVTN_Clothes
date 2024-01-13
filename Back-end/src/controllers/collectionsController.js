@@ -41,7 +41,11 @@ export const createCollectionsController = async (req, res, next) => {
 		if (!validatedData.collections_name) {
 			return next(httpError(400, 'The input is required'));
 		}
-		const existingType = await Collections.findOne({ collections_name: validatedData.collections_name });
+		const lowercaseName = validatedData.collections_name.toLowerCase();
+		const existingType = await Collections.findOne({
+			collections_name: { $regex: new RegExp('^' + lowercaseName + '$', 'i') },
+		});
+
 		if (existingType)
 			return res.status(200).json({
 				statusCode: 400,
@@ -100,8 +104,12 @@ export const updateCollection = async (req, res, next) => {
 			});
 		}
 
+		// Chuyển đổi collections_name thành chữ thường
+		const lowercaseName = collections_name.toLowerCase();
+
+		// Kiểm tra sự tồn tại của collections_name
 		const existingCollection = await Collections.findOne({
-			collections_name: collections_name,
+			collections_name: lowercaseName,
 			_id: { $ne: id },
 		});
 
