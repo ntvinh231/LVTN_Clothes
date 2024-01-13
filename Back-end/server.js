@@ -9,6 +9,7 @@ import connection from './src/database/connection.js';
 import cookieParser from 'cookie-parser';
 import httpError from 'http-errors';
 import fileUpload from 'express-fileupload';
+import colorRouter from './src/routes/colorRouter.js';
 
 const app = express();
 // Sử dụng cors() một lần với tùy chọn
@@ -38,8 +39,9 @@ app.get('/', (req, res) => {
 
 //config file upload
 
-app.use('/api/user', userRouter);
 app.use('/api/product', productRouter);
+app.use('/api/color', colorRouter);
+app.use('/api/user', userRouter);
 app.use('/api/cart', cartRouter);
 app.use('/api/order', orderRouter);
 
