@@ -52,7 +52,6 @@ const DetailsOrder = () => {
 		}
 	);
 	const { isLoading, data } = queryOrder;
-	console.log(data);
 
 	const priceMemo = useMemo(() => {
 		const result = data?.cartOrder?.reduce((total, cur) => {

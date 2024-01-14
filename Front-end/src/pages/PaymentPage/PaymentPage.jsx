@@ -55,12 +55,12 @@ const PaymentPage = () => {
 		if (state === null) {
 			navigate('/cart');
 		}
+		localStorage.removeItem('visitedBefore');
 	}, [state]);
 
 	const mutationAddOrder = useMutation({
 		mutationFn: (data) => OrderService.createOrder(data),
 	});
-	console.log(state);
 
 	useEffect(() => {
 		if (isOpenModalUpdateInfo) {
@@ -138,12 +138,12 @@ const PaymentPage = () => {
 					state: {
 						delivery,
 						payment,
+						total: cart?.totalCart,
 						orders: cart?.cartItems,
 						totalPriceMemo: state?.totalPriceMemo,
 					},
 				});
 			} else {
-				console.log(dataAddOrder);
 				Message.error(dataAddOrder.message);
 			}
 		}

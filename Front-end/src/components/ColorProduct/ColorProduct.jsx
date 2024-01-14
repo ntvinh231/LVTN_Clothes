@@ -43,7 +43,6 @@ const ColorProduct = () => {
 	const queryColors = useQuery(['colors'], fetchAllColor);
 	const { isLoading, data: colors } = queryColors;
 
-	console.log(colors);
 	//Delete
 	const mutationDeleteColor = useMutation({
 		mutationFn: async (id) => {

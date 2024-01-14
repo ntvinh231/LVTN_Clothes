@@ -134,65 +134,67 @@ const MyOrder = () => {
 			<WrapperContainer>
 				<div style={{ height: '100%', width: '1270px', margin: '0 auto' }}>
 					{Array.isArray(data) && data.length > 0 ? (
-						<WrapperListOrder>
-							{data.map((order) => (
-								<WrapperItemOrder key={order?._id}>
-									<WrapperStatus>
-										<span style={{ fontSize: '14px', fontWeight: 'bold' }}>Trạng thái</span>
-										<div>
-											<span style={{ color: 'rgb(255, 66, 78)' }}>Giao hàng: </span>
-											<span style={{ color: 'rgb(90, 32, 193)', fontWeight: 'bold' }}>
-												{`${order.isDelivered ? 'Đã giao hàng' : 'Chưa giao hàng'}`}
-											</span>
-										</div>
-										<div>
-											<span style={{ color: 'rgb(255, 66, 78)' }}>Thanh toán: </span>
-											<span style={{ color: 'rgb(90, 32, 193)', fontWeight: 'bold' }}>
-												{`${order.isPaid ? 'Đã thanh toán' : 'Chưa thanh toán'}`}
-											</span>
-										</div>
-									</WrapperStatus>
-									{renderProduct(order)}
-									<WrapperFooterItem>
-										<div>
-											<span style={{ color: 'rgb(255, 66, 78)' }}>Tổng tiền: </span>
-											<span style={{ fontSize: '13px', color: 'rgb(56, 56, 61)', fontWeight: 700 }}>
-												{convertPrice(order?.totalPrice)}
-											</span>
-										</div>
-										<div style={{ display: 'flex', gap: '10px' }}>
-											<ButtonComponent
-												backgroundHover="#9255FD"
-												textHover="#fff"
-												onClick={() => handleCanceOrder(order)}
-												size={40}
-												styleButton={{
-													height: '36px',
-													border: '1px solid #9255FD',
-													borderRadius: '4px',
-													transition: 'color 0.3s ease',
-												}}
-												textButton={'Hủy đơn hàng'}
-												styleTextButton={{ color: '#9255FD', fontSize: '14px' }}
-											></ButtonComponent>
-											<ButtonComponent
-												backgroundHover="#9255FD"
-												onClick={() => handleDetailsOrder(order?._id)}
-												size={40}
-												styleButton={{
-													height: '36px',
-													border: '1px solid #9255FD',
-													borderRadius: '4px',
-													transition: 'color 0.3s ease',
-												}}
-												textButton={'Xem chi tiết'}
-												styleTextButton={{ color: '#9255FD', fontSize: '14px' }}
-											></ButtonComponent>
-										</div>
-									</WrapperFooterItem>
-								</WrapperItemOrder>
-							))}
-						</WrapperListOrder>
+						<Loading isLoading={isLoadingCancel}>
+							<WrapperListOrder>
+								{data.map((order) => (
+									<WrapperItemOrder key={order?._id}>
+										<WrapperStatus>
+											<span style={{ fontSize: '14px', fontWeight: 'bold' }}>Trạng thái</span>
+											<div>
+												<span style={{ color: 'rgb(255, 66, 78)' }}>Giao hàng: </span>
+												<span style={{ color: 'rgb(90, 32, 193)', fontWeight: 'bold' }}>
+													{`${order.isDelivered ? 'Đã giao hàng' : 'Chưa giao hàng'}`}
+												</span>
+											</div>
+											<div>
+												<span style={{ color: 'rgb(255, 66, 78)' }}>Thanh toán: </span>
+												<span style={{ color: 'rgb(90, 32, 193)', fontWeight: 'bold' }}>
+													{`${order.isPaid ? 'Đã thanh toán' : 'Chưa thanh toán'}`}
+												</span>
+											</div>
+										</WrapperStatus>
+										{renderProduct(order)}
+										<WrapperFooterItem>
+											<div>
+												<span style={{ color: 'rgb(255, 66, 78)' }}>Tổng tiền: </span>
+												<span style={{ fontSize: '13px', color: 'rgb(56, 56, 61)', fontWeight: 700 }}>
+													{convertPrice(order?.totalPrice)}
+												</span>
+											</div>
+											<div style={{ display: 'flex', gap: '10px' }}>
+												<ButtonComponent
+													backgroundHover="#9255FD"
+													textHover="#fff"
+													onClick={() => handleCanceOrder(order)}
+													size={40}
+													styleButton={{
+														height: '36px',
+														border: '1px solid #9255FD',
+														borderRadius: '4px',
+														transition: 'color 0.3s ease',
+													}}
+													textButton={'Hủy đơn hàng'}
+													styleTextButton={{ color: '#9255FD', fontSize: '14px' }}
+												></ButtonComponent>
+												<ButtonComponent
+													backgroundHover="#9255FD"
+													onClick={() => handleDetailsOrder(order?._id)}
+													size={40}
+													styleButton={{
+														height: '36px',
+														border: '1px solid #9255FD',
+														borderRadius: '4px',
+														transition: 'color 0.3s ease',
+													}}
+													textButton={'Xem chi tiết'}
+													styleTextButton={{ color: '#9255FD', fontSize: '14px' }}
+												></ButtonComponent>
+											</div>
+										</WrapperFooterItem>
+									</WrapperItemOrder>
+								))}
+							</WrapperListOrder>
+						</Loading>
 					) : (
 						<EmptyOrderWrapper>
 							<p>Hiện bạn chưa có đơn hàng nào.</p>

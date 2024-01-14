@@ -3,7 +3,6 @@ import * as UserService from '../../service/UserService';
 import cart_empty_background from '../../assets/images/cart_empty_background.webp';
 import { LabelText, WrapperContainer, WrapperInfo, WrapperStyleHeader, WrapperValue } from './style';
 
-import { Form } from 'antd';
 import * as Message from '../../components/Message/Message';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
@@ -15,13 +14,10 @@ import { WrapperItemCart } from '../CartPage/style';
 import { orderContant } from '../../contant';
 
 const OrderSuccess = () => {
-	const cart = useSelector((state) => state.cart);
-	const user = useSelector((state) => state.user);
 	const navigate = useNavigate();
 	const dispatch = useDispatch();
 	const location = useLocation();
 	const { state } = location;
-	console.log(cart);
 	const token = localStorage.getItem('accessToken');
 
 	useEffect(() => {
@@ -29,9 +25,6 @@ const OrderSuccess = () => {
 			navigate('/payment');
 		}
 	}, [state]);
-	// useEffect(() => {
-	// 	navigate('/');
-	// }, []);
 
 	return (
 		<div style={{ background: '#f5f5fa', with: '100%', height: '100vh' }}>
@@ -59,7 +52,7 @@ const OrderSuccess = () => {
 							<WrapperInfo>
 								<WrapperStyleHeader>
 									<span style={{ display: 'inline-block', width: '400px' }}>
-										<span style={{ fontWeight: 'bold' }}> Tất cả ({cart.totalCart} sản phẩm)</span>
+										<span style={{ fontWeight: 'bold' }}> Tất cả ({state?.total} sản phẩm)</span>
 									</span>
 									<div
 										style={{
@@ -74,9 +67,9 @@ const OrderSuccess = () => {
 									</div>
 								</WrapperStyleHeader>
 								{state &&
-									state.orders?.map((order) => {
+									state.orders?.map((order, index) => {
 										return (
-											<WrapperItemCart>
+											<WrapperItemCart key={index}>
 												<div
 													style={{ fontSize: '15px', width: '390px', display: 'flex', alignItems: 'center', gap: 4 }}
 												>

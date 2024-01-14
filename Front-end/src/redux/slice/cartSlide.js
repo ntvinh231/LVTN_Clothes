@@ -20,8 +20,7 @@ export const addToCart = createAsyncThunk('/cart/create', async ({ cartItem }, {
 		Message.success(response.message);
 		return response;
 	} else {
-		console.log({ cartItem });
-
+		// console.log({ cartItem });
 		// return { cartItem };
 	}
 });
@@ -35,8 +34,7 @@ export const removeAllFromCart = createAsyncThunk('cart/removeAll', async ({ lis
 		// Message.success(response.message);
 		return response;
 	} else {
-		console.log({ listChecked });
-
+		// console.log({ listChecked });
 		// return { listChecked };
 	}
 });
@@ -49,7 +47,7 @@ export const removeFromCart = createAsyncThunk('cart/remove', async ({ idProduct
 		Message.success(response.message);
 		return response;
 	} else {
-		console.log({ idProduct });
+		// console.log({ idProduct });
 		// return { idProduct };
 	}
 });
@@ -85,7 +83,6 @@ export const getCartUser = createAsyncThunk('cart/getCartUser', async (userId, {
 
 	if (user?.id) {
 		const response = await CartService.getCartUser(user?.id);
-		console.log(response);
 		return response;
 	} else {
 		// Xử lý khi không có user.id

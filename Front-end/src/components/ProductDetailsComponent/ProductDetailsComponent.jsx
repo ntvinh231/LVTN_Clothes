@@ -159,7 +159,7 @@ const ProductDetailsComponent = ({ idProduct }) => {
 					Message.error('Bạn chưa chọn màu sắc');
 				} else {
 					// Tạo cartItem từ dữ liệu sản phẩm
-					console.log('checkProductDetails', checkProductDetails);
+
 					const cartItem = {
 						name: checkProductDetails?.data && checkProductDetails?.data?.name,
 						amount: numProduct,
@@ -170,7 +170,6 @@ const ProductDetailsComponent = ({ idProduct }) => {
 						colors_id: checkProductDetails?.data && checkProductDetails?.data?.colors_id,
 						product: checkProductDetails?.data && checkProductDetails?.data?._id,
 					};
-					console.log('cartItem', cartItem);
 
 					try {
 						dispatch(addToCart({ cartItem }));

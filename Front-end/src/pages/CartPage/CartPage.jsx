@@ -197,8 +197,11 @@ const CartPage = () => {
 		const res = await UserService.getDetailsUser(id);
 		dispatch(updateUser({ ...res?.data, accessToken: token }));
 	};
+
 	const handleAddCard = () => {
-		if (!user?.phone || !user?.address || !user?.name || !user?.city) {
+		if (cart.cartItems.length < 1) {
+			Message.error('Bạn chưa có sản phẩm nào trong giỏ hàng');
+		} else if (!user?.phone || !user?.address || !user?.name || !user?.city) {
 			setIsOpenModalUpdateInfo(true);
 		} else {
 			navigate('/payment', {
