@@ -188,6 +188,7 @@ const PaymentPage = () => {
 			user: user?.id,
 			isPaid: true,
 			PaidAt: details.update_time,
+			email: user?.email && user?.email,
 		});
 	};
 
@@ -221,6 +222,7 @@ const PaymentPage = () => {
 					shippingPrice: state?.diliveryPriceMemo,
 					totalPrice: state?.totalPriceMemo,
 					user: user?.id,
+					email: user?.email && user?.email,
 				},
 				{
 					onSuccess: () => {},

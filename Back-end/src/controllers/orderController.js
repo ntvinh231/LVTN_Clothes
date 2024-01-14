@@ -1,7 +1,7 @@
 import httpError from 'http-errors';
 import Order from '../models/Order.js';
 import Product from '../models/Product.js';
-
+import EmailService from '../service/EmailService.js';
 export const createOrder = async (req, res, next) => {
 	try {
 		const {
@@ -17,6 +17,7 @@ export const createOrder = async (req, res, next) => {
 			user,
 			isPaid,
 			paidAt,
+			email,
 		} = req.body;
 		if (
 			cartItems === undefined ||
@@ -118,12 +119,11 @@ export const createOrder = async (req, res, next) => {
 				// Giảm quantity và tăng selled
 				productData.quantity -= cart.amount;
 				productData.selled += cart.amount;
-
 				await productData.save();
 			});
 
 			await Promise.all(updatePromises);
-
+			await EmailService(email, cartItems);
 			return res.status(200).json({
 				statusCode: 200,
 				statusMessage: 'success',
