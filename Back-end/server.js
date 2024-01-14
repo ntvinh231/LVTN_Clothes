@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import userRouter from './src/routes/userRouter.js';
 import productRouter from './src/routes/productRouter.js';
 import cartRouter from './src/routes/cartRouter.js';
+import paymentRouter from './src/routes/paymentRouter.js';
 import orderRouter from './src/routes/orderRouter.js';
 import connection from './src/database/connection.js';
 import cookieParser from 'cookie-parser';
@@ -44,6 +45,7 @@ app.use('/api/color', colorRouter);
 app.use('/api/user', userRouter);
 app.use('/api/cart', cartRouter);
 app.use('/api/order', orderRouter);
+app.use('/api/payment', paymentRouter);
 
 //404 handler and pass to error handler
 app.all('*', (req, res, next) => {

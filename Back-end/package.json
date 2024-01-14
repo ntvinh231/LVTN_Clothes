@@ -31,6 +31,7 @@
 		"mongoose": "^7.4.2",
 		"mongoose-delete": "^0.5.4",
 		"node-localstorage": "^3.0.5",
+		"nodemailer": "^6.9.8",
 		"sharp": "^0.32.5"
 	}
 }

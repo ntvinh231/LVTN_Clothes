@@ -4,8 +4,20 @@ import Product from '../models/Product.js';
 
 export const createOrder = async (req, res, next) => {
 	try {
-		const { cartItems, paymentMethod, itemsPrice, shippingPrice, totalPrice, fullName, address, phone, city, user } =
-			req.body;
+		const {
+			cartItems,
+			paymentMethod,
+			itemsPrice,
+			shippingPrice,
+			totalPrice,
+			fullName,
+			address,
+			phone,
+			city,
+			user,
+			isPaid,
+			paidAt,
+		} = req.body;
 		if (
 			cartItems === undefined ||
 			cartItems === null ||
@@ -82,6 +94,8 @@ export const createOrder = async (req, res, next) => {
 			shippingPrice,
 			totalPrice,
 			user: user,
+			isPaid,
+			paidAt,
 		});
 
 		if (order) {

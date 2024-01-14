@@ -220,6 +220,7 @@ export const createProduct = async (req, res, next) => {
 		const existingProduct = await Product.findOne({
 			name: nameRegExp,
 			size: sizeRegExp,
+			collections_id: validatedData.collections_id,
 			colors_id: validatedData.colors_id,
 		});
 
@@ -228,7 +229,7 @@ export const createProduct = async (req, res, next) => {
 				return res.status(200).json({
 					statusCode: 400,
 					statusMessage: 'failed',
-					message: 'Sản phẩm đã tồn tại, giá không được thay đổi.Vui lòng thêm lại',
+					message: 'Sản phẩm đã tồn tại, giá và ảnh không được thay đổi.Vui lòng thêm lại',
 				});
 			}
 
