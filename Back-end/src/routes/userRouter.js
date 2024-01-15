@@ -12,6 +12,7 @@ import {
 	updateUserForAdmin,
 	deleteUser,
 	deleteManyUser,
+	updatePassword,
 } from '../controllers/authController.js';
 import isLoggedIn from '../middleware/isLoggedIn.js';
 import authMiddle from '../middleware/authMiddle.js';
@@ -24,6 +25,7 @@ router.use(isLoggedIn);
 router.post('/update', updateUser);
 router.post('/updateForAdmin/:id', restricTo('admin', 'superadmin'), updateUserForAdmin);
 router.get('/getAll', isLoggedIn, authMiddle, getAllUser);
+router.post('/updatePassword', updatePassword);
 router.get('/details/:id', isLoggedIn, authMiddle, getDetailsUser);
 router.delete('/delete/:id', restricTo('admin', 'superadmin'), deleteUser);
 router.delete('/delete-many', restricTo('admin', 'superadmin'), deleteManyUser);

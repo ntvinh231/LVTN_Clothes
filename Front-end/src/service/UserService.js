@@ -73,6 +73,17 @@ export const updateUser = async (data) => {
 	}
 };
 
+//Change password
+export const updatePassword = async (data) => {
+	try {
+		const res = await axiosJWT.post(`${process.env.REACT_APP_API_URL}/user/updatePassword`, data);
+
+		return res.data;
+	} catch (error) {
+		return error?.response;
+	}
+};
+
 //ForAdmin
 export const updateUserForAdmin = async (id, data) => {
 	try {

@@ -21,7 +21,7 @@ const userSchema = new mongoose.Schema({
 	avatar: String,
 	role: {
 		type: String,
-		enum: ['user', 'admin'],
+		enum: ['user', 'admin', 'superadmin'],
 		select: false,
 	},
 	// list_favorite: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product', select: false }],
@@ -34,7 +34,11 @@ userSchema.pre('save', async function (next) {
 	if (this.isModified('password') || this.isNew) this.passwordChangedAt = Date.now() - 2000;
 });
 
-userSchema.methods.isPasswordChanged = function (jwtTimeStamp) {
+userSchema.methods.correctPassword = async function (candidatePass, currentPass) {
+	return await bcrypt.compare(candidatePass, currentPass);
+};
+
+userSchema.methods.isPasswordChanged = async function (jwtTimeStamp) {
 	if (this.passwordChangedAt) {
 		const changedTimeStamp = parseInt(this.passwordChangedAt.getTime() / 1000, 10);
 		return changedTimeStamp > jwtTimeStamp;

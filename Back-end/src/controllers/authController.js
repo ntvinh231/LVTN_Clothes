@@ -97,7 +97,7 @@ export const signIn = async (req, res, next) => {
 
 		const { refreshToken, accessToken } = response;
 		res.cookie('jwtR', refreshToken, {
-			httpOnly: true,
+			httpOnly: false,
 			secure: false,
 			sameSite: 'strict',
 			path: '/',
@@ -365,4 +365,46 @@ export const deleteManyUser = async (req, res, next) => {
 		console.log(error);
 		return next(httpError(500, error));
 	}
+};
+
+export const updatePassword = async (req, res, next) => {
+	const user = await User.findById(req.user.id).select('+password');
+	if (!(await user.correctPassword(req.body.oldPass, user.password))) {
+		return res.status(200).json({
+			statusCode: 401,
+			statusMessage: 'failed',
+			message: 'Mật khẩu hiện tại của bạn không chính xác',
+		});
+	}
+
+	if (req.body.newPass !== req.body.newPassConfirm) {
+		return res.status(200).json({
+			statusCode: 401,
+			statusMessage: 'failed',
+			message: 'Nhập lại mật khẩu không khớp',
+		});
+	}
+	user.password = req.body.newPassConfirm;
+	await user.save();
+
+	const response = await generateTokens(user._id);
+
+	const { refreshToken, accessToken } = response;
+	res.cookie('jwtR', refreshToken, {
+		httpOnly: false,
+		secure: false,
+		sameSite: 'strict',
+		path: '/',
+	});
+
+	const CookieOptions = {
+		secure: false,
+		httpOnly: false,
+	};
+	res.cookie('jwt', accessToken, CookieOptions);
+	return res.status(200).json({
+		statusCode: 200,
+		statusMessage: 'success',
+		Message: 'Đổi mật khẩu thành công',
+	});
 };

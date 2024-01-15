@@ -11,6 +11,7 @@ import * as ProductService from './service/ProductService';
 import { resetUser, updateUser } from './redux/slice/userSlide';
 import Cookies from 'js-cookie';
 import Loading from './components/LoadingComponent/Loading';
+import { message } from 'antd';
 
 export default function App() {
 	const dispatch = useDispatch();
@@ -86,6 +87,7 @@ export default function App() {
 
 	const handleDecoded = () => {
 		let storageData = localStorage.getItem('accessToken');
+		console.log(document.cookie);
 		let decoded = {};
 		if (storageData && isJsonString(storageData)) {
 			storageData = JSON.parse(storageData);

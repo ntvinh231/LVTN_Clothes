@@ -27,12 +27,12 @@ export const generateTokens = (payload) => {
 export const sendToken = (accessToken, code, res, req) => {
 	const CookieOptions = {
 		secure: false,
-		httpOnly: true,
+		httpOnly: false,
 	};
 	res.cookie('jwt', accessToken, CookieOptions);
 	return res.status(code).json({
 		statusCode: code,
-		statusMessage: 'sucess',
+		statusMessage: 'success',
 		Message: 'Login Success',
 		accessToken,
 	});

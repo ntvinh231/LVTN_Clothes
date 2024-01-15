@@ -34,6 +34,9 @@ const BreadCrumbComponent = () => {
 			case locationPath.startsWith('/order-details'):
 				setBreadCrumb('Chi tiết đơn hàng');
 				break;
+			case locationPath.startsWith('/profile-user'):
+				setBreadCrumb('Thông tin người dùng');
+				break;
 			default:
 				break;
 		}

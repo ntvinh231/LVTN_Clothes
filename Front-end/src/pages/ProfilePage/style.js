@@ -4,7 +4,8 @@ import styled from 'styled-components';
 export const WrapperHeader = styled.h1`
 	color: #000;
 	font-size: 18px;
-	margin: 4px 0;
+	margin: 16px 0;
+	text-align: center;
 `;
 export const WrapperContentProfile = styled.div`
 	display: flex;
@@ -55,4 +56,13 @@ export const WrapperUploadFile = styled(Upload)`
 	.ant-upload-list-item-container {
 		display: none;
 	}
+`;
+
+export const WrapperLabelChangePass = styled.label`
+	color: #000;
+	font-size: 12px;
+	line-height: 30px;
+	font-weight: 600;
+	width: 130px;
+	text-align: left;
 `;

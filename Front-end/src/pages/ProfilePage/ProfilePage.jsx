@@ -5,6 +5,7 @@ import {
 	WrapperInput,
 	WrapperInputFile,
 	WrapperLabel,
+	WrapperLabelChangePass,
 	WrapperUploadFile,
 } from './style';
 import InputForm from '../../components/InputForm/InputForm';
@@ -14,7 +15,7 @@ import * as UserService from '../../service/UserService';
 import { useMutation } from '@tanstack/react-query';
 import Loading from '../../components/LoadingComponent/Loading';
 import { Button, Upload, message } from 'antd';
-import { updateUser } from '../../redux/slice/userSlide';
+import { resetUser, updateUser } from '../../redux/slice/userSlide';
 import { useNavigate } from 'react-router-dom';
 import { UploadOutlined } from '@ant-design/icons';
 import { getBase64 } from '../../util';
@@ -47,11 +48,11 @@ const ProfilePage = () => {
 	useEffect(() => {
 		setIsLoading(true);
 		if (data?.statusCode === 200) {
-			message.success('Update Success');
+			message.success('Cập nhật thành công');
 			handleGetDetailsUser(user?.id, user?.accessToken);
 		}
 		if (data?.statusCode === 400) {
-			message.success(data?.message);
+			message.error(data?.message);
 			handleGetDetailsUser(user?.id, user?.accessToken);
 		}
 		setIsLoading(false);
@@ -96,8 +97,49 @@ const ProfilePage = () => {
 			city,
 		});
 	};
+
+	const [oldPass, setOldPass] = useState('');
+	const [newPass, setNewPass] = useState('');
+	const [newPassConfirm, setNewPassConfirm] = useState('');
+
+	const handleOnChangeOldPass = (value) => {
+		setOldPass(value);
+	};
+	const handleOnChangeNewPass = (value) => {
+		setNewPass(value);
+	};
+	const handleOnChangeNewPassConfirm = (value) => {
+		setNewPassConfirm(value);
+	};
+
+	const mutationUpdatePassword = useMutation({
+		mutationFn: (data) => UserService.updatePassword(data),
+	});
+	const handleChangePassword = () => {
+		mutationUpdatePassword.mutate({
+			oldPass,
+			newPass,
+			newPassConfirm,
+		});
+	};
+	const { data: dataPassword } = mutationUpdatePassword;
+
+	useEffect(() => {
+		setIsLoading(true);
+		if (dataPassword?.statusCode === 200) {
+			message.success('Đổi mật khẩu thành công. Vui lòng đăng nhập lại');
+			localStorage.removeItem('accessToken');
+			dispatch(resetUser());
+			navigate('/');
+		}
+		if (dataPassword?.statusCode === 401) {
+			message.error(dataPassword?.message);
+		}
+		setIsLoading(false);
+	}, [dataPassword?.statusCode]);
+
 	return (
-		<div style={{ width: '100%', margin: '0 auto', height: '500px' }}>
+		<div style={{ width: '100%', margin: '0 auto', height: '1000px' }}>
 			<WrapperHeader>THÔNG TIN NGƯỜI DÙNG</WrapperHeader>
 			<Loading isLoading={isLoading}>
 				<WrapperContentProfile>
@@ -184,6 +226,55 @@ const ProfilePage = () => {
 							padding: '2px 6px 6px',
 						}}
 						textButton={'Cập nhật'}
+						styleTextButton={{ color: '#fff', fontSize: '15px', fontWeight: '700' }}
+					></ButtonComponent>
+				</WrapperContentProfile>
+			</Loading>
+			<WrapperHeader>Đổi mật khẩu</WrapperHeader>
+			<Loading isLoading={isLoading}>
+				<WrapperContentProfile>
+					<WrapperInput>
+						<WrapperLabelChangePass htmlFor="oldPass">Mật khẩu cũ</WrapperLabelChangePass>
+						<InputForm
+							style={{ width: '200px' }}
+							placeholder="Nhập mật khẩu cũ"
+							value={oldPass}
+							onChange={handleOnChangeOldPass}
+						></InputForm>
+					</WrapperInput>
+					<WrapperInput>
+						<WrapperLabelChangePass htmlFor="newPass">Mật khẩu mới</WrapperLabelChangePass>
+						<InputForm
+							style={{ width: '200px' }}
+							placeholder="Nhập mật khẩu mới"
+							value={newPass}
+							onChange={handleOnChangeNewPass}
+						></InputForm>
+					</WrapperInput>
+					<WrapperInput>
+						<WrapperLabelChangePass htmlFor="newPassConfirm">Nhập lại mật khẩu mới</WrapperLabelChangePass>
+						<InputForm
+							style={{ width: '200px' }}
+							placeholder="Nhập lại mật khẩu mới"
+							value={newPassConfirm}
+							onChange={handleOnChangeNewPassConfirm}
+						></InputForm>
+					</WrapperInput>
+					<ButtonComponent
+						onClick={handleChangePassword}
+						bordered="false"
+						size={40}
+						backgroundHover="#0089ff"
+						styleButton={{
+							background: 'rgb(255,57,69)',
+							height: '30px',
+							width: 'fit-content',
+							border: 'none',
+							borderRadius: '4px',
+							transition: 'background 0.3s ease',
+							padding: '2px 6px 6px',
+						}}
+						textButton={'Đổi mật khẩu'}
 						styleTextButton={{ color: '#fff', fontSize: '15px', fontWeight: '700' }}
 					></ButtonComponent>
 				</WrapperContentProfile>
