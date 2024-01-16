@@ -5,7 +5,7 @@ import * as message from '../../components/Message/Message';
 import ButtonComponent from '../../components/ButtonComponent/ButtonComponent';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { convertPrice } from '../../util';
+import { convertPrice, getCookieValue } from '../../util';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import Loading from '../../components/LoadingComponent/Loading';
 import * as OrderService from '../../service/OrderService';
@@ -19,6 +19,7 @@ import {
 	WrapperStatus,
 } from './style';
 import { resetUser } from '../../redux/slice/userSlide';
+import { resetCart } from '../../redux/slice/cartSlide';
 
 const MyOrder = () => {
 	const location = useLocation();
@@ -27,15 +28,16 @@ const MyOrder = () => {
 
 	const navigate = useNavigate();
 	const dispatch = useDispatch();
-	const token = localStorage.getItem('accessToken');
 
+	let accessToken = getCookieValue('jwt');
 	useEffect(() => {
-		if (!token || token === 'undefined') {
-			message.error('Bạn không đăng nhập. Vui lòng đăng nhập lại');
+		if (!accessToken) {
+			dispatch(resetCart());
 			dispatch(resetUser());
 			navigate('/');
+			message.error('Bạn không đăng nhập vui lòng đăng nhập lại');
 		}
-	}, [user, token]);
+	}, [accessToken]);
 
 	const fetchMyOrder = async () => {
 		const res = await OrderService.getOrderByUserId(state?.id);

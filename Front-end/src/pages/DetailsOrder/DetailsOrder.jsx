@@ -18,28 +18,32 @@ import { useDispatch, useSelector } from 'react-redux';
 import * as OrderService from '../../service/OrderService';
 import { useQuery } from '@tanstack/react-query';
 import { orderContant } from '../../contant';
-import { convertPrice } from '../../util';
+import { convertPrice, getCookieValue } from '../../util';
 import { useMemo } from 'react';
 import Loading from '../../components/LoadingComponent/Loading';
 import { resetUser } from '../../redux/slice/userSlide';
+import { resetCart } from '../../redux/slice/cartSlide';
 
 const DetailsOrder = () => {
 	const params = useParams();
-	const location = useLocation();
+
 	const navigate = useNavigate();
 	const dispatch = useDispatch();
-	const token = localStorage.getItem('accessToken');
 	const user = useSelector((state) => state.user);
-	const { state } = location;
+
 	const { id } = params;
 
+	let accessToken = getCookieValue('jwt');
 	useEffect(() => {
-		if (!token || token === 'undefined') {
-			message.error('Bạn không đăng nhập. Vui lòng đăng nhập lại');
+		if (!accessToken) {
+			dispatch(resetCart());
 			dispatch(resetUser());
 			navigate('/');
+			console.log();
+			message.error('Bạn không đăng nhập vui lòng đăng nhập lại');
 		}
-	}, [user, token]);
+	}, [accessToken]);
+
 	const fetchDetailsOrder = async () => {
 		const res = await OrderService.getDetailsOrder(id);
 		return res.data;

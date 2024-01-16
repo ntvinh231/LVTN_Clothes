@@ -2,7 +2,7 @@ import React, { Fragment, useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { routes } from './routes';
 import DefaultComponent from './components/DefaultComponent/DefaultComponent';
-import { isJsonString } from './util';
+import { getCookieValue } from './util';
 import { jwtDecode } from 'jwt-decode';
 import { useDispatch, useSelector } from 'react-redux';
 import * as UserService from './service/UserService';
@@ -17,31 +17,34 @@ export default function App() {
 	const dispatch = useDispatch();
 	const user = useSelector((state) => state.user);
 	const [isLoading, setIsLoading] = useState(false);
+
 	useEffect(() => {
+		if (!user) {
+			return;
+		}
+
 		let isMounted = true;
 
 		const fetchData = async () => {
 			setIsLoading(true);
+
 			const { storageData, decoded } = handleDecoded();
 
 			if (decoded?.payload) {
-				await handleGetDetailsUser(decoded?.payload, storageData);
-			} else {
-				dispatch(resetUser());
+				await handleGetDetailsUser(decoded.payload, storageData);
 			}
+
 			if (isMounted) {
 				setIsLoading(false);
 			}
-			if (storageData === 'undefined') {
-				localStorage.removeItem('accessToken');
-			}
 		};
+
 		fetchData();
 
 		return () => {
 			isMounted = false;
 		};
-	}, [user]);
+	}, [user]); // Thêm 'dispatch' vào dependencies
 
 	UserService.axiosJWT.interceptors.request.use(async (config) => {
 		try {
@@ -51,33 +54,12 @@ export default function App() {
 			};
 			const currentTime = new Date();
 			const { decoded } = handleDecoded();
-			if (decoded?.exp < currentTime.getTime() / 1000) {
+			if (decoded?.exp && decoded?.exp < currentTime.getTime() / 1000) {
 				const data = await UserService.refreshToken();
 				config.headers['token'] = `Bearer ${data?.accessToken}`;
-				// Lưu access token vào cookie
-				Cookies.set('jwt', data?.accessToken, cookieOptions);
-				localStorage.setItem('accessToken', JSON.stringify(data?.accessToken));
-			}
-			return config;
-		} catch (error) {
-			console.log(error);
-		}
-	});
 
-	ProductService.axiosJWTC.interceptors.request.use(async (config) => {
-		try {
-			const cookieOptions = {
-				httpOnly: true,
-				secure: false,
-			};
-			const currentTime = new Date();
-			const { decoded } = handleDecoded();
-			if (decoded?.exp < currentTime.getTime() / 1000) {
-				const data = await ProductService.refreshToken();
-				config.headers['token'] = `Bearer ${data?.accessToken}`;
 				// Lưu access token vào cookie
 				Cookies.set('jwt', data?.accessToken, cookieOptions);
-				localStorage.setItem('accessToken', JSON.stringify(data?.accessToken));
 			}
 			return config;
 		} catch (error) {
@@ -86,18 +68,17 @@ export default function App() {
 	});
 
 	const handleDecoded = () => {
-		let storageData = localStorage.getItem('accessToken');
-		console.log(document.cookie);
+		let storageData = getCookieValue('jwt');
 		let decoded = {};
-		if (storageData && isJsonString(storageData)) {
-			storageData = JSON.parse(storageData);
+		if (storageData) {
 			decoded = jwtDecode(storageData);
 		}
+
 		return { decoded, storageData };
 	};
-
 	const handleGetDetailsUser = async (id, token) => {
 		const res = await UserService.getDetailsUser(id, token);
+
 		dispatch(updateUser({ ...res?.data, accessToken: token }));
 	};
 

@@ -1,17 +1,16 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import * as UserService from '../../service/UserService';
-import cart_empty_background from '../../assets/images/cart_empty_background.webp';
 import { LabelText, WrapperContainer, WrapperInfo, WrapperStyleHeader, WrapperValue } from './style';
 
 import * as Message from '../../components/Message/Message';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { convertPrice } from '../../util';
+import { convertPrice, getCookieValue } from '../../util';
 import { getCartUser, resetCart } from '../../redux/slice/cartSlide';
 import * as OrderService from '../../service/OrderService';
 import Loading from '../../components/LoadingComponent/Loading';
 import { WrapperItemCart } from '../CartPage/style';
 import { orderContant } from '../../contant';
+import { resetUser } from '../../redux/slice/userSlide';
 
 const OrderSuccess = () => {
 	const navigate = useNavigate();
@@ -19,6 +18,15 @@ const OrderSuccess = () => {
 	const location = useLocation();
 	const { state } = location;
 	const token = localStorage.getItem('accessToken');
+
+	let accessToken = getCookieValue('jwt');
+	useEffect(() => {
+		if (!accessToken) {
+			dispatch(resetUser());
+			navigate('/');
+			Message.error('Bạn không đăng nhập vui lòng đăng nhập lại');
+		}
+	}, [accessToken]);
 
 	useEffect(() => {
 		if (state === null) {

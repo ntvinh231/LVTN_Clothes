@@ -11,9 +11,15 @@ const isLoggedIn = async (req, res, next) => {
 			const currentUser = await User.findById(decoded.payload).select('+role');
 
 			if (!currentUser) return next(httpError(401, 'The user belonging to this does no longer exists'));
-			//4. Check if user changed password after JWT was issued
-			if (currentUser.isPasswordChanged(decoded.iat)) {
-				return next(httpError(401, 'Gần đây bạn đã đổi mật khẩu vui lòng đăng nhập lại'));
+
+			const decodedR = await promisify(jwt.verify)(req.cookies.jwtR, process.env.JWT_REFRESH_SECRET);
+
+			if (await currentUser.isPasswordChanged(decodedR.iat)) {
+				return res.status(200).json({
+					statusCode: 401,
+					statusMessage: 'success',
+					message: 'Gần đây bạn đã đổi mật khẩu vui lòng đăng nhập lại',
+				});
 			}
 
 			req.user = currentUser;
@@ -22,7 +28,7 @@ const isLoggedIn = async (req, res, next) => {
 			return res.status(200).json({
 				statusCode: 401,
 				statusMessage: 'success',
-				message: 'You are not logged in! Please log in to get access',
+				message: 'Bạn không đăng nhập vui lòng đăng nhập',
 			});
 		}
 	} catch (error) {

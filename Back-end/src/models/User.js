@@ -11,14 +11,12 @@ const userSchema = new mongoose.Schema({
 		type: String,
 		select: false,
 	},
-	passwordChangedAt: {
-		type: Date,
-		select: false,
-	},
+	passwordChangedAt: Date,
 	phone: String,
 	address: String,
 	city: String,
 	avatar: String,
+
 	role: {
 		type: String,
 		enum: ['user', 'admin', 'superadmin'],

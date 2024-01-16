@@ -8,7 +8,7 @@ import InputComponent from '../../components/InputComponent/InputComponent';
 import ButtonComponent from '../../components/ButtonComponent/ButtonComponent';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { convertPrice } from '../../util';
+import { convertPrice, getCookieValue } from '../../util';
 import { getCartUser, removeAllFromCart, resetCart } from '../../redux/slice/cartSlide';
 import * as OrderService from '../../service/OrderService';
 import * as PaymentService from '../../service/PaymentService';
@@ -16,6 +16,7 @@ import ModalComponent from '../../components/ModalComponent/ModalComponent';
 import { useMutation } from '@tanstack/react-query';
 import Loading from '../../components/LoadingComponent/Loading';
 import { resetUser, updateUser } from '../../redux/slice/userSlide';
+import * as message from '../../components/Message/Message';
 
 const PaymentPage = () => {
 	const cart = useSelector((state) => state.cart);
@@ -34,23 +35,18 @@ const PaymentPage = () => {
 		phone: '',
 		city: '',
 	});
-	const token = localStorage.getItem('accessToken');
 
+	let accessToken = getCookieValue('jwt');
 	useEffect(() => {
-		if (user?.id) {
-			dispatch(getCartUser(user?.id));
-		} else if (!token || token === 'undefined') {
+		if (!accessToken) {
 			dispatch(resetCart());
 			dispatch(resetUser());
-		}
-	}, [user, dispatch]);
-
-	useEffect(() => {
-		if (!token || token === 'undefined') {
 			navigate('/');
-			Message.error('Bạn không đăng nhập.Vui lòng đăng nhập lại');
+			message.error('Bạn không đăng nhập vui lòng đăng nhập lại');
+		} else {
+			dispatch(getCartUser(user?.id));
 		}
-	}, [user]);
+	}, [accessToken]);
 
 	useEffect(() => {
 		if (state === null) {
@@ -193,10 +189,6 @@ const PaymentPage = () => {
 	};
 
 	const handleAddOrder = () => {
-		if (!token || token === 'undefined') {
-			Message.error('Vui lòng chọn phương thức thanh toán');
-			navigate('/');
-		}
 		if (!payment) {
 			Message.error('Vui lòng chọn phương thức thanh toán');
 			return;

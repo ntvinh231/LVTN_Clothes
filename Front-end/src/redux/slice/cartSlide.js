@@ -1,6 +1,8 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import * as CartService from '../../service/CartService';
 import * as Message from '../../components/Message/Message';
+import { resetUser } from './userSlide';
+import { useDispatch } from 'react-redux';
 
 const initialState = {
 	cartItems: [],
@@ -218,10 +220,15 @@ export const cartSlide = createSlice({
 			})
 			.addCase(getCartUser.fulfilled, (state, action) => {
 				if (action.payload) {
+					if (action.payload?.statusCode === 401) {
+						state.isLoggedIn = false;
+						Message.error(action.payload?.message);
+					} else {
+						state.isLoggedIn = true;
+					}
 					state.cartItems = action.payload.cartItems;
 					state.totalCart = action.payload.totalCart;
 					state.isLoadingGetCart = false;
-					state.isLoggedIn = true;
 				}
 			})
 			.addCase(getCartUser.rejected, (state, action) => {

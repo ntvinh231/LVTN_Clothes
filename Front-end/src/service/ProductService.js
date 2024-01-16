@@ -1,7 +1,7 @@
+import { axiosJWT } from './UserService';
 import axios from 'axios';
-axios.defaults.withCredentials = true;
+axiosJWT.defaults.withCredentials = true;
 
-export const axiosJWTC = axios.create();
 export const refreshToken = async () => {
 	try {
 		const res = await axios.post(`${process.env.REACT_APP_API_URL}/user/refresh-token`, {
@@ -36,12 +36,10 @@ export const getProductTypePagi = async (page, limit, id) => {
 		let res;
 		if (!id) {
 			//getAll
-			res = await axiosJWTC.get(
-				`${process.env.REACT_APP_API_URL}/product/getProductTypePagi/?page=${page}&limit=${limit}`
-			);
+			res = await axios.get(`${process.env.REACT_APP_API_URL}/product/getProductTypePagi/?page=${page}&limit=${limit}`);
 		} else {
 			//getOne
-			res = await axiosJWTC.get(
+			res = await axios.get(
 				`${process.env.REACT_APP_API_URL}/product/getProductTypePagi/?page=${page}&limit=${limit}&collections_id=${id}`
 			);
 		}
@@ -57,10 +55,10 @@ export const getProductCollection = async (page, limit, id) => {
 		let res;
 		if (!id) {
 			//getAll
-			res = await axiosJWTC.get(`${process.env.REACT_APP_API_URL}/product?page=${page}&limit=${limit}`);
+			res = await axios.get(`${process.env.REACT_APP_API_URL}/product?page=${page}&limit=${limit}`);
 		} else {
 			//getOne
-			res = await axiosJWTC.get(
+			res = await axios.get(
 				`${process.env.REACT_APP_API_URL}/product?page=${page}&limit=${limit}&collections_id=${id}`
 			);
 		}
@@ -76,10 +74,10 @@ export const getProductAdmin = async (id) => {
 		let res;
 		if (!id) {
 			//getAll
-			res = await axiosJWTC.get(`${process.env.REACT_APP_API_URL}/product/admin`);
+			res = await axiosJWT.get(`${process.env.REACT_APP_API_URL}/product/admin`);
 		} else {
 			//getDetails
-			res = await axiosJWTC.get(`${process.env.REACT_APP_API_URL}/product/admin/?id=${id}`);
+			res = await axiosJWT.get(`${process.env.REACT_APP_API_URL}/product/admin/?id=${id}`);
 		}
 
 		return res.data;
@@ -90,9 +88,7 @@ export const getProductAdmin = async (id) => {
 
 export const getNameCollection = async (collection) => {
 	try {
-		const res = await axiosJWTC.get(
-			`${process.env.REACT_APP_API_URL}/product/collections?collections_name=${collection}`
-		);
+		const res = await axios.get(`${process.env.REACT_APP_API_URL}/product/collections?collections_name=${collection}`);
 
 		return res.data;
 	} catch (error) {
@@ -139,10 +135,10 @@ export const getCollectionProduct = async (id) => {
 		let res;
 		if (!id) {
 			//getDetails
-			res = await axiosJWTC.get(`${process.env.REACT_APP_API_URL}/product/collections`);
+			res = await axiosJWT.get(`${process.env.REACT_APP_API_URL}/product/collections`);
 		} else {
 			//getOne
-			res = await axiosJWTC.get(`${process.env.REACT_APP_API_URL}/product/collections/?id=${id}`);
+			res = await axiosJWT.get(`${process.env.REACT_APP_API_URL}/product/collections/?id=${id}`);
 		}
 		return res.data;
 	} catch (error) {
@@ -152,7 +148,7 @@ export const getCollectionProduct = async (id) => {
 
 export const createProduct = async (data) => {
 	try {
-		const res = await axiosJWTC.post(`${process.env.REACT_APP_API_URL}/product/create`, data);
+		const res = await axiosJWT.post(`${process.env.REACT_APP_API_URL}/product/create`, data);
 		return res.data;
 	} catch (error) {
 		return error?.response;
@@ -161,7 +157,7 @@ export const createProduct = async (data) => {
 
 export const createCollection = async (data) => {
 	try {
-		const res = await axiosJWTC.post(`${process.env.REACT_APP_API_URL}/product/collections`, data);
+		const res = await axiosJWT.post(`${process.env.REACT_APP_API_URL}/product/collections`, data);
 		return res.data;
 	} catch (error) {
 		return error?.response;
@@ -169,7 +165,7 @@ export const createCollection = async (data) => {
 };
 export const updateProduct = async (id, data) => {
 	try {
-		const res = await axiosJWTC.put(`${process.env.REACT_APP_API_URL}/product/update/${id}`, data);
+		const res = await axiosJWT.put(`${process.env.REACT_APP_API_URL}/product/update/${id}`, data);
 		return res.data;
 	} catch (error) {
 		console.log(error);
@@ -178,7 +174,7 @@ export const updateProduct = async (id, data) => {
 
 export const deleteProduct = async (id) => {
 	try {
-		const res = await axiosJWTC.delete(`${process.env.REACT_APP_API_URL}/product/delete/${id}`);
+		const res = await axiosJWT.delete(`${process.env.REACT_APP_API_URL}/product/delete/${id}`);
 		return res.data;
 	} catch (error) {
 		console.log(error);
@@ -187,7 +183,7 @@ export const deleteProduct = async (id) => {
 
 export const deleteManyProduct = async (data) => {
 	try {
-		const res = await axiosJWTC.delete(`${process.env.REACT_APP_API_URL}/product/delete-many`, { data });
+		const res = await axiosJWT.delete(`${process.env.REACT_APP_API_URL}/product/delete-many`, { data });
 		return res.data;
 	} catch (error) {
 		console.log(error);
@@ -199,10 +195,10 @@ export const getAllCollections = async (id) => {
 		let res;
 		if (id) {
 			//getOne
-			res = await axiosJWTC.get(`${process.env.REACT_APP_API_URL}/product/collections?id=${id}`);
+			res = await axiosJWT.get(`${process.env.REACT_APP_API_URL}/product/collections?id=${id}`);
 		} else {
 			//GetDetails
-			res = await axiosJWTC.get(`${process.env.REACT_APP_API_URL}/product/collections`);
+			res = await axiosJWT.get(`${process.env.REACT_APP_API_URL}/product/collections`);
 		}
 		return res.data;
 	} catch (error) {
@@ -212,7 +208,7 @@ export const getAllCollections = async (id) => {
 
 export const deleteCollection = async (id) => {
 	try {
-		const res = await axiosJWTC.delete(`${process.env.REACT_APP_API_URL}/product/collections?id=${id}`);
+		const res = await axiosJWT.delete(`${process.env.REACT_APP_API_URL}/product/collections?id=${id}`);
 		return res.data;
 	} catch (error) {
 		console.log(error);
@@ -221,7 +217,7 @@ export const deleteCollection = async (id) => {
 
 export const updateCollection = async (id, data) => {
 	try {
-		const res = await axiosJWTC.put(`${process.env.REACT_APP_API_URL}/product/collections/${id}`, data);
+		const res = await axiosJWT.put(`${process.env.REACT_APP_API_URL}/product/collections/${id}`, data);
 		return res.data;
 	} catch (error) {
 		console.log(error);
@@ -240,7 +236,7 @@ export const checkProductDetails = async (data) => {
 //Deletemany collection
 export const deleteManyCollection = async (data) => {
 	try {
-		const res = await axiosJWTC.delete(`${process.env.REACT_APP_API_URL}/product/collection-many`, { data });
+		const res = await axiosJWT.delete(`${process.env.REACT_APP_API_URL}/product/collection-many`, { data });
 		return res.data;
 	} catch (error) {
 		console.log(error);
@@ -252,10 +248,10 @@ export const getAllColors = async (id) => {
 		let res;
 		if (id) {
 			//getOne
-			res = await axiosJWTC.get(`${process.env.REACT_APP_API_URL}/color?id=${id}`);
+			res = await axios.get(`${process.env.REACT_APP_API_URL}/color?id=${id}`);
 		} else {
 			//GetDetails
-			res = await axiosJWTC.get(`${process.env.REACT_APP_API_URL}/color`);
+			res = await axios.get(`${process.env.REACT_APP_API_URL}/color`);
 		}
 		return res.data;
 	} catch (error) {
@@ -265,7 +261,7 @@ export const getAllColors = async (id) => {
 
 export const createColor = async (data) => {
 	try {
-		const res = await axiosJWTC.post(`${process.env.REACT_APP_API_URL}/color`, data);
+		const res = await axiosJWT.post(`${process.env.REACT_APP_API_URL}/color`, data);
 		return res.data;
 	} catch (error) {
 		return error?.response;
@@ -274,7 +270,7 @@ export const createColor = async (data) => {
 
 export const deleteColor = async (id) => {
 	try {
-		const res = await axiosJWTC.delete(`${process.env.REACT_APP_API_URL}/color?id=${id}`);
+		const res = await axiosJWT.delete(`${process.env.REACT_APP_API_URL}/color?id=${id}`);
 		return res.data;
 	} catch (error) {
 		console.log(error);
@@ -283,7 +279,7 @@ export const deleteColor = async (id) => {
 
 export const updateColor = async (id, data) => {
 	try {
-		const res = await axiosJWTC.put(`${process.env.REACT_APP_API_URL}/color/${id}`, data);
+		const res = await axiosJWT.put(`${process.env.REACT_APP_API_URL}/color/${id}`, data);
 		return res.data;
 	} catch (error) {
 		console.log(error);
@@ -292,7 +288,7 @@ export const updateColor = async (id, data) => {
 
 export const deleteManyColor = async (data) => {
 	try {
-		const res = await axiosJWTC.delete(`${process.env.REACT_APP_API_URL}/color/color-many`, { data });
+		const res = await axiosJWT.delete(`${process.env.REACT_APP_API_URL}/color/color-many`, { data });
 		return res.data;
 	} catch (error) {
 		console.log(error);
@@ -304,10 +300,10 @@ export const getColorProduct = async (id) => {
 		let res;
 		if (!id) {
 			//getDetails
-			res = await axiosJWTC.get(`${process.env.REACT_APP_API_URL}/color`);
+			res = await axios.get(`${process.env.REACT_APP_API_URL}/color`);
 		} else {
 			//getOne
-			res = await axiosJWTC.get(`${process.env.REACT_APP_API_URL}/color?id=${id}`);
+			res = await axios.get(`${process.env.REACT_APP_API_URL}/color?id=${id}`);
 		}
 		return res.data;
 	} catch (error) {

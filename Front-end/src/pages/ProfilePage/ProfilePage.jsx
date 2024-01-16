@@ -18,7 +18,7 @@ import { Button, Upload, message } from 'antd';
 import { resetUser, updateUser } from '../../redux/slice/userSlide';
 import { useNavigate } from 'react-router-dom';
 import { UploadOutlined } from '@ant-design/icons';
-import { getBase64 } from '../../util';
+import { deleteCookie, getBase64, getCookieValue } from '../../util';
 
 const ProfilePage = () => {
 	const user = useSelector((state) => state.user);
@@ -36,6 +36,15 @@ const ProfilePage = () => {
 	});
 	const dispatch = useDispatch();
 	const { data } = mutation;
+
+	let accessToken = getCookieValue('jwt');
+	useEffect(() => {
+		if (!accessToken) {
+			dispatch(resetUser());
+			navigate('/');
+			message.error('Bạn không đăng nhập vui lòng đăng nhập lại');
+		}
+	}, [accessToken]);
 
 	useEffect(() => {
 		setName(user?.name);
@@ -128,7 +137,8 @@ const ProfilePage = () => {
 		setIsLoading(true);
 		if (dataPassword?.statusCode === 200) {
 			message.success('Đổi mật khẩu thành công. Vui lòng đăng nhập lại');
-			localStorage.removeItem('accessToken');
+			deleteCookie('jwt');
+			deleteCookie('jwtR');
 			dispatch(resetUser());
 			navigate('/');
 		}

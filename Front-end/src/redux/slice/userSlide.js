@@ -10,6 +10,7 @@ const initialState = {
 	id: '',
 	accessToken: '',
 	role: 'user',
+	isLoggedIn: false,
 };
 
 export const userSlide = createSlice({
@@ -39,6 +40,7 @@ export const userSlide = createSlice({
 			state.id = _id;
 			state.accessToken = accessToken;
 			state.role = role;
+			state.isLoggedIn = true;
 		},
 		// Loggout
 		resetUser: (state) => {
@@ -51,6 +53,7 @@ export const userSlide = createSlice({
 			state.id = '';
 			state.accessToken = '';
 			state.role = 'user';
+			state.isLoggedIn = false;
 		},
 	},
 });

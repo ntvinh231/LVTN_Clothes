@@ -1,11 +1,27 @@
 export const isJsonString = (data) => {
 	try {
-		if (data) JSON.parse(data);
+		JSON.parse(data);
+		return true;
 	} catch (error) {
+		console.log(error);
 		return false;
 	}
-	return true;
 };
+
+export function getCookieValue(cookieName) {
+	const cookies = document.cookie.split('; ');
+	for (let i = 0; i < cookies.length; i++) {
+		const cookie = cookies[i].split('=');
+		if (cookie[0] === cookieName) {
+			return cookie[1];
+		}
+	}
+	return null;
+}
+
+export function deleteCookie(cookieName) {
+	document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+}
 
 export const getBase64 = (file) =>
 	new Promise((resolve, reject) => {

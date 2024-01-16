@@ -42,7 +42,7 @@ export const JWTRefreshTokenService = async (token, res, next) => {
 	try {
 		const cookieOptions = {
 			secure: false,
-			httpOnly: true,
+			httpOnly: false,
 		};
 		const decoded = await promisify(jwt.verify)(token, process.env.JWT_REFRESH_SECRET);
 
@@ -51,11 +51,17 @@ export const JWTRefreshTokenService = async (token, res, next) => {
 		const accessToken = await generateAccessTokens(payload);
 
 		res.cookie('jwt', accessToken, cookieOptions);
-		return { status: 'ok', message: 'success', accessToken };
+		return {
+			statusMessage: 'success',
+			statusCode: 200,
+			message: 'Thành công',
+			accessToken,
+		};
 	} catch (error) {
 		console.log(error);
 		return res.status(200).json({
-			status: 'ERR',
+			statusMessage: 'failed',
+			statusCode: 400,
 			message: 'The authencation',
 		});
 	}

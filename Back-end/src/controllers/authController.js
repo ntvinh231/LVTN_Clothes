@@ -93,6 +93,8 @@ export const signIn = async (req, res, next) => {
 				message: 'Sai tài khoản hoặc mật khẩu vui lòng kiểm tra lại',
 			});
 		req.user = user;
+		user.passwordChangedAt = undefined;
+		await user.save();
 		const response = await generateTokens(user.id);
 
 		const { refreshToken, accessToken } = response;
@@ -387,21 +389,6 @@ export const updatePassword = async (req, res, next) => {
 	user.password = req.body.newPassConfirm;
 	await user.save();
 
-	const response = await generateTokens(user._id);
-
-	const { refreshToken, accessToken } = response;
-	res.cookie('jwtR', refreshToken, {
-		httpOnly: false,
-		secure: false,
-		sameSite: 'strict',
-		path: '/',
-	});
-
-	const CookieOptions = {
-		secure: false,
-		httpOnly: false,
-	};
-	res.cookie('jwt', accessToken, CookieOptions);
 	return res.status(200).json({
 		statusCode: 200,
 		statusMessage: 'success',
