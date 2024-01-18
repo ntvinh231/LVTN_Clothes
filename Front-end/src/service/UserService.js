@@ -54,6 +54,24 @@ export const refreshToken = async () => {
 	}
 };
 
+export const forgotPassword = async (email, frontendHost) => {
+	try {
+		const res = await axios.post(`${process.env.REACT_APP_API_URL}/user/forgot-password`, { email, frontendHost });
+		return res.data;
+	} catch (error) {
+		console.log(error);
+	}
+};
+
+export const resetPassword = async (data, token) => {
+	try {
+		const res = await axios.patch(`${process.env.REACT_APP_API_URL}/user/reset-password/${token}`, data);
+		return res.data;
+	} catch (error) {
+		console.log(error);
+	}
+};
+
 export const loggoutUser = async () => {
 	try {
 		const res = await axiosJWT.post(`${process.env.REACT_APP_API_URL}/user/loggout`);

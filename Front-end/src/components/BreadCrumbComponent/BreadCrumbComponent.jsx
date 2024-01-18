@@ -37,6 +37,10 @@ const BreadCrumbComponent = () => {
 			case locationPath.startsWith('/profile-user'):
 				setBreadCrumb('Thông tin người dùng');
 				break;
+			case locationPath.startsWith('/forgot-password'):
+				setBreadCrumb('Quên mật khẩu');
+				break;
+
 			default:
 				break;
 		}

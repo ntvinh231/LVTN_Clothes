@@ -12,6 +12,8 @@ import PaymentPage from '../pages/PaymentPage/PaymentPage';
 import OrderSuccess from '../pages/OrderSuccess/OrderSuccess';
 import MyOrder from '../pages/MyOrder/MyOrder';
 import DetailsOrder from '../pages/DetailsOrder/DetailsOrder';
+import ForgotPasswordPage from '../pages/ForgotPasswordPage/ForgotPasswordPage';
+import ResetPasswordPage from '../pages/ResetPasswordPage/ResetPasswordPage';
 
 export const routes = [
 	{
@@ -57,6 +59,16 @@ export const routes = [
 	{
 		path: '/sign-up',
 		page: SignUpPage,
+		isShowHeader: true,
+	},
+	{
+		path: '/forgot-password',
+		page: ForgotPasswordPage,
+		isShowHeader: true,
+	},
+	{
+		path: '/reset-password/:token',
+		page: ResetPasswordPage,
 		isShowHeader: true,
 	},
 	{

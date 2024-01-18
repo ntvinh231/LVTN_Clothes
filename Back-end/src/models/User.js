@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
 import mongoose_delete from 'mongoose-delete';
+import crypto from 'crypto';
 
 const userSchema = new mongoose.Schema({
 	name: String,
@@ -16,7 +17,6 @@ const userSchema = new mongoose.Schema({
 	address: String,
 	city: String,
 	avatar: String,
-
 	role: {
 		type: String,
 		enum: ['user', 'admin', 'superadmin'],
@@ -24,6 +24,8 @@ const userSchema = new mongoose.Schema({
 	},
 	// list_favorite: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product', select: false }],
 	refreshToken: String,
+	passwordResetToken: String,
+	passwordResetExpires: Date,
 });
 
 userSchema.pre('save', async function (next) {
@@ -42,6 +44,15 @@ userSchema.methods.isPasswordChanged = async function (jwtTimeStamp) {
 		return changedTimeStamp > jwtTimeStamp;
 	}
 	return false;
+};
+
+userSchema.methods.createPasswordResetToken = async function () {
+	const resetToken = crypto.randomBytes(32).toString('hex');
+	this.passwordResetToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+	//Minutes
+	this.passwordResetExpires = Date.now() + parseInt(process.env.EMAIL_RESET_PASSWORD_EXPIRES) * 60 * 1000;
+
+	return resetToken;
 };
 
 userSchema.plugin(mongoose_delete, { overrideMethods: 'all' });

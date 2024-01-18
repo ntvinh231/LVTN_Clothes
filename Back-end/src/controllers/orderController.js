@@ -1,7 +1,7 @@
 import httpError from 'http-errors';
 import Order from '../models/Order.js';
 import Product from '../models/Product.js';
-import EmailService from '../service/EmailService.js';
+import { sendEmailCreateOrder } from '../service/EmailService.js';
 export const createOrder = async (req, res, next) => {
 	try {
 		const {
@@ -123,7 +123,7 @@ export const createOrder = async (req, res, next) => {
 			});
 
 			await Promise.all(updatePromises);
-			await EmailService(email, cartItems);
+			await sendEmailCreateOrder(email, cartItems);
 			return res.status(200).json({
 				statusCode: 200,
 				statusMessage: 'success',

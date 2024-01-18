@@ -13,13 +13,17 @@ import {
 	deleteUser,
 	deleteManyUser,
 	updatePassword,
+	forgotPassword,
+	resetPassword,
 } from '../controllers/authController.js';
 import isLoggedIn from '../middleware/isLoggedIn.js';
-import authMiddle from '../middleware/authMiddle.js';
 import restricTo from '../middleware/checkRole.js';
 router.post('/refresh-token', refreshToken);
 router.post('/signup', signUp);
 router.post('/signin', signIn);
+router.post('/forgot-password', forgotPassword);
+router.patch('/reset-password/:token', resetPassword);
+
 router.post('/loggout', loggout);
 router.use(isLoggedIn);
 router.post('/update', updateUser);

@@ -1,9 +1,10 @@
 import User from '../models/User.js';
-
+import crypto from 'crypto';
 import joi from 'joi';
 import { JWTRefreshTokenService, generateTokens, sendToken } from '../middleware/sendToken.js';
 import httpError from 'http-errors';
 import bcrypt from 'bcrypt';
+import { sendMailResetPassword } from '../service/EmailService.js';
 
 export const signUp = async (req, res, next) => {
 	try {
@@ -393,5 +394,94 @@ export const updatePassword = async (req, res, next) => {
 		statusCode: 200,
 		statusMessage: 'success',
 		Message: 'Đổi mật khẩu thành công',
+	});
+};
+
+export const forgotPassword = async (req, res, next) => {
+	const user = await User.findOne({ email: req.body.email });
+
+	if (req.body.email && !isValidEmail(req.body.email)) {
+		return res.status(200).json({
+			statusCode: 400,
+			statusMessage: 'failed',
+			message: 'Vui lòng nhập email hợp lệ',
+		});
+	}
+	if (!user) {
+		return res.status(200).json({
+			statusCode: 404,
+			statusMessage: 'failed',
+			message: 'Địa chỉ email bạn nhập không có. Vui lòng kiểm tra lại.',
+		});
+	}
+
+	const resetToken = await user.createPasswordResetToken();
+	//Disble khi có một trường dùng required
+	// await user.save({ validateBeforeSave: false });
+	//Khi không có trường nào required
+	await user.save();
+
+	const frontendHost = req.body.frontendHost;
+	const resetURL = `${frontendHost}/reset-password/${resetToken}`;
+	const message1 = `<p style="white-space: nowrap;">Chào <strong>${user.name}</strong> bạn đã gửi một yêu cầu đặt lại mật khẩu</p>`;
+	const message2 = `Bạn quên mật khẩu? Nhấn vào đây để tạo lại mật khẩu`;
+	const message3 = `\nNếu bạn không phải người gửi yêu cầu, hãy bỏ qua email này`;
+
+	try {
+		await sendMailResetPassword({
+			email: user.email,
+			subject: `Yêu cầu đặt lại mật khẩu của bạn có hiệu lực trong ${process.env.EMAIL_RESET_PASSWORD_EXPIRES} phút`,
+			message1,
+			message2,
+			message3,
+			resetURL,
+		});
+
+		res.status(200).json({
+			statusCode: 200,
+			statusMessage: 'success',
+			message: 'Đã gửi thông tin đặt lại mật khẩu của bạn.Vui lòng kiểm tra email',
+		});
+	} catch (error) {
+		user.passwordResetToken = undefined;
+		user.passwordResetExpires = undefined;
+		await user.save();
+		console.log(error);
+		return res.status(200).json({
+			statusCode: 500,
+			statusMessage: 'success',
+			Message: 'Có lỗi khi gửi email.Vui lòng thử lại',
+		});
+	}
+};
+
+export const resetPassword = async (req, res, next) => {
+	if (req.body.password !== req.body.passwordConfirm) {
+		return res.status(200).json({
+			statusCode: 400,
+			statusMessage: 'failed',
+			message: 'Mật khẩu không khớp.Vui lòng kiểm tra lại',
+		});
+	}
+	const hasedToken = crypto.createHash('sha256').update(req.params.token).digest('hex');
+	const user = await User.findOne({ passwordResetToken: hasedToken, passwordResetExpires: { $gt: Date.now() } });
+
+	if (!user) {
+		return res.status(200).json({
+			statusCode: 400,
+			statusMessage: 'failed',
+			message: 'Liên kết đã hết hạn hoặc sai',
+		});
+	}
+
+	user.password = req.body.password;
+	user.passwordResetToken = undefined;
+	user.passwordResetExpires = undefined;
+	await user.save();
+
+	return res.status(200).json({
+		statusCode: 200,
+		statusMessage: 'success',
+		message: 'Đặt lại mật khẩu thành công',
 	});
 };

@@ -151,7 +151,7 @@ const SignInPage = () => {
 							styleTextButton={{ color: '#fff', fontSize: '15px', fontWeight: '700' }}
 						></ButtonComponent>
 					</Loading>
-					<WrapperTextLight>Quên mật khẩu?</WrapperTextLight>
+					<WrapperTextLight onClick={() => navigate('/forgot-password')}>Quên mật khẩu?</WrapperTextLight>
 					<p>
 						Chưa có tài khoản <WrapperTextLight onClick={handleNavigateRegister}>Tạo tài khoản?</WrapperTextLight>{' '}
 					</p>
