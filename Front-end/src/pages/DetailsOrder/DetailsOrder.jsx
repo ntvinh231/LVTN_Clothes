@@ -39,7 +39,6 @@ const DetailsOrder = () => {
 			dispatch(resetCart());
 			dispatch(resetUser());
 			navigate('/');
-			console.log();
 			message.error('Bạn không đăng nhập vui lòng đăng nhập lại');
 		}
 	}, [accessToken]);

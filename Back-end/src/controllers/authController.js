@@ -35,6 +35,14 @@ export const signUp = async (req, res, next) => {
 				message: 'Tên không hợp lệ. Tên phải có từ 3 đến 30 ký tự.',
 			});
 		}
+
+		if (password.length < 6 || !/[a-zA-Z]/.test(password)) {
+			return res.status(200).json({
+				statusCode: 400,
+				statusMessage: 'failed',
+				message: 'Mật khẩu phải có ít nhất 6 ký tự và chứa ít nhất 1 chữ hoa hoặc thường.',
+			});
+		}
 		// Kiểm tra xem mật khẩu có khớp nhau không
 		if (password !== confirmPassword) {
 			return res.status(200).json({
@@ -53,7 +61,6 @@ export const signUp = async (req, res, next) => {
 			});
 		}
 
-		// Trả về một phản hồi thành công nếu dữ liệu hợp lệ
 		return res.status(201).json({
 			statusCode: 201,
 			statusMessage: 'success',
@@ -124,20 +131,20 @@ export const updateUserForAdmin = async (req, res, next) => {
 			return res.status(200).json({
 				statusCode: 400,
 				statusMessage: 'failed',
-				message: 'Email already exists',
+				message: 'Email đã tồn tại',
 			});
 
 		if (!data.name) {
 			return res.status(200).json({
 				statusCode: 400,
 				statusMessage: 'failed',
-				message: 'Name is required',
+				message: 'Tên là bắt buộc',
 			});
 		} else if (data.name.length > 25) {
 			return res.status(200).json({
 				statusCode: 400,
 				statusMessage: 'failed',
-				message: 'Name must not exceed 25 characters',
+				message: 'Tên không được quá 25 ký tự',
 			});
 		}
 
@@ -146,14 +153,21 @@ export const updateUserForAdmin = async (req, res, next) => {
 			return res.status(200).json({
 				statusCode: 400,
 				statusMessage: 'failed',
-				message: 'Invalid phone number',
+				message: 'Số điện thoại không hợp lệ',
 			});
 		}
 		if (data.email && !isValidEmail(data.email)) {
 			return res.status(200).json({
 				statusCode: 400,
 				statusMessage: 'failed',
-				message: 'Invalid email address',
+				message: 'Email không hợp lệ',
+			});
+		}
+		if (data.password.length < 6 || !/[a-zA-Z]/.test(data.password)) {
+			return res.status(200).json({
+				statusCode: 400,
+				statusMessage: 'failed',
+				message: 'Mật khẩu phải có ít nhất 6 ký tự và chứa ít nhất 1 chữ hoa hoặc thường.',
 			});
 		}
 
@@ -163,7 +177,7 @@ export const updateUserForAdmin = async (req, res, next) => {
 		});
 
 		if (!user) {
-			return next(httpError(401, 'You are not logged in! Please log in to get access'));
+			return next(httpError(401, 'Bạn không đăng nhập. Vui lòng đăng nhập lại'));
 		}
 
 		return res.status(200).json({
@@ -193,19 +207,19 @@ export const updateUser = async (req, res, next) => {
 			return res.status(200).json({
 				statusCode: 400,
 				statusMessage: 'failed',
-				message: 'Email already exists',
+				message: 'Email đã tồn tại',
 			});
 		if (!data.name || !data.phone) {
 			return res.status(200).json({
 				statusCode: 400,
 				statusMessage: 'success',
-				message: 'Name, phone are required.',
+				message: 'Tên, số điện thoại là bắt buộc.',
 			});
 		} else if (data.name.length > 25) {
 			return res.status(200).json({
 				statusCode: 400,
 				statusMessage: 'success',
-				message: 'Name must not exceed 25 characters',
+				message: 'Tên không được quá 25 ký tự',
 			});
 		}
 
@@ -215,7 +229,7 @@ export const updateUser = async (req, res, next) => {
 			return res.status(200).json({
 				statusCode: 400,
 				statusMessage: 'failed',
-				message: 'Invalid phone number',
+				message: 'Số điện thoại không hợp lệ',
 			});
 		}
 
@@ -223,7 +237,7 @@ export const updateUser = async (req, res, next) => {
 			return res.status(200).json({
 				statusCode: 400,
 				statusMessage: 'success',
-				message: 'Invalid email address',
+				message: 'Email không hợp lệ',
 			});
 		}
 
@@ -233,7 +247,7 @@ export const updateUser = async (req, res, next) => {
 		});
 
 		if (!user) {
-			return next(httpError(401, 'You are not logged in! Please log in to get access'));
+			return next(httpError(401, 'Bạn không đăng nhập. Vui lòng đăng nhập lại'));
 		}
 
 		return res.status(200).json({
@@ -380,6 +394,13 @@ export const updatePassword = async (req, res, next) => {
 		});
 	}
 
+	if (req.body.newPass.length < 6 || !/[a-zA-Z]/.test(req.body.newPass)) {
+		return res.status(200).json({
+			statusCode: 400,
+			statusMessage: 'failed',
+			message: 'Mật khẩu phải có ít nhất 6 ký tự và chứa ít nhất 1 chữ hoa hoặc thường.',
+		});
+	}
 	if (req.body.newPass !== req.body.newPassConfirm) {
 		return res.status(200).json({
 			statusCode: 401,
@@ -387,6 +408,7 @@ export const updatePassword = async (req, res, next) => {
 			message: 'Nhập lại mật khẩu không khớp',
 		});
 	}
+
 	user.password = req.body.newPassConfirm;
 	await user.save();
 
@@ -456,6 +478,13 @@ export const forgotPassword = async (req, res, next) => {
 };
 
 export const resetPassword = async (req, res, next) => {
+	if (req.body.password.length < 6 || !/[a-zA-Z]/.test(req.body.password)) {
+		return res.status(200).json({
+			statusCode: 400,
+			statusMessage: 'failed',
+			message: 'Mật khẩu phải có ít nhất 6 ký tự và chứa ít nhất 1 chữ hoa hoặc thường.',
+		});
+	}
 	if (req.body.password !== req.body.passwordConfirm) {
 		return res.status(200).json({
 			statusCode: 400,
@@ -470,7 +499,7 @@ export const resetPassword = async (req, res, next) => {
 		return res.status(200).json({
 			statusCode: 400,
 			statusMessage: 'failed',
-			message: 'Liên kết đã hết hạn hoặc sai',
+			message: 'Liên kết đã hết hạn hoặc sai. Vui lòng gửi lại yêu cầu',
 		});
 	}
 

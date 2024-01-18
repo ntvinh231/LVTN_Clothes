@@ -107,7 +107,12 @@ const HeaderComponent = ({ isHiddentSearch = false, isHiddenCart = false }) => {
 						offset={2}
 						style={{ display: 'flex', cursor: 'pointer', marginRight: isHiddenCart && isHiddentSearch ? '340px' : '0' }}
 					>
-						<>
+						<Popover
+							content={user?.accessToken && user?.id ? content : null}
+							trigger="click"
+							visible={isOpenPopup}
+							onVisibleChange={setIsOpenPopup}
+						>
 							<WrapperAccount>
 								{userAvatar ? (
 									<img
@@ -119,30 +124,20 @@ const HeaderComponent = ({ isHiddentSearch = false, isHiddenCart = false }) => {
 											objectFit: 'cover',
 										}}
 										alt="avatar"
-										onClick={() => setIsOpenPopup((prev) => !prev)}
-									></img>
+									/>
 								) : (
 									<UserOutlined style={{ fontSize: '20px' }} />
 								)}
 
 								{user?.accessToken && user?.id ? (
-									<>
-										<Popover content={content} trigger="click" open={isOpenPopup}>
-											<div
-												style={{ cursor: 'pointer', marginLeft: '5px' }}
-												onClick={() => setIsOpenPopup((prev) => !prev)}
-											>
-												{userName || 'User' || user?.email}
-											</div>
-										</Popover>
-									</>
+									<div style={{ cursor: 'pointer', marginLeft: '5px' }}>{userName || 'User' || user?.email}</div>
 								) : (
 									<div>
 										<WrapperTextHeader>Đăng nhập/Đăng ký</WrapperTextHeader>
 									</div>
 								)}
 							</WrapperAccount>
-						</>
+						</Popover>
 					</WrapperHeaderAccount>
 				</Loading>
 				{!isHiddenCart && (

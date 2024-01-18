@@ -28,6 +28,7 @@ const ResetPasswordPage = () => {
 				Message.error(data?.message);
 			} else if (data?.statusMessage && data?.statusMessage === 'success') {
 				Message.success(data?.message);
+				navigate('/');
 			}
 		};
 

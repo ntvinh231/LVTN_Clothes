@@ -142,11 +142,11 @@ const ProfilePage = () => {
 			dispatch(resetUser());
 			navigate('/');
 		}
-		if (dataPassword?.statusCode === 401) {
+		if (dataPassword?.statusCode === 401 || dataPassword?.statusMessage === 'failed') {
 			message.error(dataPassword?.message);
 		}
 		setIsLoading(false);
-	}, [dataPassword?.statusCode]);
+	}, [dataPassword?.statusCode, dataPassword?.statusMessage]);
 
 	return (
 		<div style={{ width: '100%', margin: '0 auto', height: '1000px' }}>

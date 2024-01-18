@@ -132,7 +132,7 @@ const MyOrder = () => {
 	};
 
 	return (
-		<Loading isLoading={isLoading}>
+		<Loading isLoading={isLoadingCancel || isLoading}>
 			<WrapperContainer>
 				<div style={{ height: '100%', width: '1270px', margin: '0 auto' }}>
 					{Array.isArray(data) && data.length > 0 ? (
