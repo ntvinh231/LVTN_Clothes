@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { convertDataBarChart } from '../util';
+import { convertDataBarChart } from '../../util';
 
 const BarChartComponent = (props) => {
 	const data = convertDataBarChart(props.data, 'cartOrder', 'collections_name');

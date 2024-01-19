@@ -12,6 +12,7 @@ import { resetUser, updateUser } from './redux/slice/userSlide';
 import Cookies from 'js-cookie';
 import Loading from './components/LoadingComponent/Loading';
 import { message } from 'antd';
+import FooterComponent from './components/FooterComponent/FooterComponent';
 
 export default function App() {
 	const dispatch = useDispatch();
@@ -94,6 +95,7 @@ export default function App() {
 
 							const isAuthorized = !isPrivate || (user?.accessToken && (isAccessible ? isAccessible(user) : true));
 							const Layout = route.isShowHeader ? DefaultComponent : Fragment;
+
 							return (
 								<Route
 									key={Page} // Thêm key vào đây với giá trị là route.path hoặc một giá trị duy nhất khác
