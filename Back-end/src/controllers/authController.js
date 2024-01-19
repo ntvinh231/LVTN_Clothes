@@ -61,6 +61,8 @@ export const signUp = async (req, res, next) => {
 			});
 		}
 
+		await User.create(req.body);
+
 		return res.status(201).json({
 			statusCode: 201,
 			statusMessage: 'success',

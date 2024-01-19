@@ -5,7 +5,7 @@ import * as message from '../../components/Message/Message';
 import ButtonComponent from '../../components/ButtonComponent/ButtonComponent';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { convertPrice, getCookieValue } from '../../util';
+import { convertDataTime, convertPrice, getCookieValue } from '../../util';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import Loading from '../../components/LoadingComponent/Loading';
 import * as OrderService from '../../service/OrderService';
@@ -136,7 +136,7 @@ const MyOrder = () => {
 			<WrapperContainer>
 				<div style={{ height: '100%', width: '1270px', margin: '0 auto' }}>
 					{Array.isArray(data) && data.length > 0 ? (
-						<Loading isLoading={isLoadingCancel}>
+						<Loading isLoading={isLoadingCancel || isLoading}>
 							<WrapperListOrder>
 								{data.map((order) => (
 									<WrapperItemOrder key={order?._id}>
@@ -157,11 +157,27 @@ const MyOrder = () => {
 										</WrapperStatus>
 										{renderProduct(order)}
 										<WrapperFooterItem>
-											<div>
-												<span style={{ color: 'rgb(255, 66, 78)' }}>Tổng tiền: </span>
-												<span style={{ fontSize: '13px', color: 'rgb(56, 56, 61)', fontWeight: 700 }}>
-													{convertPrice(order?.totalPrice)}
-												</span>
+											<div
+												style={{
+													width: '100%',
+													display: 'flex',
+													justifyContent: 'space-between',
+													alignContent: 'center',
+													alignItems: 'center',
+												}}
+											>
+												<div>
+													<span style={{ color: 'rgb(255, 66, 78)' }}>Thời gian mua hàng: </span>
+													<span style={{ fontSize: '13px', color: 'rgb(56, 56, 61)', fontWeight: 700 }}>
+														{convertDataTime(order?.createdAt)}
+													</span>
+												</div>
+												<div>
+													<span style={{ color: 'rgb(255, 66, 78)' }}>Tổng tiền: </span>
+													<span style={{ fontSize: '13px', color: 'rgb(56, 56, 61)', fontWeight: 700 }}>
+														{convertPrice(order?.totalPrice)}
+													</span>
+												</div>
 											</div>
 											<div style={{ display: 'flex', gap: '10px' }}>
 												<ButtonComponent

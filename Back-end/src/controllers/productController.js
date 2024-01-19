@@ -190,7 +190,7 @@ export const createProduct = async (req, res, next) => {
 			discount: joi.number(),
 		});
 
-		if (req.body.size && !['s', 'm', 'l', 'xl'].includes(req.body.size.toLowerCase())) {
+		if (req.body.size && !['S', 'M', 'L', 'XL'].includes(req.body.size.toUpperCase())) {
 			return res.status(200).json({
 				statusCode: 400,
 				statusMessage: 'failed',
@@ -214,6 +214,7 @@ export const createProduct = async (req, res, next) => {
 		}
 
 		validatedData.discount = validatedData.discount || 5;
+		validatedData.size = validatedData.size ? validatedData.size.toUpperCase() : null;
 		let updatedProduct;
 		const sizeRegExp = new RegExp(`^${validatedData.size}$`, 'i');
 		const nameRegExp = new RegExp(`^${validatedData.name}$`, 'i');
@@ -279,7 +280,7 @@ export const updateProduct = async (req, res, next) => {
 			});
 		}
 
-		const { name, size, discount, colors_id } = req.body;
+		const { name, size, discount, colors_id, collections_id } = req.body;
 
 		const sizeRegExp = new RegExp(`^${size}$`, 'i');
 		const nameRegExp = new RegExp(`^${name}$`, 'i');
@@ -288,6 +289,7 @@ export const updateProduct = async (req, res, next) => {
 			name: nameRegExp,
 			size: sizeRegExp,
 			colors_id: colors_id,
+			collections_id: collections_id,
 		});
 
 		if (existingProduct && existingProduct._id.toString() !== id) {
@@ -298,7 +300,10 @@ export const updateProduct = async (req, res, next) => {
 			});
 		}
 
+		// Chuyển đổi trường size thành chữ in hoa trước khi cập nhật vào cơ sở dữ liệu
+		req.body.size = size ? size.toUpperCase() : null;
 		req.body.discount = discount || 5;
+
 		let result = await Product.findByIdAndUpdate(id, req.body, {
 			new: true,
 			runValidators: true,

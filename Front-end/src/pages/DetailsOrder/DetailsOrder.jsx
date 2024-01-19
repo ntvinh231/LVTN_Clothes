@@ -65,8 +65,8 @@ const DetailsOrder = () => {
 
 	return (
 		<Loading isLoading={isLoading}>
-			<div style={{ width: '100%', height: '150vh', background: '#f5f5fa', padding: '0 50px' }}>
-				<div style={{ width: '1135px', margin: '0 auto', height: '1270px', padding: '0 32px' }}>
+			<div style={{ width: '100%', background: '#f5f5fa', padding: '0 50px' }}>
+				<div style={{ width: '1135px', margin: '0 auto', padding: '0 32px' }}>
 					<WrapperHeaderUser>
 						<WrapperInfoUser>
 							<WrapperLabel>Địa chỉ người nhận</WrapperLabel>

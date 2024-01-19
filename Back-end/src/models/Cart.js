@@ -14,6 +14,11 @@ const cartSchema = new mongoose.Schema(
 					type: mongoose.Schema.Types.ObjectId,
 					ref: 'Color',
 				},
+				collections_id: {
+					type: mongoose.Schema.Types.ObjectId,
+					ref: 'Collections',
+				},
+				collections_name: String,
 				color: String,
 				discount: Number,
 				product: {

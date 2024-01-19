@@ -110,8 +110,8 @@ const HeaderComponent = ({ isHiddentSearch = false, isHiddenCart = false }) => {
 						<Popover
 							content={user?.accessToken && user?.id ? content : null}
 							trigger="click"
-							visible={isOpenPopup}
-							onVisibleChange={setIsOpenPopup}
+							open={isOpenPopup}
+							onOpenChange={setIsOpenPopup}
 						>
 							<WrapperAccount>
 								{userAvatar ? (

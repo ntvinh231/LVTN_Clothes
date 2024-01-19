@@ -19,7 +19,7 @@ const AdminProduct = () => {
 	const [rowSelected, setRowSelected] = useState('');
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const searchInput = useRef(null);
-
+	const isUpdate = useRef(false);
 	const [collections_id, setCollections_id] = useState('');
 	const [colors_id, setColors_id] = useState('');
 	const inittial = () => ({
@@ -90,12 +90,26 @@ const AdminProduct = () => {
 		}
 	};
 
-	const onChange = (value) => {
+	const onChange = async (value) => {
 		setCollections_id(value);
-	};
 
-	const onChangeColor = (value) => {
+		// Fetch thông tin collection dựa trên collections_id
+		const resCollectionSelect = await ProductService.getCollectionProduct(value);
+
+		if (resCollectionSelect?.data) {
+			setCollectionName(resCollectionSelect.data[0]?.collections_name);
+		}
+	};
+	const [colorName, setColorName] = useState('');
+	const onChangeColor = async (value) => {
 		setColors_id(value);
+
+		// Fetch thông tin color dựa trên colors_id
+		const resColorSelect = await ProductService.getColorProduct(value);
+
+		if (resColorSelect?.data) {
+			setColorName(resColorSelect.data[0]?.color);
+		}
 	};
 
 	// Filter `option.label` match the user type `input`
@@ -172,10 +186,14 @@ const AdminProduct = () => {
 
 	//Create
 	useEffect(() => {
-		if (!isModalOpen) {
-			form.setFieldsValue(stateProductDetails);
-		} else {
+		if (isModalOpen) {
+			form.resetFields();
 			form.setFieldsValue(inittial());
+			isUpdate.current = false;
+		} else {
+			console.log('5');
+			form.resetFields();
+			form.setFieldsValue(stateProductDetails);
 		}
 		form.resetFields();
 	}, [stateProductDetails, isModalOpen, form]);
@@ -196,9 +214,30 @@ const AdminProduct = () => {
 
 	//Update
 	const handleCancelDrawer = () => {
+		setStateProductDetails({
+			name: '',
+			newName: '',
+			price: '',
+			size: '',
+			description: '',
+			quantity: '',
+			image: '',
+			discount: '',
+		});
 		setIsDrawerOpen(false);
+		form.resetFields();
 	};
+
 	const onFinish = () => {
+		if (isUpdate.current) {
+			// Xử lý logic cho update
+			onFinishUpdate();
+		} else {
+			// Xử lý logic cho create
+			onFinishCreate();
+		}
+	};
+	const onFinishCreate = () => {
 		const configData = {
 			name: stateProduct.name === 'add_name' ? stateProduct.newName : stateProduct.name,
 			price: stateProduct.price,
@@ -259,10 +298,10 @@ const AdminProduct = () => {
 		const resCollectionSelect = await ProductService.getCollectionProduct(res?.data[0]?.collections_id);
 		//Get name color
 		const resColorSelect = await ProductService.getColorProduct(res?.data[0]?.colors_id);
-
 		setCollections_id(res?.data[0]?.collections_id ? res?.data[0]?.collections_id : '');
 		setColors_id(res?.data[0]?.colors_id ? res?.data[0]?.colors_id : '');
-
+		setCollectionName(resCollectionSelect.data[0]?.collections_name);
+		setColorName(resColorSelect.data[0]?.color);
 		if (res?.data) {
 			setStateProductDetails({
 				name: res?.data[0]?.name,
@@ -319,9 +358,14 @@ const AdminProduct = () => {
 				label: name,
 		  }))
 		: [];
+
+	//Create
 	useEffect(() => {
+		setCollections_id(stateProduct?.collections_id);
 		form.setFieldsValue({
 			name: stateProduct?.name,
+			size: '',
+			color: '',
 			collections_name: collectionName,
 			quantity: stateProduct?.quantity,
 			price: stateProduct?.price,
@@ -329,19 +373,28 @@ const AdminProduct = () => {
 			description: stateProduct?.description,
 			image: stateProduct?.image,
 		});
-	}, [form, stateProduct.name, collectionName]);
+	}, [form, stateProduct.name]);
+
 	useEffect(() => {
-		form.setFieldsValue({
-			name: stateProduct?.name,
-			quantity: stateProduct?.quantity,
-			price: stateProduct?.price,
-			discount: stateProduct?.discount,
-			description: stateProduct?.description,
-			image: stateProduct?.image,
-		});
+		if (isModalOpen) {
+			form.setFieldsValue({
+				collections_name: collectionName,
+				name: stateProduct?.name,
+				quantity: stateProduct?.quantity,
+				price: stateProduct?.price,
+				discount: stateProduct?.discount,
+				description: stateProduct?.description,
+				image: stateProduct?.image,
+			});
+		}
 	}, [form, stateProduct]);
+
+	//Lấy thong tin product hiển thị lên drawer
+
 	useEffect(() => {
 		form.setFieldsValue({
+			collections_name: collectionName,
+			color: colorName,
 			name: stateProductDetails?.name,
 			quantity: stateProductDetails?.quantity,
 			price: stateProductDetails?.price,
@@ -350,7 +403,7 @@ const AdminProduct = () => {
 			description: stateProductDetails?.description,
 			image: stateProductDetails?.image,
 		});
-	}, [form, stateProductDetails]);
+	}, [stateProductDetails]);
 
 	useEffect(() => {
 		if (rowSelected) {
@@ -359,6 +412,7 @@ const AdminProduct = () => {
 		}
 	}, [isDrawerOpen]);
 	const handleDetailsProduct = () => {
+		isUpdate.current = true;
 		setIsDrawerOpen(true);
 	};
 	const renderAction = () => {
@@ -495,6 +549,9 @@ const AdminProduct = () => {
 					value: 'XL',
 				},
 			],
+			onFilter: (value, record) => {
+				return record.size === value;
+			},
 		},
 		{
 			title: 'Color',
@@ -615,6 +672,7 @@ const AdminProduct = () => {
 		if (dataUpdate?.statusMessage === 'success') {
 			message.success('Cập nhật thành công');
 			handleCancelDrawer();
+			form.resetFields();
 		} else if (dataUpdate?.statusMessage === 'failed') {
 			message.error(dataUpdate?.message);
 		}
@@ -916,12 +974,7 @@ const AdminProduct = () => {
 					</Form>
 				</Loading>
 			</ModalComponent>
-			<DrawerComponent
-				title="Chi tiết sản phẩm"
-				isOpen={isDrawerOpen}
-				onClose={() => setIsDrawerOpen(false)}
-				width="30%"
-			>
+			<DrawerComponent title="Chi tiết sản phẩm" isOpen={isDrawerOpen} onClose={handleCancelDrawer} width="30%">
 				<Loading isLoading={isLoadingDetails || isLoadingUpdate}>
 					<Form
 						name="AdminProduct2"
@@ -937,7 +990,7 @@ const AdminProduct = () => {
 						initialValues={{
 							remember: true,
 						}}
-						onFinish={onFinishUpdate}
+						onFinish={onFinish}
 						autoComplete="off"
 						form={form}
 					>
@@ -997,7 +1050,7 @@ const AdminProduct = () => {
 								},
 							]}
 						>
-							<InputComponent value={stateProductDetails.size} onChange={handleOnChange} name="size" />
+							<InputComponent value={stateProductDetails.size} onChange={handleOnChangeDetails} name="size" />
 						</Form.Item>
 						<Form.Item
 							label="Color"

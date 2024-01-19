@@ -13,7 +13,6 @@ export const addToCart = async ({ cartItem, userId }) => {
 
 export const removeFromCart = async ({ idProduct, userId }) => {
 	try {
-		console.log(idProduct);
 		const response = await axiosJWT.post(`${process.env.REACT_APP_API_URL}/cart/remove`, { idProduct, userId });
 		return response.data;
 	} catch (error) {

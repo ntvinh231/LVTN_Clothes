@@ -1,6 +1,8 @@
 import httpError from 'http-errors';
 import Order from '../models/Order.js';
 import Product from '../models/Product.js';
+import apq from 'api-query-params';
+
 import { sendEmailCreateOrder } from '../service/EmailService.js';
 export const createOrder = async (req, res, next) => {
 	try {
@@ -153,7 +155,7 @@ export const getAllOrder = async (req, res, next) => {
 				message: 'The userId is required',
 			});
 		}
-		const order = await Order.find({ user: userId });
+		const order = await Order.find({ user: userId }).sort({ createdAt: -1 });
 		if (!order) {
 			return res.status(200).json({
 				statusCode: 404,
@@ -283,5 +285,49 @@ export const DeleteOrder = async (req, res, next) => {
 			statusMessage: 'failed',
 			message: 'Internal Server Error',
 		});
+	}
+};
+
+export const getAllOrderForAdmin = async (req, res, next) => {
+	try {
+		let page = req.query.page;
+		const { filter, limit, sort } = apq(req.query);
+		delete filter.page;
+		const filterData = filter.id ? { _id: filter.id } : filter;
+
+		const offset = limit * (page - 1);
+		const data = await Order.find(filterData).limit(limit).skip(offset).sort(sort);
+
+		return res.status(200).json({
+			statusCode: 200,
+			statusMessage: 'success',
+			data,
+		});
+	} catch (error) {
+		console.log(error);
+		// return next(httpError(400, error));
+	}
+};
+
+export const updateOrderForAdmin = async (req, res, next) => {
+	try {
+		const data = await Order.findByIdAndUpdate(req.body.id, req.body, {
+			new: true,
+			runValidators: true,
+		});
+
+		return res.status(200).json({
+			statusCode: 200,
+			statusMessage: 'success',
+			data,
+		});
+	} catch (error) {
+		console.log(error);
+		return res.status(200).json({
+			statusCode: 400,
+			statusMessage: 'failed',
+			message: 'Cập nhật thất bại',
+		});
+		// return next(httpError(400, error));
 	}
 };

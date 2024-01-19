@@ -12,6 +12,7 @@ import * as Message from '../../components/Message/Message';
 import { Navigate, useNavigate } from 'react-router-dom';
 import ColorProduct from '../../components/ColorProduct/ColorProduct';
 import { resetUser } from '../../redux/slice/userSlide';
+import AdminOrder from '../../components/AdminOrder/AdminOrder';
 
 const AdminPage = () => {
 	const AdminPageRef = useRef(null);
@@ -56,6 +57,8 @@ const AdminPage = () => {
 				return <AdminProduct></AdminProduct>;
 			case 'productCollection':
 				return <CollectionProduct></CollectionProduct>;
+			case 'productOrder':
+				return <AdminOrder></AdminOrder>;
 			case 'colorProduct':
 				return <ColorProduct></ColorProduct>;
 			default:

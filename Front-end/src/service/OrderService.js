@@ -42,3 +42,29 @@ export const deleteOrder = async (id, orderItems, userId) => {
 		return error?.response;
 	}
 };
+
+export const getOrderByAdmin = async (id) => {
+	try {
+		let res;
+		const url = id
+			? `${process.env.REACT_APP_API_URL}/order/get-all-order/?id=${id}`
+			: `${process.env.REACT_APP_API_URL}/order/get-all-order`;
+		res = await axiosJWT.get(url);
+		return res.data;
+	} catch (error) {
+		return error?.response;
+	}
+};
+
+export const updateDetailsOrderByAdmin = async (rowSelected, isDelivered, isPaid) => {
+	try {
+		const res = await axiosJWT.post(`${process.env.REACT_APP_API_URL}/order/update-details-order`, {
+			id: rowSelected,
+			isDelivered,
+			isPaid,
+		});
+		return res.data;
+	} catch (error) {
+		return error?.response;
+	}
+};

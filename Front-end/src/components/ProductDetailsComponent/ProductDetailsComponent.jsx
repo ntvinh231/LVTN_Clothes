@@ -168,6 +168,8 @@ const ProductDetailsComponent = ({ idProduct }) => {
 						discount: checkProductDetails?.data && checkProductDetails?.data?.discount,
 						size: checkProductDetails?.data && checkProductDetails?.data?.size,
 						colors_id: checkProductDetails?.data && checkProductDetails?.data?.colors_id,
+						collections_id: checkProductDetails?.data && checkProductDetails?.data?.collections_id,
+						collections_name: collectionName,
 						product: checkProductDetails?.data && checkProductDetails?.data?._id,
 					};
 
