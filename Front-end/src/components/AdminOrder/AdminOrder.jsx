@@ -13,7 +13,7 @@ import { convertPrice } from '../../util';
 import DrawerComponent from '../DrawerComponent/DrawerComponent';
 import Loading from '../LoadingComponent/Loading';
 import PieChartComponent from '../PieChartComponent/PieChartComponent';
-import BarChartComponent from '../../BarChartComponent/BarChartComponent';
+import BarChartComponent from '../BarChartComponent/BarChartComponent';
 const AdminOrder = () => {
 	const searchInput = useRef(null);
 	const [rowSelected, setRowSelected] = useState('');
