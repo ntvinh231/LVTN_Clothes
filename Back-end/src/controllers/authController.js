@@ -4,11 +4,55 @@ import joi from 'joi';
 import { JWTRefreshTokenService, generateTokens, sendToken } from '../middleware/sendToken.js';
 import httpError from 'http-errors';
 import bcrypt from 'bcrypt';
-import { sendMailResetPassword } from '../service/EmailService.js';
+import { sendMailActiveAccount, sendMailResetPassword } from '../service/EmailService.js';
+import register from '../models/RegisterTemp.js';
 
 export const signUp = async (req, res, next) => {
+	let hashedToken;
 	try {
-		const { name, email, password, confirmPassword, phone, address, avatar, role } = req.body;
+		hashedToken = crypto.createHash('sha256').update(req.body.token).digest('hex');
+		const registration = await register.findOne({
+			tokenRegister: hashedToken,
+			tokenRegisterExpires: { $gt: Date.now() },
+		});
+
+		if (!registration) {
+			return res.status(200).json({
+				statusCode: 400,
+				statusMessage: 'failed',
+				message: 'Liên kết đã hết hạn hoặc sai.Hãy thực hiện đăng ký lại',
+			});
+		}
+
+		await User.create({
+			name: registration.name,
+			email: registration.email,
+			password: registration.password,
+		});
+
+		return res.status(201).json({
+			statusCode: 201,
+			statusMessage: 'success',
+			message: 'Đăng ký thành công.Hãy đăng nhập',
+		});
+	} catch (error) {
+		console.error(error);
+		return res.status(200).json({
+			statusCode: 400,
+			statusMessage: 'failed',
+			message: 'Đăng ký thất bại',
+		});
+	} finally {
+		// Sau khi xử lý, hãy xóa đăng ký dù có thành công hay thất bại
+		await register.deleteOne({
+			tokenRegister: hashedToken,
+		});
+	}
+};
+
+export const registerTemp = async (req, res, next) => {
+	try {
+		const { name, email, password, confirmPassword, frontendHost, phone, address, avatar, role } = req.body;
 
 		if (!name || !email || !password || !confirmPassword) {
 			return res.status(200).json({
@@ -27,8 +71,7 @@ export const signUp = async (req, res, next) => {
 			});
 		}
 		// Kiểm tra tên không chứa ký tự đặc biệt ở đầu và có từ 3 đến 30 ký tự
-		const nameRegex = /^[a-zA-Z0-9]{3,30}$/;
-		if (!nameRegex.test(name)) {
+		if (name.length < 3 || name.length > 30) {
 			return res.status(200).json({
 				statusCode: 400,
 				statusMessage: 'failed',
@@ -61,15 +104,31 @@ export const signUp = async (req, res, next) => {
 			});
 		}
 
-		await User.create(req.body);
+		const registerInstance = new register(req.body);
+		const tokenRegister = await registerInstance.createRegisterTempToken();
+		await registerInstance.save();
 
-		return res.status(201).json({
-			statusCode: 201,
+		const registerURL = `${frontendHost}/final-register/${tokenRegister}`;
+		const message1 = `<p style="white-space: nowrap;">Xin vui lòng click vào đây để tiến hành xác thực tạo tài khoản</p>`;
+		const message2 = `\nNếu bạn không phải người gửi yêu cầu, hãy bỏ qua email này`;
+
+		await sendMailActiveAccount({
+			email,
+			subject: `Yêu cầu kích hoạt tài khoản`,
+			message1,
+			message2,
+			registerURL,
+		});
+
+		res.status(200).json({
+			statusCode: 200,
 			statusMessage: 'success',
-			message: 'Đăng ký thành công.',
+			message: 'Đã gửi yêu cầu kích hoạt tài khoản.Vui lòng kiểm tra email',
 		});
 	} catch (error) {
 		console.error(error);
+		register.tokenRegister = undefined;
+		register.tokenRegisterExpires = undefined;
 		return res.status(200).json({
 			statusCode: 400,
 			statusMessage: 'failed',
@@ -91,6 +150,15 @@ export const signIn = async (req, res, next) => {
 				statusCode: 400,
 				statusMessage: 'failed',
 				message: 'Email không hợp lệ.Vui lòng nhập email hợp lệ',
+			});
+		}
+
+		const userRegisterTemp = await register.findOne({ email: validatedData.email });
+		if (userRegisterTemp) {
+			return res.status(200).json({
+				statusCode: 400,
+				statusMessage: 'failed',
+				message: 'Tài khoản chưa kích hoạt. Hãy kiểm tra email và kích hoạt.',
 			});
 		}
 

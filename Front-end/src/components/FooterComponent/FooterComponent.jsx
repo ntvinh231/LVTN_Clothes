@@ -11,7 +11,7 @@ const FooterComponent = () => {
 		<StyledFooter>
 			<Row gutter={[16, 16]}>
 				<Col xs={24} sm={12} md={8} lg={6}>
-					<StyledBoldUnderlineText strong>Liên hệ</StyledBoldUnderlineText>
+					<StyledBoldUnderlineText>Liên hệ</StyledBoldUnderlineText>
 					<StyledText>
 						<EnvironmentOutlined style={{ marginRight: '8px' }} />
 						Trường Dại Học Công Nghệ Sài Gòn
@@ -26,7 +26,7 @@ const FooterComponent = () => {
 					</StyledText>
 				</Col>
 				<Col xs={24} sm={12} md={8} lg={6}>
-					<StyledBoldUnderlineText strong>Liên kết nhanh</StyledBoldUnderlineText>
+					<StyledBoldUnderlineText>Liên kết nhanh</StyledBoldUnderlineText>
 					<ul style={{ listStyle: 'none', padding: 0 }}>
 						<li style={{ marginBottom: '10px' }}>
 							<StyledLink href="/">Trang chủ</StyledLink>
@@ -40,7 +40,7 @@ const FooterComponent = () => {
 					</ul>
 				</Col>
 				<Col xs={24} sm={12} md={8} lg={6}>
-					<StyledBoldUnderlineText strong>Đăng ký nhận tin</StyledBoldUnderlineText>
+					<StyledBoldUnderlineText>Đăng ký nhận tin</StyledBoldUnderlineText>
 					<StyledText>Nhận thông báo mới nhất về dự án và tin tức</StyledText>
 					<Search placeholder="Địa chỉ email" style={{ width: '100%' }} />
 					<Button type="primary" style={{ marginTop: '8px' }}>

@@ -16,15 +16,15 @@ const SignUpPage = () => {
 	const [password, setPassword] = useState('');
 	const [confirmPassword, setConfirmPassword] = useState('');
 	const [name, setName] = useState('');
-
+	const frontendHost = window.location.origin;
 	const mutation = useMutation({
-		mutationFn: (data) => UserService.registerUser(data),
+		mutationFn: (data) => UserService.registerUserTemp(data),
 	});
 	const { data, isLoading } = mutation;
 
 	useEffect(() => {
-		if (data?.statusCode === 201) {
-			Message.success('Đăng kí thành công');
+		if (data?.statusCode === 200 || data?.statusMessage === 'success') {
+			Message.success(data?.message);
 			navigate('/sign-in');
 		}
 	}, [data?.statusCode]);
@@ -48,6 +48,7 @@ const SignUpPage = () => {
 			email,
 			password,
 			confirmPassword,
+			frontendHost,
 		});
 	};
 	const navigate = useNavigate();
@@ -61,7 +62,7 @@ const SignUpPage = () => {
 				style={{
 					display: 'flex',
 					justifyContent: 'center',
-					height: '90vh',
+					marginBottom: '50px',
 				}}
 			>
 				<div

@@ -13,6 +13,16 @@ export const loginUser = async (data) => {
 	}
 };
 
+export const registerUserTemp = async (data) => {
+	try {
+		const res = await axios.post(`${process.env.REACT_APP_API_URL}/user/signup-temp`, data);
+
+		return res.data;
+	} catch (error) {
+		return error?.response;
+	}
+};
+
 export const registerUser = async (data) => {
 	try {
 		const res = await axios.post(`${process.env.REACT_APP_API_URL}/user/signup`, data);

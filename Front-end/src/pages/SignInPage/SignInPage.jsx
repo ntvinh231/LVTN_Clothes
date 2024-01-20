@@ -91,7 +91,7 @@ const SignInPage = () => {
 				style={{
 					display: 'flex',
 					justifyContent: 'center',
-					height: '80vh',
+					marginBottom: '50px',
 				}}
 			>
 				<div

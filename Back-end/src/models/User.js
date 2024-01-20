@@ -20,6 +20,7 @@ const userSchema = new mongoose.Schema({
 	role: {
 		type: String,
 		enum: ['user', 'admin', 'superadmin'],
+		default: 'user',
 		select: false,
 	},
 	// list_favorite: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product', select: false }],

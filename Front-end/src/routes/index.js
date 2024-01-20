@@ -15,6 +15,7 @@ import DetailsOrder from '../pages/DetailsOrder/DetailsOrder';
 import ForgotPasswordPage from '../pages/ForgotPasswordPage/ForgotPasswordPage';
 import ResetPasswordPage from '../pages/ResetPasswordPage/ResetPasswordPage';
 import ContactPage from '../pages/ContactPage/ContactPage';
+import FinalRegisterPage from '../pages/FinalRegisterPage/FinalRegisterPage';
 
 export const routes = [
 	{
@@ -61,6 +62,11 @@ export const routes = [
 		path: '/sign-up',
 		page: SignUpPage,
 		isShowHeader: true,
+	},
+	{
+		path: '/final-register/:token',
+		page: FinalRegisterPage,
+		isShowHeader: false,
 	},
 	{
 		path: '/forgot-password',
