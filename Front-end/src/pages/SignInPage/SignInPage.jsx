@@ -11,6 +11,7 @@ import * as Message from '../../components/Message/Message';
 import { useDispatch, useSelector } from 'react-redux';
 import { jwtDecode } from 'jwt-decode';
 import { updateUser } from '../../redux/slice/userSlide';
+import FooterComponent from '../../components/FooterComponent/FooterComponent';
 
 const SignInPage = () => {
 	const dispatch = useDispatch();
@@ -85,79 +86,84 @@ const SignInPage = () => {
 	};
 
 	return (
-		<div
-			style={{
-				display: 'flex',
-				justifyContent: 'center',
-				height: '100vh',
-			}}
-		>
+		<>
 			<div
 				style={{
-					width: '635px',
-					height: '350px',
-					borderRadius: '6px',
-					background: '#fff',
-					marginTop: '80px',
-					boxShadow: '0 0 6px 0 rgba(0,0,0,0.3',
+					display: 'flex',
+					justifyContent: 'center',
+					height: '80vh',
 				}}
 			>
-				<WrapperContainer>
-					<h1>Đăng nhập tài khoản</h1>
-					<InputForm
-						style={{ marginBottom: '10px' }}
-						value={email}
-						placeholder="Email"
-						onChange={handleOnChangeEmail}
-					></InputForm>
-					<div style={{ position: 'relative' }}>
-						<span
-							style={{
-								zIndex: 10,
-								position: 'absolute',
-								top: '4px',
-								right: '8px',
-								cursor: 'pointer',
-							}}
-							onClick={handleShowPassword}
-						>
-							{isShowPassword ? <EyeFilled /> : <EyeInvisibleFilled />}
-						</span>
+				<div
+					style={{
+						width: '635px',
+						height: '350px',
+						borderRadius: '6px',
+						background: '#fff',
+						marginTop: '80px',
+						boxShadow: '0 0 6px 0 rgba(0,0,0,0.3',
+					}}
+				>
+					<WrapperContainer>
+						<h1>Đăng nhập tài khoản</h1>
 						<InputForm
-							value={password}
-							placeholder="Password"
-							type={isShowPassword ? 'text' : 'password'}
-							onChange={handleOnChangePassword}
+							style={{ marginBottom: '10px' }}
+							value={email}
+							placeholder="Email"
+							onChange={handleOnChangeEmail}
 						></InputForm>
-					</div>
-					<span style={{ color: 'red', margin: '10px 0 0 4px' }}>{data?.message}</span>
-					<Loading isLoading={loading || isLoading}>
-						<ButtonComponent
-							onClick={handleSignIn}
-							disabled={!email.length || !password.length}
-							bordered="false"
-							size={40}
-							backgroundHover="#0089ff"
-							styleButton={{
-								background: 'rgb(255, 57, 69)',
-								height: '48px',
-								width: '100%',
-								border: 'none',
-								borderRadius: '4px',
-								transition: 'background 0.3s ease',
-								margin: '20px 0 10px',
-							}}
-							textButton={'Đăng Nhập'}
-							styleTextButton={{ color: '#fff', fontSize: '15px', fontWeight: '700' }}
-						></ButtonComponent>
-					</Loading>
-					<WrapperTextLight onClick={() => navigate('/forgot-password')}>Quên mật khẩu?</WrapperTextLight>
-					<p>
-						Chưa có tài khoản <WrapperTextLight onClick={handleNavigateRegister}>Tạo tài khoản?</WrapperTextLight>{' '}
-					</p>
-				</WrapperContainer>
+						<div style={{ position: 'relative' }}>
+							<span
+								style={{
+									zIndex: 10,
+									position: 'absolute',
+									top: '4px',
+									right: '8px',
+									cursor: 'pointer',
+								}}
+								onClick={handleShowPassword}
+							>
+								{isShowPassword ? <EyeFilled /> : <EyeInvisibleFilled />}
+							</span>
+							<InputForm
+								value={password}
+								placeholder="Password"
+								type={isShowPassword ? 'text' : 'password'}
+								onChange={handleOnChangePassword}
+							></InputForm>
+						</div>
+						<span style={{ color: 'red', margin: '10px 0 0 4px' }}>{data?.message}</span>
+						<Loading isLoading={loading || isLoading}>
+							<ButtonComponent
+								onClick={handleSignIn}
+								disabled={!email.length || !password.length}
+								bordered="false"
+								size={40}
+								backgroundHover="#0089ff"
+								styleButton={{
+									background: 'rgb(255, 57, 69)',
+									height: '48px',
+									width: '100%',
+									border: 'none',
+									borderRadius: '4px',
+									transition: 'background 0.3s ease',
+									margin: '20px 0 10px',
+								}}
+								textButton={'Đăng Nhập'}
+								styleTextButton={{ color: '#fff', fontSize: '15px', fontWeight: '700' }}
+							></ButtonComponent>
+						</Loading>
+						<WrapperTextLight onClick={() => navigate('/forgot-password')}>Quên mật khẩu?</WrapperTextLight>
+						<p>
+							Chưa có tài khoản <WrapperTextLight onClick={handleNavigateRegister}>Tạo tài khoản?</WrapperTextLight>{' '}
+						</p>
+					</WrapperContainer>
+				</div>
 			</div>
-		</div>
+			<div style={{ marginLeft: '120px', width: '80%' }}>
+				<FooterComponent></FooterComponent>
+			</div>
+		</>
 	);
 };
 

@@ -14,7 +14,7 @@ import { useDebounce } from '../../hooks/useDebounce.js';
 import { useNavigate } from 'react-router-dom';
 import { convertPrice } from '../../util.js';
 import { getCartUser, resetCart } from '../../redux/slice/cartSlide.js';
-
+import FooterComponent from '../../components/FooterComponent/FooterComponent.jsx';
 const HomePage = () => {
 	const navigate = useNavigate();
 	const dispatch = useDispatch();
@@ -173,6 +173,7 @@ const HomePage = () => {
 					<TypeProduct name={'XEM THÊM'} />
 				</WrapperMore>
 			</div>
+			<FooterComponent></FooterComponent>
 		</div>
 	);
 };

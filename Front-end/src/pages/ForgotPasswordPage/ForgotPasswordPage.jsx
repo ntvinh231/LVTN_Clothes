@@ -7,6 +7,7 @@ import * as UserService from '../../service/UserService';
 import { useMutation } from '@tanstack/react-query';
 import Loading from '../../components/LoadingComponent/Loading';
 import * as Message from '../../components/Message/Message';
+import FooterComponent from '../../components/FooterComponent/FooterComponent';
 
 const ForgotPasswordPage = () => {
 	const navigate = useNavigate();
@@ -43,7 +44,8 @@ const ForgotPasswordPage = () => {
 			style={{
 				display: 'flex',
 				justifyContent: 'center',
-				height: '100vh',
+				flexDirection: 'column',
+				alignItems: 'center',
 			}}
 		>
 			<div
@@ -87,6 +89,9 @@ const ForgotPasswordPage = () => {
 					</Loading>
 					<WrapperTextLight onClick={() => navigate('/sign-in')}>Trở đăng nhập</WrapperTextLight>
 				</WrapperContainer>
+			</div>
+			<div style={{ width: '80%', marginTop: '100px' }}>
+				<FooterComponent></FooterComponent>
 			</div>
 		</div>
 	);

@@ -40,7 +40,9 @@ const BreadCrumbComponent = () => {
 			case locationPath.startsWith('/forgot-password'):
 				setBreadCrumb('Quên mật khẩu');
 				break;
-
+			case locationPath.startsWith('/contact'):
+				setBreadCrumb('Liên hệ');
+				break;
 			default:
 				break;
 		}

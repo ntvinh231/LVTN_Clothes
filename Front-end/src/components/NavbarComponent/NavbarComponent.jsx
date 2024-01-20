@@ -55,42 +55,26 @@ const NavbarComponent = (props) => {
 	};
 
 	const renderContent = (type, options) => {
-		switch (type) {
-			case 'text':
-				return options?.map((option, id) => (
-					<TypeProduct
-						key={id}
-						backgroundHover="#0089ff"
-						styleComponent={{
-							color: activeOption === option.toUpperCase() ? '#0089ff' : '#333',
-							padding: '6px',
-							fontSize: '15px',
-							cursor: 'pointer',
-						}}
-						name={option.toUpperCase()}
-						onClick={() => handleTypeProductClick(option)}
-					>
-						<WrapperTextValue key={id}></WrapperTextValue>
-					</TypeProduct>
-				));
-			case 'checkbox':
-				return (
-					<Checkbox.Group
-						style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '12px' }}
-						onChange={onChange}
-					>
-						{options.map((option) => (
-							<Checkbox key={option.value} value={option.value}>
-								{option.label}
-							</Checkbox>
-						))}
-					</Checkbox.Group>
-				);
-			case 'price':
-				return options.map((option, id) => <WrapperTextValue key={id}>{option}</WrapperTextValue>);
-			default:
-				return {};
+		if (type === 'text') {
+			return options?.map((option, id) => (
+				<TypeProduct
+					key={id}
+					backgroundHover="#0089ff"
+					styleComponent={{
+						color: activeOption === option.toUpperCase() ? '#0089ff' : '#333',
+						padding: '6px',
+						fontSize: '15px',
+						cursor: 'pointer',
+					}}
+					name={option.toUpperCase()}
+					onClick={() => handleTypeProductClick(option)}
+				>
+					<WrapperTextValue key={id}></WrapperTextValue>
+				</TypeProduct>
+			));
 		}
+
+		return [];
 	};
 
 	return (

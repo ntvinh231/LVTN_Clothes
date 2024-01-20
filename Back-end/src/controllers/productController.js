@@ -30,8 +30,19 @@ export const getProductTypePagi = async (req, res, next) => {
 			return false;
 		});
 
+		// Tính toán giảm giá dựa trên phần trăm giảm giá
+		const modifiedProducts = uniqueProducts.map((product) => {
+			if (product.discount && product.price) {
+				const discountAmount = (product.price * product.discount) / 100;
+				const discountedPrice = product.price - discountAmount;
+				return { ...product.toObject(), discountedPrice };
+			} else {
+				return product.toObject();
+			}
+		});
+
 		// Phân trang dữ liệu đã lấy được
-		const paginatedProducts = uniqueProducts.slice(offset, offset + limit);
+		const paginatedProducts = modifiedProducts.slice(offset, offset + limit);
 
 		const totalProductCount = displayedProducts.length; // Đếm số sản phẩm đã hiển thị, không đếm trùng
 

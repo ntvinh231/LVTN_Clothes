@@ -18,6 +18,8 @@ export const WrapperLabelTitle = styled.h4`
 `;
 
 export const SortPagi = styled.div`
+	display: flex;
+	justify-content: space-between;
 	width: 100%;
 	border-bottom: 1px solid #e1e1e1;
 	padding-right: 10px;

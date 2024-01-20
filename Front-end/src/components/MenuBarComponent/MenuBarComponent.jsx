@@ -38,11 +38,15 @@ const MenuBarComponent = () => {
 				<WrapperTextMenuBar onClick={handleNavigateHome} span={6}>
 					<Image src={logo} alt="slider" preview={false} width="180px" height="20px" />
 				</WrapperTextMenuBar>
+				<WrapperTextMenuBar span={6} onClick={() => navigate('/')}>
+					TRANG CHỦ
+				</WrapperTextMenuBar>
 				<WrapperTextMenuBar span={6}>
 					<TypeProduct name={'Sản Phẩm'} />
 				</WrapperTextMenuBar>
-				<WrapperTextMenuBar span={6}>Sale</WrapperTextMenuBar>
-				<WrapperTextMenuBar span={6}>CONTACT</WrapperTextMenuBar>
+				<WrapperTextMenuBar span={6} onClick={() => navigate('/contact')}>
+					CONTACT
+				</WrapperTextMenuBar>
 			</WrapperMenuBar>
 		</div>
 	);

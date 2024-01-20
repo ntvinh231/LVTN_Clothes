@@ -14,6 +14,7 @@ import MyOrder from '../pages/MyOrder/MyOrder';
 import DetailsOrder from '../pages/DetailsOrder/DetailsOrder';
 import ForgotPasswordPage from '../pages/ForgotPasswordPage/ForgotPasswordPage';
 import ResetPasswordPage from '../pages/ResetPasswordPage/ResetPasswordPage';
+import ContactPage from '../pages/ContactPage/ContactPage';
 
 export const routes = [
 	{
@@ -94,6 +95,11 @@ export const routes = [
 		isShowHeader: false,
 		isPrivate: true,
 		isAccessible: (user) => ['admin', 'superadmin'].includes(user?.role),
+	},
+	{
+		path: '/contact',
+		page: ContactPage,
+		isShowHeader: true,
 	},
 	{
 		path: '*',

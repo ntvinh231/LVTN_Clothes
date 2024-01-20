@@ -31,16 +31,25 @@ export const getProduct = async (id) => {
 	}
 };
 
-export const getProductTypePagi = async (page, limit, id) => {
+export const getProductTypePagi = async ({ page, limit, collectionsId, selectValue }) => {
 	try {
+		console.log(selectValue);
 		let res;
-		if (!id) {
+		if (!collectionsId) {
 			//getAll
-			res = await axios.get(`${process.env.REACT_APP_API_URL}/product/getProductTypePagi/?page=${page}&limit=${limit}`);
+			res = await axios.get(
+				`${process.env.REACT_APP_API_URL}/product/getProductTypePagi/?page=${page}&limit=${limit}&${
+					selectValue !== 'Mặc định' ? selectValue : ''
+				}`
+			);
 		} else {
 			//getOne
 			res = await axios.get(
-				`${process.env.REACT_APP_API_URL}/product/getProductTypePagi/?page=${page}&limit=${limit}&collections_id=${id}`
+				`${
+					process.env.REACT_APP_API_URL
+				}/product/getProductTypePagi/?page=${page}&limit=${limit}&collections_id=${collectionsId}&${
+					selectValue !== 'Mặc định' ? selectValue : ''
+				}`
 			);
 		}
 

@@ -19,6 +19,7 @@ import { resetUser, updateUser } from '../../redux/slice/userSlide';
 import { useNavigate } from 'react-router-dom';
 import { UploadOutlined } from '@ant-design/icons';
 import { deleteCookie, getBase64, getCookieValue } from '../../util';
+import FooterComponent from '../../components/FooterComponent/FooterComponent';
 
 const ProfilePage = () => {
 	const user = useSelector((state) => state.user);
@@ -149,7 +150,7 @@ const ProfilePage = () => {
 	}, [dataPassword?.statusCode, dataPassword?.statusMessage]);
 
 	return (
-		<div style={{ width: '100%', margin: '0 auto', height: '1000px' }}>
+		<div style={{ width: '100%', margin: '0 auto' }}>
 			<WrapperHeader>THÔNG TIN NGƯỜI DÙNG</WrapperHeader>
 			<Loading isLoading={isLoading}>
 				<WrapperContentProfile>
@@ -289,6 +290,9 @@ const ProfilePage = () => {
 					></ButtonComponent>
 				</WrapperContentProfile>
 			</Loading>
+			<div style={{ marginLeft: '120px', width: '80%', marginTop: '100px' }}>
+				<FooterComponent></FooterComponent>
+			</div>
 		</div>
 	);
 };

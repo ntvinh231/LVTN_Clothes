@@ -9,6 +9,7 @@ import Loading from '../../components/LoadingComponent/Loading';
 import * as Message from '../../components/Message/Message';
 import { EyeFilled, EyeInvisibleFilled } from '@ant-design/icons';
 import { useParams } from 'react-router-dom';
+import FooterComponent from '../../components/FooterComponent/FooterComponent';
 const ResetPasswordPage = () => {
 	const navigate = useNavigate();
 	const [password, setPassword] = useState('');
@@ -56,7 +57,8 @@ const ResetPasswordPage = () => {
 			style={{
 				display: 'flex',
 				justifyContent: 'center',
-				height: '100vh',
+				flexDirection: 'column',
+				alignItems: 'center',
 			}}
 		>
 			<div
@@ -135,6 +137,9 @@ const ResetPasswordPage = () => {
 					</Loading>
 					<WrapperTextLight onClick={() => navigate('/sign-in')}>Trở đăng nhập</WrapperTextLight>
 				</WrapperContainer>
+			</div>
+			<div style={{ width: '80%', marginTop: '100px' }}>
+				<FooterComponent></FooterComponent>
 			</div>
 		</div>
 	);

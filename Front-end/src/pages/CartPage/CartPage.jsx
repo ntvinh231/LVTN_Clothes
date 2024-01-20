@@ -41,6 +41,7 @@ import { useMutation } from '@tanstack/react-query';
 import Loading from '../../components/LoadingComponent/Loading';
 import { resetUser, updateUser } from '../../redux/slice/userSlide';
 import StepComponent from '../../components/StepComponent/StepComponent';
+import FooterComponent from '../../components/FooterComponent/FooterComponent';
 
 const CartPage = () => {
 	const cart = useSelector((state) => state.cart);
@@ -270,7 +271,7 @@ const CartPage = () => {
 	];
 
 	return (
-		<div style={{ background: '#fff', with: '100%', height: '100vh' }}>
+		<div style={{ background: '#fff', with: '100%', height: '90vh' }}>
 			<div style={{ height: '100%', width: '910px', margin: '0 auto', padding: '0 26px' }}>
 				<div style={{ display: 'flex', justifyContent: 'center' }}>
 					<Loading isLoading={cart?.isLoadingGetCart}>
@@ -561,6 +562,9 @@ const CartPage = () => {
 						</Form>
 					</Loading>
 				</ModalComponent>
+			</div>
+			<div style={{ marginLeft: '120px', width: '80%' }}>
+				<FooterComponent></FooterComponent>
 			</div>
 		</div>
 	);
