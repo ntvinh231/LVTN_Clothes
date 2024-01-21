@@ -668,7 +668,7 @@ const CartPage = () => {
 											<h3>Đơn từ {convertPrice(voucher.totalAmount)}</h3>
 										</CouponHeader>
 										<CouponBody>
-											<h1>{convertPrice(voucher.totalAmount)}</h1>
+											<h1>{convertPrice(voucher.discountAmount)}</h1>
 										</CouponBody>
 										<CouponFooter>
 											<span style={{ fontSize: '16px', fontWeight: 500, color: '#001F5D' }}>

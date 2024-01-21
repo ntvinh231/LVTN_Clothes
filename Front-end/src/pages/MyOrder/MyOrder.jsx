@@ -180,7 +180,7 @@ const MyOrder = () => {
 												</div>
 											</div>
 											<div style={{ display: 'flex', gap: '10px' }}>
-												<ButtonComponent
+												{/* <ButtonComponent
 													backgroundHover="#9255FD"
 													textHover="#fff"
 													onClick={() => handleCanceOrder(order)}
@@ -193,7 +193,7 @@ const MyOrder = () => {
 													}}
 													textButton={'Hủy đơn hàng'}
 													styleTextButton={{ color: '#9255FD', fontSize: '14px' }}
-												></ButtonComponent>
+												></ButtonComponent> */}
 												<ButtonComponent
 													backgroundHover="#9255FD"
 													onClick={() => handleDetailsOrder(order?._id)}
