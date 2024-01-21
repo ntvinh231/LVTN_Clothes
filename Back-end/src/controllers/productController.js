@@ -153,7 +153,7 @@ export const getProductAdmin = async (req, res, next) => {
 		const filterData = filter.id ? { _id: filter.id } : filter;
 		const offset = limit * (page - 1);
 		const totalProductCount = await Product.countDocuments(filterData);
-		const product = await Product.find(filterData).limit(limit).skip(offset).sort(sort);
+		const product = await Product.find(filterData).limit(limit).skip(offset).sort(sort).select('-image');
 
 		if (filter.id && product.length === 0) {
 			return res.status(404).json({
@@ -367,5 +367,26 @@ export const deleteManyProduct = async (req, res, next) => {
 	} catch (error) {
 		console.log(error);
 		return next(httpError(500, error));
+	}
+};
+
+export const uploadImagesProduct = async (req, res, next) => {
+	try {
+		if (!req.file) {
+			return res.status(200).json({
+				statusCode: 400,
+				statusMessage: 'failed',
+				message: 'Lỗi upload file',
+			});
+		}
+
+		return res.status(200).json({
+			statusCode: 200,
+			statusMessage: 'success',
+			path: req.file.path,
+			// message: response ? response : 'Không thể upload ảnh',
+		});
+	} catch (error) {
+		console.log(error);
 	}
 };

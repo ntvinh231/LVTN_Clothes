@@ -10,12 +10,13 @@ import {
 	getProductAdmin,
 	getProductTypePagi,
 	getProductBestSelled,
+	uploadImagesProduct,
 } from '../controllers/productController.js';
 import isLoggedIn from '../middleware/isLoggedIn.js';
 import restricTo from '../middleware/checkRole.js';
 import collectionsRouter from './CollectionRouter.js';
 import { checkProductDetails } from '../controllers/productDetailsController.js';
-import colorRouter from './colorRouter.js';
+import uploadCloud from '../configs/cloudinary.config.js';
 
 //Product Details
 router.post('/checkProductDetails', checkProductDetails);
@@ -23,7 +24,14 @@ router.get('/', getProduct);
 //Best Selled
 router.get('/best-sellers', getProductBestSelled);
 router.get('/getProductTypePagi', getProductTypePagi);
-
+//Image cloudinary
+router.post(
+	'/upload-image',
+	isLoggedIn,
+	restricTo('admin', 'superadmin'),
+	uploadCloud.single('images'),
+	uploadImagesProduct
+);
 router.get('/admin', getProductAdmin);
 router.use('/', collectionsRouter);
 router.post('/create', isLoggedIn, restricTo('admin', 'superadmin'), createProduct);

@@ -13,6 +13,20 @@ export const refreshToken = async () => {
 	}
 };
 
+export const uploadImageCloudinary = async (formData) => {
+	try {
+		const response = await axios.post(`${process.env.REACT_APP_API_URL}/product/upload-image`, formData, {
+			headers: {
+				'Content-Type': 'multipart/form-data',
+			},
+		});
+
+		return response.data;
+	} catch (error) {
+		return error?.response;
+	}
+};
+
 // get all or get with id query, exercise: product/?id=65661792bfbb244758e8dbf7
 export const getProduct = async (id) => {
 	try {
@@ -33,7 +47,6 @@ export const getProduct = async (id) => {
 
 export const getProductTypePagi = async ({ page, limit, collectionsId, selectValue }) => {
 	try {
-		console.log(selectValue);
 		let res;
 		if (!collectionsId) {
 			//getAll
@@ -127,7 +140,7 @@ export const getBestSellingProductSearch = async (search, limit) => {
 		let res;
 		if (!(search?.length > 0)) {
 			// getAll
-			res = await axios.get(`${process.env.REACT_APP_API_URL}/product/best-sellers?limit=${limit}`);
+			res = await axios.get(`${process.env.REACT_APP_API_URL}/product/best-sellers?page=${1}&limit=${limit}`);
 		} else {
 			// getDataSearch
 			res = await axios.get(`${process.env.REACT_APP_API_URL}/product/best-sellers?name=/${search}/i&limit=${limit}`);

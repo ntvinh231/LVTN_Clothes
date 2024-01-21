@@ -40,7 +40,7 @@ const VoucherProduct = () => {
 	const { data, isLoading: isLoadingCreate, isSuccess, isError } = mutationVoucher;
 
 	const fetchAllVoucher = async () => {
-		const res = await VoucherService.getVoucher();
+		const res = await VoucherService.getAllVoucher();
 		return res;
 	};
 	const queryVoucher = useQuery(['vouchers'], fetchAllVoucher);
@@ -228,50 +228,50 @@ const VoucherProduct = () => {
 			title: 'Voucher Code',
 			dataIndex: 'voucherCode',
 			render: (text) => <a>{text}</a>,
-			...getColumnSearchProps('color'),
-			sorter: (a, b) => a.color.length - b.color.length,
+			...getColumnSearchProps('voucherCode'),
+			sorter: (a, b) => a.voucherCode.length - b.voucherCode.length,
 		},
 		{
 			title: 'Giảm giá',
 			dataIndex: 'discountAmount',
-			sorter: (a, b) => a.quantity - b.quantity,
+			sorter: (a, b) => a.discountAmount - b.discountAmount,
 			filters: [
 				{
-					text: '>= 10',
+					text: '>= 100.000 VNĐ',
 					value: '>=',
 				},
 				{
-					text: '<= 10',
+					text: '<= 100.000 VNĐ',
 					value: '<=',
 				},
 			],
 			render: (text) => convertPrice(text),
 			onFilter: (value, record) => {
 				if (value === '>=') {
-					return record.quantity >= 10;
+					return record.discountAmount >= 100000;
 				}
-				return record.quantity <= 10;
+				return record.discountAmount <= 100000;
 			},
 		},
 		{
 			title: 'Tổng giá trị đơn',
 			dataIndex: 'totalAmount',
-			sorter: (a, b) => a.quantity - b.quantity,
+			sorter: (a, b) => a.totalAmount - b.totalAmount,
 			filters: [
 				{
-					text: '>= 10',
+					text: '>= 500.000 VNĐ',
 					value: '>=',
 				},
 				{
-					text: '<= 10',
+					text: '<= 500.000 VNĐ',
 					value: '<=',
 				},
 			],
 			onFilter: (value, record) => {
 				if (value === '>=') {
-					return record.quantity >= 10;
+					return record.totalAmount >= 500000;
 				}
-				return record.quantity <= 10;
+				return record.totalAmount <= 500000;
 			},
 			render: (text) => convertPrice(text),
 		},
@@ -291,7 +291,6 @@ const VoucherProduct = () => {
 			};
 		});
 
-	console.log(data?.statusMessage);
 	useEffect(() => {
 		if (data?.statusMessage === 'success') {
 			Message.success('Thêm thành công');

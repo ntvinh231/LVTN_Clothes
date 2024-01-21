@@ -23,6 +23,9 @@ const AdminProduct = () => {
 	const isUpdate = useRef(false);
 	const [collections_id, setCollections_id] = useState('');
 	const [colors_id, setColors_id] = useState('');
+	const [tempImagePath, setTempImagePath] = useState(null);
+	const [tempImagePathDetails, setTempImagePathDetails] = useState(null);
+
 	const inittial = () => ({
 		name: '',
 		newName: '',
@@ -117,8 +120,14 @@ const AdminProduct = () => {
 	const filterOption = (input, option) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase());
 	const mutationProduct = useMutation({
 		mutationFn: async (data) => {
+			let response;
 			try {
 				const { name, price, size, colors_id, description, quantity, image, collections_id, discount } = data;
+				if (!image) {
+					const formData = new FormData();
+					formData.append('images', tempImagePath);
+					response = await ProductService.uploadImageCloudinary(formData);
+				}
 				const res = await ProductService.createProduct({
 					name: name,
 					price: price,
@@ -126,7 +135,7 @@ const AdminProduct = () => {
 					colors_id: colors_id,
 					description: description,
 					quantity: quantity,
-					image: image,
+					image: response?.path || image,
 					collections_id: collections_id,
 					discount,
 				});
@@ -261,20 +270,29 @@ const AdminProduct = () => {
 	};
 
 	const handleOnchangeAvatar = async ({ fileList }) => {
-		const file = fileList[0];
-		if (file && !file.url && !file.preview) {
-			file.preview = await getBase64(file.originFileObj);
+		try {
+			const file = fileList[0];
+			if (file && file.originFileObj) {
+				setTempImagePath(file.originFileObj);
+				file.preview = await getBase64(file.originFileObj);
+			}
+
+			setStateProduct({
+				...stateProduct,
+				image: file ? file.preview : null,
+			});
+		} catch (error) {
+			console.error(error);
 		}
-		setStateProduct({
-			...stateProduct,
-			image: file ? file.preview : null,
-		});
 	};
+
 	const handleOnChangeDetailsAvatar = async ({ fileList }) => {
 		const file = fileList[0];
-		if (file && !file.url && !file.preview) {
+		if (file && file.originFileObj) {
+			setTempImagePathDetails(file.originFileObj);
 			file.preview = await getBase64(file.originFileObj);
 		}
+
 		setStateProductDetails({
 			...stateProductDetails,
 			image: file ? file.preview : null,
@@ -294,6 +312,7 @@ const AdminProduct = () => {
 	const fetchDetailsProduct = async (rowSelected) => {
 		setIsLoadingDetails(true);
 		const res = await ProductService.getProduct(rowSelected);
+
 		//Get name collection
 		const resCollectionSelect = await ProductService.getCollectionProduct(res?.data[0]?.collections_id);
 		//Get name color
@@ -614,6 +633,9 @@ const AdminProduct = () => {
 			try {
 				const { name, price, size, colors_id, description, quantity, image, collections_id, discount } =
 					data.configData;
+				const formData = new FormData();
+				formData.append('images', tempImagePathDetails);
+				const response = await ProductService.uploadImageCloudinary(formData);
 				const res = await ProductService.updateProduct(data.id, {
 					name: name,
 					price: price,
@@ -621,7 +643,7 @@ const AdminProduct = () => {
 					colors_id: colors_id,
 					description: description,
 					quantity: quantity,
-					image: image,
+					image: response?.path,
 					collections_id: collections_id,
 					discount,
 				});

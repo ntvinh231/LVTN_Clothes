@@ -160,7 +160,6 @@ const CartPage = () => {
 		try {
 			if (listChecked?.length > 0) {
 				dispatch(removeAllFromCart({ listChecked }));
-
 				setListChecked([]);
 			}
 		} catch (error) {
@@ -177,7 +176,8 @@ const CartPage = () => {
 
 	const priceDiscountMemo = useMemo(() => {
 		const result = cart?.cartItems?.reduce((total, cur) => {
-			return total + cur.discount;
+			const discountPrice = (cur?.price * cur?.discount) / 100;
+			return total + discountPrice;
 		}, 0);
 		if (Number(result)) {
 			return result;
@@ -186,7 +186,7 @@ const CartPage = () => {
 	}, [cart]);
 
 	const diliveryPriceMemo = useMemo(() => {
-		const totalPrice = Number(priceMemo) - (Number(priceMemo) * Number(priceDiscountMemo)) / 100;
+		const totalPrice = Number(priceMemo) - Number(priceDiscountMemo);
 		if (totalPrice >= 200000 && totalPrice < 500000 && cart?.cartItems.length !== 0) {
 			return 10000;
 		} else if (totalPrice < 200000 && cart?.cartItems.length !== 0) {
@@ -197,7 +197,7 @@ const CartPage = () => {
 	}, [priceMemo, priceDiscountMemo, cart]);
 
 	const totalPriceMemo = useMemo(() => {
-		return Number(priceMemo) - (Number(priceMemo) * Number(priceDiscountMemo)) / 100 + Number(diliveryPriceMemo);
+		return Number(priceMemo) - Number(priceDiscountMemo) + Number(diliveryPriceMemo);
 	}, [priceMemo, priceDiscountMemo, diliveryPriceMemo]);
 
 	const mutationUpdateUser = useMutation({
@@ -345,7 +345,7 @@ const CartPage = () => {
 		<div style={{ background: '#fff', with: '100%', height: '90vh', marginBottom: '100px' }}>
 			<div style={{ height: '100%', width: '910px', margin: '0 auto', padding: '0 26px' }}>
 				<div style={{ display: 'flex', justifyContent: 'center' }}>
-					<Loading isLoading={cart?.isLoadingGetCart}>
+					<Loading isLoading={cart?.isLoadingGetCart || cart?.isLoadingRemoveCart || cart?.isLoadingRemoveAllCart}>
 						<WrapperLeft>
 							{cart?.totalCart > 0 ? (
 								<>
@@ -513,16 +513,11 @@ const CartPage = () => {
 								</div>
 								<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
 									<span>Giảm giá</span>
-									<span
-										style={{ color: '#000', fontSize: '14px', fontWeight: 'bold' }}
-									>{`${priceDiscountMemo} %`}</span>
+									<span style={{ color: '#000', fontSize: '14px', fontWeight: 'bold' }}>
+										{convertPrice(priceDiscountMemo)}
+									</span>
 								</div>
-								<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-									<span>Voucher</span>
-									<span
-										style={{ color: '#000', fontSize: '14px', fontWeight: 'bold' }}
-									>{`${priceDiscountMemo} %`}</span>
-								</div>
+
 								<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
 									<span>Phí giao hàng</span>
 									<span style={{ color: '#000', fontSize: '14px', fontWeight: 'bold' }}>
@@ -560,6 +555,7 @@ const CartPage = () => {
 							</WrapperVoucher>
 						</div>
 						<ButtonComponent
+							isLoading={cart?.isLoadingGetCart || cart?.isLoadingRemoveCart || cart?.isLoadingRemoveAllCart}
 							onClick={() => handleAddCard()}
 							backgroundHover="#0089ff"
 							size={40}

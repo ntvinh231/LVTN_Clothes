@@ -14,6 +14,7 @@ import {
 	WrapperStatusTextAvailabel,
 	WrapperStatusTextName,
 	WrapperStyleImageProduct,
+	WrapperStyleImageProductImage,
 	WrapperStyleImageSmall,
 	WrapperStyleNameProduct,
 } from './style';
@@ -41,7 +42,7 @@ const ProductDetailsComponent = ({ idProduct }) => {
 	const [arrayColor, setArrayColor] = useState([]);
 	const [collectionName, setCollectionName] = useState('Loading...');
 	const checkSoldOut = useSelector((state) => state.checkProduct);
-	const token = localStorage.getItem('accessToken');
+
 	const [selectedColor, setSelectedColor] = useState('');
 
 	const [checkProductDetails, setCheckProductDetails] = useState({
@@ -188,21 +189,47 @@ const ProductDetailsComponent = ({ idProduct }) => {
 			<Row style={{ padding: '16px', marginTop: '30px' }}>
 				<Col span={10} style={{ padding: '0 16px' }}>
 					<WrapperStyleImageProduct>
-						<Image src={productDetails?.image} alt="image product" preview={false} />
+						<Image
+							width={400}
+							height={400}
+							src={productDetails?.image}
+							preview={false}
+							alt={productDetails?.name || 'Loading...'}
+						/>
 					</WrapperStyleImageProduct>
 					<div>
-						<Row style={{ paddingTop: '10px', display: 'flex', justifyContent: 'space-between' }}>
+						<Row style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'nowrap' }}>
 							<WrapperStyleImageSmall span={6}>
-								<Image src={productDetails?.image} alt="image product" preview="false" />
+								<Image
+									width={110}
+									height={110}
+									src={productDetails?.image}
+									alt={productDetails?.name || 'Loading...'}
+								/>
 							</WrapperStyleImageSmall>
 							<WrapperStyleImageSmall span={6}>
-								<Image src={productDetails?.image} alt="image product" preview="false" />
+								<Image
+									width={110}
+									height={110}
+									src={productDetails?.image}
+									alt={productDetails?.name || 'Loading...'}
+								/>
 							</WrapperStyleImageSmall>
 							<WrapperStyleImageSmall span={6}>
-								<Image src={productDetails?.image} alt="image product" preview="false" />
+								<Image
+									width={110}
+									height={110}
+									src={productDetails?.image}
+									alt={productDetails?.name || 'Loading...'}
+								/>
 							</WrapperStyleImageSmall>
 							<WrapperStyleImageSmall span={6}>
-								<Image src={productDetails?.image} alt="image product" preview="false" />
+								<Image
+									width={110}
+									height={110}
+									src={productDetails?.image}
+									alt={productDetails?.name || 'Loading...'}
+								/>
 							</WrapperStyleImageSmall>
 						</Row>
 					</div>

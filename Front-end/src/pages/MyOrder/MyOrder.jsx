@@ -180,20 +180,25 @@ const MyOrder = () => {
 												</div>
 											</div>
 											<div style={{ display: 'flex', gap: '10px' }}>
-												{/* <ButtonComponent
-													backgroundHover="#9255FD"
-													textHover="#fff"
-													onClick={() => handleCanceOrder(order)}
-													size={40}
-													styleButton={{
-														height: '36px',
-														border: '1px solid #9255FD',
-														borderRadius: '4px',
-														transition: 'color 0.3s ease',
-													}}
-													textButton={'Hủy đơn hàng'}
-													styleTextButton={{ color: '#9255FD', fontSize: '14px' }}
-												></ButtonComponent> */}
+												{order?.isDelivered ? (
+													''
+												) : (
+													<ButtonComponent
+														backgroundHover="#9255FD"
+														textHover="#fff"
+														onClick={() => handleCanceOrder(order)}
+														size={40}
+														styleButton={{
+															height: '36px',
+															border: '1px solid #9255FD',
+															borderRadius: '4px',
+															transition: 'color 0.3s ease',
+														}}
+														textButton={'Hủy đơn hàng'}
+														styleTextButton={{ color: '#9255FD', fontSize: '14px' }}
+													></ButtonComponent>
+												)}
+
 												<ButtonComponent
 													backgroundHover="#9255FD"
 													onClick={() => handleDetailsOrder(order?._id)}

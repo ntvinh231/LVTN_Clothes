@@ -1,18 +1,27 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { Col, InputNumber } from 'antd';
 
 export const WrapperStyleImageProduct = styled.div`
-	left: 153px;
-	top: 289px;
-	height: 345;
-	width: 345;
+	margin-left: 35px;
+	height: 400px;
+	width: 400px;
+`;
+
+const ImageStyles = css`
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+`;
+
+export const WrapperStyleImageProductImage = styled.img`
+	${ImageStyles}
 `;
 
 export const WrapperStyleImageSmall = styled(Col)`
 	max-height: 100%;
 	max-width: 100%;
-	width: auto;
-	padding: 10px 4px;
+	width: auto; /* Sửa giá trị width cố định */
+	padding: 6px 4px;
 `;
 
 export const WrapperStyleNameProduct = styled.h1`

@@ -102,7 +102,7 @@ const DetailsOrder = () => {
 					<WrapperStyleContent>
 						<div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
 							<div style={{ width: '670px' }}>Sản phẩm</div>
-							<WrapperItemLabel>Giá</WrapperItemLabel>
+							<WrapperItemLabel>Đơn giá</WrapperItemLabel>
 							<WrapperItemLabel style={{ marginRight: '45px' }}>Số lượng</WrapperItemLabel>
 							<WrapperItemLabel>Giảm giá</WrapperItemLabel>
 						</div>

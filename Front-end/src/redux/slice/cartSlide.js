@@ -12,6 +12,8 @@ const initialState = {
 	isLoggedIn: false,
 	isLoadingAddToCart: false,
 	isLoadingGetCart: false,
+	isLoadingRemoveCart: false,
+	isLoadingRemoveAllCart: false,
 };
 
 export const addToCart = createAsyncThunk('/cart/create', async ({ cartItem }, { getState }) => {
@@ -207,13 +209,29 @@ export const cartSlide = createSlice({
 			.addCase(addToCart.rejected, (state) => {
 				state.isLoadingAddToCart = false;
 			})
+			.addCase(removeFromCart.pending, (state) => {
+				state.isLoadingRemoveCart = true;
+			})
 			.addCase(removeFromCart.fulfilled, (state, action) => {
 				state.cartItems = action.payload.cartItems;
 				state.totalCart = action.payload.totalCart;
+				state.isLoadingRemoveCart = false;
+			})
+			.addCase(removeFromCart.rejected, (state, action) => {
+				// Xử lý khi có lỗi khi lấy dữ liệu giỏ hàng
+				console.error('Error fetching cart:', action.error);
+			})
+			.addCase(removeAllFromCart.pending, (state) => {
+				state.isLoadingRemoveAllCart = true;
 			})
 			.addCase(removeAllFromCart.fulfilled, (state, action) => {
 				state.cartItems = action.payload.cartItems;
 				state.totalCart = action.payload.totalCart;
+				state.isLoadingRemoveAllCart = false;
+			})
+			.addCase(removeAllFromCart.rejected, (state, action) => {
+				// Xử lý khi có lỗi khi lấy dữ liệu giỏ hàng
+				console.error('Error fetching cart:', action.error);
 			})
 			.addCase(getCartUser.pending, (state) => {
 				state.isLoadingGetCart = true;
@@ -228,8 +246,10 @@ export const cartSlide = createSlice({
 					}
 					state.cartItems = action.payload.cartItems;
 					state.totalCart = action.payload.totalCart;
-					state.isLoadingGetCart = false;
 				}
+				state.isLoadingRemoveCart = false;
+				state.isLoadingRemoveAllCart = false;
+				state.isLoadingGetCart = false;
 			})
 			.addCase(getCartUser.rejected, (state, action) => {
 				// Xử lý khi có lỗi khi lấy dữ liệu giỏ hàng

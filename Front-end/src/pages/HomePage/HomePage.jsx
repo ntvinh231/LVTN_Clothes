@@ -37,7 +37,7 @@ const HomePage = () => {
 
 	const fetchProduct = async (context) => {
 		setLoading(true);
-		const limit = 10;
+		const limit = 30;
 		const searchValue = context?.queryKey && context?.queryKey[1];
 		const res = await ProductService.getProductSearch(searchValue, limit);
 		setIsNull(res?.data?.length === 0);
@@ -47,7 +47,7 @@ const HomePage = () => {
 
 	const fetchBestSellers = async (context) => {
 		setLoading(true);
-		const limit = 10;
+		const limit = 30;
 		const searchValue = context?.queryKey && context?.queryKey[1];
 		const res = await ProductService.getBestSellingProductSearch(searchValue, limit);
 		setIsNull(res?.data?.length === 0);
