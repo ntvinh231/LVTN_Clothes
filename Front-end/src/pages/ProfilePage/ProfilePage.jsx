@@ -14,7 +14,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import * as UserService from '../../service/UserService';
 import { useMutation } from '@tanstack/react-query';
 import Loading from '../../components/LoadingComponent/Loading';
-import { Button, Upload, message } from 'antd';
+import { Button, Upload } from 'antd';
+import * as Message from '../../components/Message/Message';
 import { resetUser, updateUser } from '../../redux/slice/userSlide';
 import { useNavigate } from 'react-router-dom';
 import { UploadOutlined } from '@ant-design/icons';
@@ -43,7 +44,7 @@ const ProfilePage = () => {
 		if (!accessToken) {
 			dispatch(resetUser());
 			navigate('/');
-			message.error('Bạn không đăng nhập vui lòng đăng nhập lại');
+			Message.error('Bạn không đăng nhập vui lòng đăng nhập lại');
 		}
 	}, [accessToken]);
 
@@ -58,11 +59,11 @@ const ProfilePage = () => {
 	useEffect(() => {
 		setIsLoading(true);
 		if (data?.statusCode === 200) {
-			message.success('Cập nhật thành công');
+			Message.success('Cập nhật thành công');
 			handleGetDetailsUser(user?.id, user?.accessToken);
 		}
 		if (data?.statusCode === 400) {
-			message.error(data?.message);
+			Message.error(data?.message);
 			handleGetDetailsUser(user?.id, user?.accessToken);
 		}
 		setIsLoading(false);
@@ -137,14 +138,14 @@ const ProfilePage = () => {
 	useEffect(() => {
 		setIsLoading(true);
 		if (dataPassword?.statusCode === 200) {
-			message.success('Đổi mật khẩu thành công. Vui lòng đăng nhập lại');
+			Message.success('Đổi mật khẩu thành công. Vui lòng đăng nhập lại');
 			deleteCookie('jwt');
 			deleteCookie('jwtR');
 			dispatch(resetUser());
 			navigate('/');
 		}
 		if (dataPassword?.statusCode === 401 || dataPassword?.statusMessage === 'failed') {
-			message.error(dataPassword?.message);
+			Message.error(dataPassword?.message);
 		}
 		setIsLoading(false);
 	}, [dataPassword?.statusCode, dataPassword?.statusMessage]);

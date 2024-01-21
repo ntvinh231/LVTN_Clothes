@@ -64,7 +64,7 @@ export const WrapperRight = styled.div`
 	display: flex;
 	flex-direction: column;
 	gap: 10px;
-	height: 280px;
+	height: 100%;
 	align-items: center;
 `;
 
@@ -102,4 +102,66 @@ export const WrapperStyleEmpty = styled.div`
 	align-items: center;
 	align-content: center;
 	flex-direction: column;
+`;
+
+export const WrapperVoucher = styled.div`
+	border-top: solid 1px #e4e5e7;
+	border-bottom: solid 1px #e4e5e7;
+	padding-top: 10px;
+	padding-bottom: 10px;
+	display: flex;
+	justify-content: space-between;
+`;
+
+export const WrapperVoucherToggle = styled.div`
+	cursor: pointer;
+	font-size: 14px;
+	color: #2e72d2;
+	display: flex;
+	align-items: center;
+	align-content: center;
+	line-height: 1;
+`;
+
+export const ScrowCoupon = styled.div`
+	flex-wrap: wrap;
+	overflow: none;
+	padding-bottom: 120px;
+`;
+
+export const CouponList = styled.div`
+	display: flex;
+	flex-direction: column;
+	margin-bottom: 10px;
+	gap: 14px;
+`;
+
+export const CouponItem = styled.div`
+	display: flex;
+	color: #001f5d;
+	flex-direction: column;
+	border-top: 2px solid #eee;
+	border-bottom: 2px solid #eee;
+	padding: 8px;
+	box-shadow: 0px 2px 4px 2px rgba(0, 31, 93, 0.1);
+`;
+export const CouponHeader = styled.div`
+	display: flex;
+	justify-content: space-between;
+`;
+
+export const CouponBody = styled.div`
+	margin-bottom: 0;
+	font-size: 14px;
+	color: #001f5d;
+	font-weight: 900;
+`;
+
+export const CouponFooter = styled.div`
+	font-size: 30px;
+	display: flex;
+	align-items: center;
+	align-content: center;
+	justify-content: space-between;
+	align-items: center;
 `;

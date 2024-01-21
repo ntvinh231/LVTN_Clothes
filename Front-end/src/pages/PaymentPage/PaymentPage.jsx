@@ -16,8 +16,8 @@ import ModalComponent from '../../components/ModalComponent/ModalComponent';
 import { useMutation } from '@tanstack/react-query';
 import Loading from '../../components/LoadingComponent/Loading';
 import { resetUser, updateUser } from '../../redux/slice/userSlide';
-import * as message from '../../components/Message/Message';
 import FooterComponent from '../../components/FooterComponent/FooterComponent';
+import * as VoucherService from '../../service/VoucherService';
 
 const PaymentPage = () => {
 	const cart = useSelector((state) => state.cart);
@@ -30,6 +30,10 @@ const PaymentPage = () => {
 	const [payment, setPayment] = useState('');
 	const [delivery, setDelivery] = useState('fast');
 	const [isOpenModalUpdateInfo, setIsOpenModalUpdateInfo] = useState(false);
+	const [stateVoucherCode, setStateVoucherCode] = useState('');
+	const [stateVoucherDiscount, setStateVoucherDiscount] = useState(1);
+	const [totalPriceMemo, setTotalPriceMemo] = useState(state?.totalPriceMemo);
+
 	const [stateUserDetails, setStateUserDetails] = useState({
 		name: '',
 		address: '',
@@ -43,7 +47,7 @@ const PaymentPage = () => {
 			dispatch(resetCart());
 			dispatch(resetUser());
 			navigate('/');
-			message.error('Bạn không đăng nhập vui lòng đăng nhập lại');
+			Message.error('Bạn không đăng nhập vui lòng đăng nhập lại');
 		} else {
 			dispatch(getCartUser(user?.id));
 		}
@@ -138,7 +142,7 @@ const PaymentPage = () => {
 						payment,
 						total: cart?.totalCart,
 						orders: cart?.cartItems,
-						totalPriceMemo: state?.totalPriceMemo,
+						totalPriceMemo,
 					},
 				});
 			} else {
@@ -181,7 +185,7 @@ const PaymentPage = () => {
 			paymentMethod: payment,
 			itemsPrice: state?.priceMemo,
 			shippingPrice: state?.diliveryPriceMemo,
-			totalPrice: state?.totalPriceMemo,
+			totalPrice: totalPriceMemo,
 			user: user?.id,
 			isPaid: true,
 			PaidAt: details.update_time,
@@ -213,7 +217,7 @@ const PaymentPage = () => {
 					paymentMethod: payment,
 					itemsPrice: state?.priceMemo,
 					shippingPrice: state?.diliveryPriceMemo,
-					totalPrice: state?.totalPriceMemo,
+					totalPrice: totalPriceMemo,
 					user: user?.id,
 					email: user?.email && user?.email,
 				},
@@ -260,10 +264,35 @@ const PaymentPage = () => {
 	const handleChangeAddress = () => {
 		setIsOpenModalUpdateInfo(true);
 	};
+	const handleOnChangleVoucherCode = (e) => {
+		setStateVoucherCode(e.target.value);
+	};
+
+	const mutationAddVoucher = useMutation({
+		mutationFn: (data) => VoucherService.getVoucher(data),
+	});
+
+	const { data: dataVoucher, isLoading: isLoadingVoucher } = mutationAddVoucher;
+
+	const handleAddVoucherCode = () => {
+		mutationAddVoucher.mutate({
+			stateVoucherCode,
+			totalPrice: state?.totalPriceMemo,
+		});
+	};
+
+	useEffect(() => {
+		if (state?.totalPriceMemo >= dataVoucher?.data?.totalAmount) {
+			// Tính giá trị giảm giá và đảm bảo không bao giờ dưới 0
+			const discountedPrice = Math.max(state?.totalPriceMemo - dataVoucher?.data?.discountAmount, 0);
+			// Set giá trị mới cho totalPriceMemo
+			setTotalPriceMemo(discountedPrice);
+		}
+	}, [dataVoucher]);
 
 	return (
 		<>
-			<div style={{ background: '#fff', with: '100%', height: '75vh' }}>
+			<div style={{ background: '#fff', with: '100%', height: '75vh', marginBottom: '200px' }}>
 				<Loading isLoading={isLoadingAddOrder}>
 					<div style={{ height: '100%', width: '1270px', margin: '0 auto', padding: '0 26px' }}>
 						<div style={{ display: 'flex', justifyContent: 'center' }}>
@@ -319,12 +348,102 @@ const PaymentPage = () => {
 												{convertPrice(state?.diliveryPriceMemo)}
 											</span>
 										</div>
+										{dataVoucher?.statusMessage === 'success' && !dataVoucher?.statusMessageDetail && (
+											<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+												<span style={{ display: 'flex', alignItems: 'center' }}>
+													Mã giảm giá
+													<div
+														style={{
+															marginLeft: '4px',
+															marginTop: '4px',
+															display: 'flex',
+															alignItems: 'center',
+															gap: '4px',
+														}}
+													>
+														<svg width="16" height="15" xmlns="http://www.w3.org/2000/svg" fill="#338dbc">
+															<path d="M14.476 0H8.76c-.404 0-.792.15-1.078.42L.446 7.207c-.595.558-.595 1.463 0 2.022l5.703 5.35c.296.28.687.42 1.076.42.39 0 .78-.14 1.077-.418l7.25-6.79c.286-.268.447-.632.447-1.01V1.43C16 .64 15.318 0 14.476 0zm-2.62 5.77c-.944 0-1.713-.777-1.713-1.732 0-.954.77-1.73 1.714-1.73.945 0 1.714.776 1.714 1.73 0 .955-.768 1.73-1.713 1.73z"></path>
+														</svg>
+														<span style={{ color: '#338dbc', fontSize: '12px' }}>{dataVoucher?.data?.voucherCode}</span>
+													</div>
+												</span>
+
+												<span style={{ color: '#000', fontSize: '14px', fontWeight: 'bold' }}>
+													- {convertPrice(dataVoucher?.data?.discountAmount)}
+												</span>
+											</div>
+										)}
+										<div
+											style={{
+												marginTop: '10px',
+												display: 'flex',
+												justifyContent: 'space-between',
+												alignItems: 'center',
+											}}
+										>
+											<div>
+												<InputComponent
+													value={stateVoucherCode.toUpperCase()}
+													onChange={handleOnChangleVoucherCode}
+													placeholder={'Mã giảm giá'}
+													name="voucherCode"
+													style={{
+														border: dataVoucher?.statusMessage === 'failed' ? '1px solid red' : '1px solid #d9d9d9',
+													}}
+												/>
+											</div>
+											<div>
+												<Loading isLoading={isLoadingVoucher}>
+													<ButtonComponent
+														onClick={() => handleAddVoucherCode()}
+														backgroundHover="#0089ff"
+														size={40}
+														disabled={!stateVoucherCode}
+														styleButton={{
+															background: stateVoucherCode ? 'rgb(255, 57, 69)' : '#c8c8c8',
+															height: '36px',
+															width: '102px',
+															marginLeft: '10px',
+															border: 'none',
+															borderRadius: '4px',
+														}}
+														textButton={'Sử dụng'}
+														styleTextButton={{ color: '#fff', fontSize: '15px', fontWeight: '700' }}
+													></ButtonComponent>
+												</Loading>
+											</div>
+										</div>
+										{dataVoucher?.statusMessage === 'failed' && !dataVoucher?.statusMessageDetail ? (
+											<span
+												style={{
+													color: 'red',
+													fontSize: '12px',
+													marginTop: '5px',
+													marginLeft: '4px',
+													display: 'block',
+												}}
+											>
+												Không tìm thấy mã giảm giá
+											</span>
+										) : (
+											<span
+												style={{
+													color: 'red',
+													fontSize: '12px',
+													marginTop: '5px',
+													marginLeft: '4px',
+													display: 'block',
+												}}
+											>
+												{dataVoucher?.message}
+											</span>
+										)}
 									</WrapperInfo>
 									<WrapperTotal>
 										<span>Tổng tiền</span>
 										<span style={{ display: 'flex', flexDirection: 'column' }}>
 											<span style={{ color: 'rgb(254, 56, 52)', fontSize: '24px', fontWeight: 'bold' }}>
-												{convertPrice(state?.totalPriceMemo)}
+												{convertPrice(totalPriceMemo)}
 											</span>
 											<span style={{ color: '#000', fontSize: '11px' }}>(Đã bao gồm VAT nếu có)</span>
 										</span>
@@ -333,7 +452,7 @@ const PaymentPage = () => {
 								{payment === 'paypal' && sdkReady ? (
 									<div style={{ width: '320px' }}>
 										<PayPalButton
-											amount={Math.round(state?.totalPriceMemo / 23500)}
+											amount={Math.round(totalPriceMemo / 23500)}
 											// shippingPreference="NO_SHIPPING" // default is "GET_FROM_FILE"
 											onSuccess={onSuccessPaypal}
 											onError={(err) => {

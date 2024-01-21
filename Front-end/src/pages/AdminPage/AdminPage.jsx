@@ -13,6 +13,7 @@ import { Navigate, useNavigate } from 'react-router-dom';
 import ColorProduct from '../../components/ColorProduct/ColorProduct';
 import { resetUser } from '../../redux/slice/userSlide';
 import AdminOrder from '../../components/AdminOrder/AdminOrder';
+import VoucherProduct from '../../components/VoucherProduct/VoucherProduct';
 
 const AdminPage = () => {
 	const AdminPageRef = useRef(null);
@@ -46,6 +47,7 @@ const AdminPage = () => {
 			getItem('Thông tin loại', 'productCollection'),
 			getItem('Thông tin màu sắc', 'colorProduct'),
 			getItem('Đơn hàng', 'productOrder'),
+			getItem('Mã giảm giá', 'voucherProduct'),
 		]),
 	];
 
@@ -61,6 +63,8 @@ const AdminPage = () => {
 				return <AdminOrder></AdminOrder>;
 			case 'colorProduct':
 				return <ColorProduct></ColorProduct>;
+			case 'voucherProduct':
+				return <VoucherProduct></VoucherProduct>;
 			default:
 				return <></>;
 		}

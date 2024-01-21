@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Button, Form, Select, Spin, message, Space } from 'antd';
+import { Button, Form, Select, Spin, Space } from 'antd';
 import { PlusOutlined, DeleteOutlined, EditOutlined, SearchOutlined, UploadOutlined } from '@ant-design/icons';
+import * as message from '../../components/Message/Message';
 import TableComponent from '../TableComponent/TableComponent';
 import { WrapperHeader } from '../AdminUser/style';
 import InputComponent from '../InputComponent/InputComponent';
@@ -191,7 +192,6 @@ const AdminProduct = () => {
 			form.setFieldsValue(inittial());
 			isUpdate.current = false;
 		} else {
-			console.log('5');
 			form.resetFields();
 			form.setFieldsValue(stateProductDetails);
 		}

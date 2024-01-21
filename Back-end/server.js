@@ -6,6 +6,7 @@ import productRouter from './src/routes/productRouter.js';
 import cartRouter from './src/routes/cartRouter.js';
 import paymentRouter from './src/routes/paymentRouter.js';
 import orderRouter from './src/routes/orderRouter.js';
+import voucherRouter from './src/routes/voucherRouter.js';
 import connection from './src/database/connection.js';
 import cookieParser from 'cookie-parser';
 import httpError from 'http-errors';
@@ -46,6 +47,7 @@ app.use('/api/user', userRouter);
 app.use('/api/cart', cartRouter);
 app.use('/api/order', orderRouter);
 app.use('/api/payment', paymentRouter);
+app.use('/api/voucher', voucherRouter);
 
 //404 handler and pass to error handler
 app.all('*', (req, res, next) => {

@@ -5,13 +5,14 @@ import * as Message from '../../components/Message/Message';
 import TableComponent from '../TableComponent/TableComponent';
 import { WrapperHeader } from '../AdminUser/style';
 import InputComponent from '../InputComponent/InputComponent';
-import * as ProductService from '../../service/ProductService';
+import * as VoucherService from '../../service/VoucherService';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import Loading from '../LoadingComponent/Loading';
 import ModalComponent from '../ModalComponent/ModalComponent';
 import DrawerComponent from '../DrawerComponent/DrawerComponent';
+import { convertPrice } from '../../util';
 
-const ColorProduct = () => {
+const VoucherProduct = () => {
 	const [isModalOpenDelete, setIsModalOpenDelete] = useState(false);
 	const [isModalOpen, setIsModelOpen] = useState(false);
 	const [rowSelected, setRowSelected] = useState('');
@@ -19,43 +20,44 @@ const ColorProduct = () => {
 	const [isLoadingDetails, setIsLoadingDetails] = useState(false);
 	const searchInput = useRef(null);
 	const inittial = () => ({
-		color: '',
-		quantity: '',
+		voucherCode: '',
+		totalAmount: 0,
+		discountAmount: 0,
 	});
-	const [stateColors, setStateColors] = useState(inittial());
+	const [stateVoucher, setStateVoucher] = useState(inittial());
 
-	const [stateColorsDetails, setStateColorsDetails] = useState(inittial());
+	const [stateVoucherDetails, setStateVoucherDetails] = useState(inittial());
 
 	//Form
 	const [form] = Form.useForm();
-	const mutationColor = useMutation({
+	const mutationVoucher = useMutation({
 		mutationFn: (data) => {
-			const res = ProductService.createColor({ color: data.color });
+			const res = VoucherService.createVoucher(data);
 			return res;
 		},
 	});
 
-	const { data, isLoading: isLoadingCreate, isSuccess, isError } = mutationColor;
+	const { data, isLoading: isLoadingCreate, isSuccess, isError } = mutationVoucher;
 
-	const fetchAllColor = async () => {
-		const res = await ProductService.getAllColors();
+	const fetchAllVoucher = async () => {
+		const res = await VoucherService.getVoucher();
 		return res;
 	};
-	const queryColors = useQuery(['colors'], fetchAllColor);
-	const { isLoading, data: colors } = queryColors;
+	const queryVoucher = useQuery(['vouchers'], fetchAllVoucher);
+	const { isLoading, data: vouchers } = queryVoucher;
 
 	//Delete
-	const mutationDeleteColor = useMutation({
+	const mutationDeleteVoucher = useMutation({
 		mutationFn: async (id) => {
 			try {
-				const res = await ProductService.deleteColor(id);
+				const res = await VoucherService.deleteVoucher(id);
 				return res;
 			} catch (error) {
 				console.log(error);
 			}
 		},
 	});
-	const { data: dataDelete, isLoading: isLoadingDelete } = mutationDeleteColor;
+	const { data: dataDelete, isLoading: isLoadingDelete } = mutationDeleteVoucher;
 
 	useEffect(() => {
 		if (dataDelete?.statusMessage === 'success') {
@@ -69,20 +71,22 @@ const ColorProduct = () => {
 	const handleCancelDelete = () => {
 		setIsModalOpenDelete(false);
 	};
-	const handleDeleteColor = () => {
-		mutationDeleteColor.mutate(rowSelected, {
+	const handleDeleteVoucher = () => {
+		mutationDeleteVoucher.mutate(rowSelected, {
 			onSettled: () => {
-				queryColors.refetch();
+				queryVoucher.refetch();
 			},
 		});
 	};
 
-	const mutationUpdateColor = useMutation({
+	const mutationUpdateVoucher = useMutation({
 		mutationFn: async (data) => {
 			try {
-				const { color } = data;
-				const res = await ProductService.updateColor(data.id, {
-					color,
+				const { discountAmount, totalAmount, voucherCode } = data;
+				const res = await VoucherService.updateVoucher(data.id, {
+					discountAmount,
+					totalAmount,
+					voucherCode,
 				});
 				return res;
 			} catch (error) {
@@ -90,45 +94,45 @@ const ColorProduct = () => {
 			}
 		},
 	});
-	const { data: dataUpdate, isLoading: isLoadingUpdate, isSuccess: isSuccessUpdate } = mutationUpdateColor;
+	const { data: dataUpdate, isLoading: isLoadingUpdate, isSuccess: isSuccessUpdate } = mutationUpdateVoucher;
 
 	//Update
 	const handleCancelDrawer = () => {
 		setIsDrawerOpen(false);
 	};
 
-	const fetchDetailsColor = async (rowSelected) => {
+	const fetchDetailsVoucher = async (rowSelected) => {
 		setIsLoadingDetails(true);
-		const res = await ProductService.getAllColors(rowSelected);
+		const res = await VoucherService.getVoucherByAdmin(rowSelected);
 		if (res?.data) {
-			setStateColorsDetails({
-				color: res.data[0].color,
-			});
+			setStateVoucherDetails(res?.data);
 		}
 		setIsLoadingDetails(false);
 	};
 
 	const onFinishUpdate = () => {
-		mutationUpdateColor.mutate(
-			{ id: rowSelected, ...stateColorsDetails },
+		mutationUpdateVoucher.mutate(
+			{ id: rowSelected, ...stateVoucherDetails },
 			{
 				onSettled: () => {
-					queryColors.refetch();
+					queryVoucher.refetch();
 				},
 			}
 		);
 	};
+
 	useEffect(() => {
 		if (!isModalOpen) {
-			form.setFieldsValue(stateColorsDetails);
+			form.setFieldsValue(stateVoucherDetails);
 		} else {
 			form.setFieldsValue(inittial());
 		}
-	}, [form, stateColorsDetails, isModalOpen]);
+	}, [form, stateVoucherDetails, isModalOpen]);
+
 	useEffect(() => {
 		if (rowSelected) {
 			setIsLoadingDetails(true);
-			fetchDetailsColor(rowSelected);
+			fetchDetailsVoucher(rowSelected);
 		}
 	}, [rowSelected]);
 
@@ -136,19 +140,19 @@ const ColorProduct = () => {
 		if (dataUpdate?.statusMessage === 'success') {
 			Message.success('Cập nhật thành công');
 			handleCancelDrawer();
-		} else if (dataUpdate?.statusMessage === 'failed') {
+		} else if (dataUpdate?.statusCode === 400 || dataUpdate?.statusMessage === 'failed') {
 			Message.error(dataUpdate?.message);
 		}
 	}, [dataUpdate?.statusMessage]);
 
-	const handleDetailsColors = () => {
+	const handleDetailsVoucher = () => {
 		setIsDrawerOpen(true);
 	};
 	const renderAction = () => {
 		return (
 			<div style={{ fontSize: '18px', display: 'flex', gap: '10px' }}>
 				<DeleteOutlined style={{ color: 'red', cursor: 'pointer' }} onClick={() => setIsModalOpenDelete(true)} />
-				<EditOutlined style={{ color: 'green', cursor: 'pointer' }} onClick={handleDetailsColors} />
+				<EditOutlined style={{ color: 'green', cursor: 'pointer' }} onClick={handleDetailsVoucher} />
 			</div>
 		);
 	};
@@ -221,15 +225,37 @@ const ColorProduct = () => {
 
 	const columns = [
 		{
-			title: 'Color',
-			dataIndex: 'color',
+			title: 'Voucher Code',
+			dataIndex: 'voucherCode',
 			render: (text) => <a>{text}</a>,
 			...getColumnSearchProps('color'),
 			sorter: (a, b) => a.color.length - b.color.length,
 		},
 		{
-			title: 'Quantity',
-			dataIndex: 'quantity',
+			title: 'Giảm giá',
+			dataIndex: 'discountAmount',
+			sorter: (a, b) => a.quantity - b.quantity,
+			filters: [
+				{
+					text: '>= 10',
+					value: '>=',
+				},
+				{
+					text: '<= 10',
+					value: '<=',
+				},
+			],
+			render: (text) => convertPrice(text),
+			onFilter: (value, record) => {
+				if (value === '>=') {
+					return record.quantity >= 10;
+				}
+				return record.quantity <= 10;
+			},
+		},
+		{
+			title: 'Tổng giá trị đơn',
+			dataIndex: 'totalAmount',
 			sorter: (a, b) => a.quantity - b.quantity,
 			filters: [
 				{
@@ -247,6 +273,7 @@ const ColorProduct = () => {
 				}
 				return record.quantity <= 10;
 			},
+			render: (text) => convertPrice(text),
 		},
 		{
 			title: 'Action',
@@ -256,72 +283,73 @@ const ColorProduct = () => {
 	];
 
 	const dataTable =
-		colors?.data?.length &&
-		colors?.data?.map((color) => {
-			const totalQuantity = color?.list_product.reduce((sum, product) => sum + (product?.quantity || 0), 0);
-
+		vouchers?.data?.length &&
+		vouchers?.data?.map((voucher) => {
 			return {
-				key: color._id,
-				quantity: totalQuantity,
-				...color,
+				key: voucher._id,
+				...voucher,
 			};
 		});
 
+	console.log(data?.statusMessage);
 	useEffect(() => {
-		if (isSuccess && data?.statusMessage === 'success') {
+		if (data?.statusMessage === 'success') {
 			Message.success('Thêm thành công');
 			handleCancel();
 		} else if (data?.statusCode === 400 || data?.statusMessage === 'failed') {
 			Message.error(data?.message);
 		}
-	}, [isSuccess, isError]);
+	}, [data?.statusMessage]);
 
 	const handleOnChange = (e) => {
-		setStateColors({
-			...stateColors,
+		setStateVoucher({
+			...stateVoucher,
 			[e.target.name]: e.target.value,
 		});
 	};
 
 	const handleOnChangeDetails = (e) => {
-		setStateColorsDetails({
-			...stateColorsDetails,
+		setStateVoucherDetails({
+			...stateVoucherDetails,
 			[e.target.name]: e.target.value,
 		});
 	};
 	const handleCancel = () => {
+		form.resetFields();
+		setStateVoucher(inittial());
 		setIsModelOpen(false);
 	};
 
 	const onFinish = () => {
-		mutationColor.mutate(stateColors, {
+		mutationVoucher.mutate(stateVoucher, {
 			onSettled: () => {
-				queryColors.refetch();
+				queryVoucher.refetch();
 			},
 		});
-		setStateColors({
-			...stateColors,
+		setStateVoucher({
+			...stateVoucher,
 		});
 	};
 
 	//Delete-many
-	const mutationDeleteManyColor = useMutation({
+	const mutationDeleteManyVoucher = useMutation({
 		mutationFn: async (ids) => {
 			try {
-				const res = await ProductService.deleteManyColor(ids);
+				const res = await VoucherService.deleteManyVoucher(ids);
 				return res;
 			} catch (error) {
 				console.log(error);
 			}
 		},
 	});
-	const { data: dataDeleteMany, isLoading: isLoadingDeleteMany } = mutationDeleteManyColor;
-	const handleDeleteManyColor = (ids) => {
-		mutationDeleteManyColor.mutate(
+	const { data: dataDeleteMany, isLoading: isLoadingDeleteManyVoucher } = mutationDeleteManyVoucher;
+
+	const handleDeleteMany = (ids) => {
+		mutationDeleteManyVoucher.mutate(
 			{ ids },
 			{
 				onSettled: () => {
-					queryColors.refetch();
+					queryVoucher.refetch();
 				},
 			}
 		);
@@ -335,7 +363,7 @@ const ColorProduct = () => {
 	}, [dataDeleteMany?.statusMessage]);
 	return (
 		<div style={{ padding: '20px' }}>
-			<WrapperHeader>Quản lý màu sắc</WrapperHeader>
+			<WrapperHeader>Quản lý mã giảm giá</WrapperHeader>
 			<div style={{ marginTop: '10px' }}>
 				<Button
 					style={{ height: '150px', width: '150px', borderRadius: '6px', borderStyle: 'dashed' }}
@@ -346,11 +374,11 @@ const ColorProduct = () => {
 			</div>
 			<div style={{ marginTop: '20px' }}>
 				<TableComponent
-					handleDeleteMany={handleDeleteManyColor}
-					isLoadingDeleteMany={isLoadingDeleteMany}
+					handleDeleteMany={handleDeleteMany}
+					isLoadingDeleteMany={isLoadingDeleteManyVoucher}
 					dataTable={dataTable}
 					columns={columns}
-					isLoading={isLoadingCreate || isLoading}
+					isLoading={isLoadingDelete || isLoadingUpdate || isLoadingCreate || isLoading}
 					onRow={(record, rowIndex) => {
 						return {
 							onClick: (event) => {
@@ -361,14 +389,14 @@ const ColorProduct = () => {
 				></TableComponent>
 			</div>
 			<Loading isLoading={isLoadingCreate}>
-				<Modal title="Tạo màu" open={isModalOpen} onCancel={handleCancel} footer={null}>
+				<Modal title="Tạo mã giảm giá" open={isModalOpen} onCancel={handleCancel} footer={null}>
 					<Form
 						name="basic"
 						labelCol={{
 							span: 8,
 						}}
 						wrapperCol={{
-							span: 16,
+							span: 14,
 						}}
 						style={{
 							maxWidth: 600,
@@ -380,20 +408,52 @@ const ColorProduct = () => {
 						autoComplete="off"
 					>
 						<Form.Item
-							label="Color"
-							name="color"
+							label="Mã giảm giá"
+							name="voucherCode"
 							rules={[
 								{
 									required: true,
-									message: 'Please input color!',
+									message: 'Please input voucher code!',
 								},
 								{
-									pattern: /^[a-zA-Z\s]+$/,
-									message: 'Màu chỉ được đặt chữ cái, không có ký tự đặc biệt.',
+									pattern: /^[a-zA-Z0-9]+$/,
+									message: 'Mã giảm giá chỉ được chứa chữ cái từ A-Z và số.',
 								},
 							]}
 						>
-							<InputComponent value={stateColors.color} onChange={handleOnChange} name="color" />
+							<InputComponent value={stateVoucher.voucherCode} onChange={handleOnChange} name="voucherCode" />
+						</Form.Item>
+						<Form.Item
+							label="Số tiền giảm giá"
+							name="discountAmount"
+							rules={[
+								{
+									required: true,
+									message: 'Please input discount amount!',
+								},
+								{
+									pattern: /^\d+$/,
+									message: 'Số tiền giảm giá chỉ phép nhập số.',
+								},
+							]}
+						>
+							<InputComponent value={stateVoucher.discountAmount} onChange={handleOnChange} name="discountAmount" />
+						</Form.Item>
+						<Form.Item
+							label="Tổng tiền đơn hàng"
+							name="totalAmount"
+							rules={[
+								{
+									required: true,
+									message: 'Please input total amount!',
+								},
+								{
+									pattern: /^\d+$/,
+									message: 'Số tiền tổng đơn chỉ được phép nhập số.',
+								},
+							]}
+						>
+							<InputComponent value={stateVoucher.totalAmount} onChange={handleOnChange} name="totalAmount" />
 						</Form.Item>
 						<Form.Item wrapperCol={{ offset: 8, span: 16 }}>
 							<Button type="primary" htmlType="submit">
@@ -403,15 +463,20 @@ const ColorProduct = () => {
 					</Form>
 				</Modal>
 			</Loading>
-			<DrawerComponent title="Chi tiết màu" isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)} width="30%">
-				<Loading isLoading={isLoadingDetails || isLoadingUpdate}>
+			<DrawerComponent
+				title="Chi tiết giảm giá"
+				isOpen={isDrawerOpen}
+				onClose={() => setIsDrawerOpen(false)}
+				width="30%"
+			>
+				<Loading isLoading={isLoadingDetails}>
 					<Form
-						name="ColorProduct"
+						name="VoucherProduct"
 						labelCol={{
-							span: 8,
+							span: 10,
 						}}
 						wrapperCol={{
-							span: 21,
+							span: 14,
 						}}
 						style={{
 							maxWidth: 600,
@@ -424,22 +489,66 @@ const ColorProduct = () => {
 						form={form}
 					>
 						<Form.Item
-							label="Color"
-							name="color"
+							label="Mã giảm giá"
+							name="voucherCode"
 							rules={[
 								{
 									required: true,
-									message: 'Please input Color Name!',
+									message: 'Please input voucher code!',
 								},
 								{
-									pattern: /^[a-zA-Z\s]+$/,
-									message: 'Color chỉ được đặt chữ hoặc số, không có kí tự',
+									pattern: /^[a-zA-Z0-9]+$/,
+									message: 'Mã giảm giá chỉ được chứa chữ cái từ A-Z và số.',
 								},
 							]}
 						>
-							<InputComponent value={stateColorsDetails.color} onChange={handleOnChangeDetails} name="color" />
+							<InputComponent
+								value={stateVoucherDetails.voucherCode}
+								onChange={handleOnChangeDetails}
+								name="voucherCode"
+							/>
 						</Form.Item>
-						<Form.Item wrapperCol={{ offset: 4, span: 16 }}>
+						<Form.Item
+							label="Số tiền giảm giá"
+							name="discountAmount"
+							rules={[
+								{
+									required: true,
+									message: 'Please input discount amount!',
+								},
+								{
+									pattern: /^\d+$/,
+									message: 'Số tiền giảm giá chỉ phép nhập số.',
+								},
+							]}
+						>
+							<InputComponent
+								value={stateVoucherDetails.discountAmount}
+								onChange={handleOnChangeDetails}
+								name="discountAmount"
+							/>
+						</Form.Item>
+						<Form.Item
+							label="Tổng tiền đơn hàng"
+							name="totalAmount"
+							rules={[
+								{
+									required: true,
+									message: 'Please input total amount!',
+								},
+								{
+									pattern: /^\d+$/,
+									message: 'Số tiền tổng đơn chỉ được phép nhập số.',
+								},
+							]}
+						>
+							<InputComponent
+								value={stateVoucherDetails.totalAmount}
+								onChange={handleOnChangeDetails}
+								name="totalAmount"
+							/>
+						</Form.Item>
+						<Form.Item wrapperCol={{ offset: 12, span: 16 }}>
 							<Button type="primary" htmlType="submit">
 								Submit
 							</Button>
@@ -449,17 +558,17 @@ const ColorProduct = () => {
 			</DrawerComponent>
 			<ModalComponent
 				style={{ textAlign: 'center' }}
-				title="Xóa màu"
+				title="Xóa giảm giá"
 				open={isModalOpenDelete}
 				onCancel={handleCancelDelete}
-				onOk={handleDeleteColor}
+				onOk={handleDeleteVoucher}
 			>
 				<Loading isLoading={isLoadingDelete}>
-					<div>Bạn có chắc xóa màu này không?</div>
+					<div>Bạn có chắc xóa mã giảm giá này không?</div>
 				</Loading>
 			</ModalComponent>
 		</div>
 	);
 };
 
-export default ColorProduct;
+export default VoucherProduct;

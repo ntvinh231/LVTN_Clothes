@@ -318,6 +318,7 @@ const AdminOrder = () => {
 				<div style={{ marginTop: '20px' }}>
 					<TableComponent
 						columns={columns}
+						rowSelection={undefined}
 						isLoading={isLoadingOrders}
 						dataTable={dataTable}
 						onRow={(record, rowIndex) => {

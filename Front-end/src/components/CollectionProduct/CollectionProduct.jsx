@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Button, Modal, Form, message, Space } from 'antd';
+import { Button, Modal, Form, Space } from 'antd';
 import { PlusOutlined, DeleteOutlined, EditOutlined, SearchOutlined } from '@ant-design/icons';
+import * as Message from '../../components/Message/Message';
+
 import TableComponent from '../TableComponent/TableComponent';
 import { WrapperHeader } from '../AdminUser/style';
 import InputComponent from '../InputComponent/InputComponent';
@@ -60,10 +62,10 @@ const CollectionProduct = () => {
 
 	useEffect(() => {
 		if (dataDelete?.statusMessage === 'success') {
-			message.success('Xóa thành công');
+			Message.success('Xóa thành công');
 			handleCancelDelete();
 		} else if (dataDelete?.statusMessage === 'failed' || dataDelete?.statusCode === 400) {
-			message.error(dataDelete?.message);
+			Message.error(dataDelete?.message);
 		}
 	}, [dataDelete?.statusMessage, dataDelete?.message, dataDelete?.statusCode]);
 
@@ -136,10 +138,10 @@ const CollectionProduct = () => {
 
 	useEffect(() => {
 		if (dataUpdate?.statusMessage === 'success') {
-			message.success('Cập nhật thành công');
+			Message.success('Cập nhật thành công');
 			handleCancelDrawer();
 		} else if (dataUpdate?.statusMessage === 'failed') {
-			message.error(dataUpdate?.message);
+			Message.error(dataUpdate?.message);
 		}
 	}, [dataUpdate?.statusMessage]);
 
@@ -271,10 +273,10 @@ const CollectionProduct = () => {
 
 	useEffect(() => {
 		if (isSuccess && data?.statusMessage === 'success') {
-			message.success('Thêm thành công');
+			Message.success('Thêm thành công');
 			handleCancel();
 		} else if (data?.statusCode === 400 || data?.statusMessage === 'failed') {
-			message.error(data?.message);
+			Message.error(data?.message);
 		}
 	}, [isSuccess, isError]);
 
@@ -330,9 +332,9 @@ const CollectionProduct = () => {
 	};
 	useEffect(() => {
 		if (dataDeleteMany?.statusMessage === 'success') {
-			message.success('Xóa thành công');
+			Message.success('Xóa thành công');
 		} else if (dataDeleteMany?.statusMessage === 'failed' || dataDeleteMany?.statusCode === 400) {
-			message.error(dataDeleteMany?.message);
+			Message.error(dataDeleteMany?.message);
 		}
 	}, [dataDeleteMany?.statusMessage]);
 	return (

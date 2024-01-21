@@ -1,10 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { WrapperHeader, WrapperUploadFile } from './style';
-import { Button, Form, Select, Spin, message, Space } from 'antd';
+import { Button, Form, Select, Spin, Space } from 'antd';
 import TableComponent from '../TableComponent/TableComponent';
 import * as UserService from '../../service/UserService';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { DeleteOutlined, EditOutlined, SearchOutlined, UploadOutlined } from '@ant-design/icons';
+import * as Message from '../../components/Message/Message';
+
 import Loading from '../LoadingComponent/Loading';
 import ModalComponent from '../ModalComponent/ModalComponent';
 import InputComponent from '../InputComponent/InputComponent';
@@ -315,29 +317,29 @@ const AdminUser = () => {
 	//update
 	useEffect(() => {
 		if (dataUpdate?.statusMessage === 'success') {
-			message.success('Cập nhật thành công');
+			Message.success('Cập nhật thành công');
 			handleCancelDrawer(false);
 		} else if (dataUpdate?.statusMessage === 'failed' || dataUpdate?.statusCode === 400) {
-			message.error(dataUpdate?.message);
+			Message.error(dataUpdate?.message);
 		}
 	}, [dataUpdate?.statusMessage]);
 
 	//deleteMany
 	useEffect(() => {
 		if (dataDeleteMany?.statusMessage === 'success') {
-			message.success('Xóa thành công');
+			Message.success('Xóa thành công');
 		} else if (dataDeleteMany?.statusMessage === 'failed' || dataDeleteMany?.statusCode === 400) {
-			message.error(dataDeleteMany?.message);
+			Message.error(dataDeleteMany?.message);
 		}
 	}, [dataDeleteMany?.statusMessage]);
 
 	//delete
 	useEffect(() => {
 		if (dataDelete?.statusCode === 200 && dataDelete?.statusMessage === 'success') {
-			message.success('Xóa thành công');
+			Message.success('Xóa thành công');
 			handleCancelDelete();
 		} else if (dataDelete?.statusCode === 400 || dataDelete?.statusMessage === 'failed') {
-			message.error('Xóa thất bại');
+			Message.error('Xóa thất bại');
 		}
 	}, [isSuccessDelete, dataDelete?.statusMessage]);
 

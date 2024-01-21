@@ -1,9 +1,15 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import * as UserService from '../../service/UserService';
-import { DeleteOutlined, MinusOutlined, PlusOutlined } from '@ant-design/icons';
+import { DeleteOutlined, MinusOutlined, PlusOutlined, RightOutlined } from '@ant-design/icons';
 import cart_empty_background from '../../assets/images/cart_empty_background.webp';
 import {
+	CouponBody,
+	CouponFooter,
+	CouponHeader,
+	CouponItem,
+	CouponList,
 	CustomCheckbox,
+	ScrowCoupon,
 	WrapperCountCart,
 	WrapperInfo,
 	WrapperItemCart,
@@ -14,8 +20,11 @@ import {
 	WrapperStyleHeader,
 	WrapperStyleHeaderDilivery,
 	WrapperTotal,
+	WrapperVoucher,
+	WrapperVoucherToggle,
 } from './style';
 import * as CartService from '../../service/CartService';
+import * as VoucherService from '../../service/VoucherService';
 import { Form } from 'antd';
 import * as Message from '../../components/Message/Message';
 import InputComponent from '../../components/InputComponent/InputComponent';
@@ -37,11 +46,12 @@ import {
 } from '../../redux/slice/cartSlide';
 
 import ModalComponent from '../../components/ModalComponent/ModalComponent';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import Loading from '../../components/LoadingComponent/Loading';
 import { resetUser, updateUser } from '../../redux/slice/userSlide';
 import StepComponent from '../../components/StepComponent/StepComponent';
 import FooterComponent from '../../components/FooterComponent/FooterComponent';
+import DrawerComponent from '../../components/DrawerComponent/DrawerComponent';
 
 const CartPage = () => {
 	const cart = useSelector((state) => state.cart);
@@ -270,8 +280,69 @@ const CartPage = () => {
 		},
 	];
 
+	const [isOpenDrawerVoucher, setIsOpenDrawerVoucher] = useState(false);
+
+	const handleCancelModalVoucher = () => {
+		setIsOpenDrawerVoucher(false);
+	};
+
+	const CopyButton = ({ textToCopy, style }) => {
+		const [copied, setCopied] = useState(false);
+
+		const handleCopyClick = async () => {
+			try {
+				await navigator.clipboard.writeText(textToCopy);
+				setCopied(true);
+				setTimeout(() => {
+					setCopied(false);
+				}, 3000);
+			} catch (err) {
+				console.error('Lỗi khi sao chép:', err);
+				alert('Lỗi khi sao chép. Vui lòng thử lại!');
+			}
+		};
+
+		return (
+			<button
+				style={{
+					...style,
+					fontSize: '15px',
+					cursor: 'pointer',
+					borderRadius: '0',
+					marginBottom: '0px',
+					transition: 'opacity 0.3s',
+					opacity: copied ? 0.7 : 1,
+				}}
+				onClick={handleCopyClick}
+			>
+				<span
+					style={{
+						color: '#FFFFFF',
+						transition: 'opacity 0.3s, filter 0.3s',
+						opacity: '0.95',
+					}}
+					onMouseOver={(e) => {
+						e.target.style.opacity = '1';
+					}}
+					onMouseOut={(e) => {
+						e.target.style.opacity = '0.95';
+					}}
+				>
+					{copied ? 'Đã sao chép' : 'Sao chép'}
+				</span>
+			</button>
+		);
+	};
+
+	const fetchAllVoucher = async () => {
+		const res = await VoucherService.getAllVoucher();
+		return res;
+	};
+	const queryVoucher = useQuery(['vouchers'], fetchAllVoucher);
+	const { isLoading: isLoadingVoucher, data: vouchers } = queryVoucher;
+
 	return (
-		<div style={{ background: '#fff', with: '100%', height: '90vh' }}>
+		<div style={{ background: '#fff', with: '100%', height: '90vh', marginBottom: '100px' }}>
 			<div style={{ height: '100%', width: '910px', margin: '0 auto', padding: '0 26px' }}>
 				<div style={{ display: 'flex', justifyContent: 'center' }}>
 					<Loading isLoading={cart?.isLoadingGetCart}>
@@ -447,6 +518,12 @@ const CartPage = () => {
 									>{`${priceDiscountMemo} %`}</span>
 								</div>
 								<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+									<span>Voucher</span>
+									<span
+										style={{ color: '#000', fontSize: '14px', fontWeight: 'bold' }}
+									>{`${priceDiscountMemo} %`}</span>
+								</div>
+								<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
 									<span>Phí giao hàng</span>
 									<span style={{ color: '#000', fontSize: '14px', fontWeight: 'bold' }}>
 										{convertPrice(diliveryPriceMemo)}
@@ -462,11 +539,29 @@ const CartPage = () => {
 									<span style={{ color: '#000', fontSize: '11px' }}>(Đã bao gồm VAT nếu có)</span>
 								</span>
 							</WrapperTotal>
+							<WrapperVoucher>
+								<div style={{ display: 'flex', alignItems: 'center', alignContent: 'center' }}>
+									<img
+										alt="voucher"
+										src="https://theme.hstatic.net/1000360022/1001194437/14/coupon-icon.png?v=708"
+									></img>
+									<span
+										style={{ lineHeight: '1', marginLeft: '4px', fontSize: '14px', fontFamily: 'Mulish, sans-serif' }}
+									>
+										Mã giảm giá
+									</span>
+								</div>
+								<div style={{ display: 'flex', alignItems: 'center', alignContent: 'center' }}>
+									<WrapperVoucherToggle onClick={() => setIsOpenDrawerVoucher(true)}>
+										<span>Xem tất cả</span>
+										<RightOutlined style={{ fontSize: '12px' }} />
+									</WrapperVoucherToggle>
+								</div>
+							</WrapperVoucher>
 						</div>
 						<ButtonComponent
 							onClick={() => handleAddCard()}
 							backgroundHover="#0089ff"
-							textHover="#fff"
 							size={40}
 							styleButton={{
 								background: 'rgb(255, 57, 69)',
@@ -562,6 +657,38 @@ const CartPage = () => {
 						</Form>
 					</Loading>
 				</ModalComponent>
+				<DrawerComponent title="Mã giảm giá" open={isOpenDrawerVoucher} onClose={handleCancelModalVoucher} width="23%">
+					<Loading isLoading={isLoadingVoucher}>
+						<ScrowCoupon>
+							{vouchers?.data?.map((voucher) => (
+								<CouponList key={voucher._id}>
+									<CouponItem>
+										<CouponHeader>
+											<h3>VOUCHER</h3>
+											<h3>Đơn từ {convertPrice(voucher.totalAmount)}</h3>
+										</CouponHeader>
+										<CouponBody>
+											<h1>{convertPrice(voucher.totalAmount)}</h1>
+										</CouponBody>
+										<CouponFooter>
+											<span style={{ fontSize: '16px', fontWeight: 500, color: '#001F5D' }}>
+												Nhập mã: {voucher.voucherCode}
+											</span>
+											<CopyButton
+												textToCopy={voucher.voucherCode}
+												style={{
+													background: '#001F5D',
+													border: 'none',
+													padding: '4px 8px',
+												}}
+											/>
+										</CouponFooter>
+									</CouponItem>
+								</CouponList>
+							))}
+						</ScrowCoupon>
+					</Loading>
+				</DrawerComponent>
 			</div>
 			<div style={{ marginLeft: '120px', width: '80%' }}>
 				<FooterComponent></FooterComponent>
