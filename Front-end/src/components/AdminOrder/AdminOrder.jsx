@@ -39,9 +39,13 @@ const AdminOrder = () => {
 	const { isLoading: isLoadingOrders, data: orders } = queryOrder;
 
 	const getAllOrderDetails = async (id) => {
+		let res;
 		try {
-			const res = await getOrderByAdmin(id);
-
+			if (typeof id === 'object') {
+				res = await getAllOrder();
+			} else {
+				res = await getOrderByAdmin(id);
+			}
 			if (res?.data && res.data.length > 0) {
 				return res.data[0];
 			} else {
@@ -49,7 +53,6 @@ const AdminOrder = () => {
 			}
 		} catch (error) {
 			console.error('Error in getAllOrderDetails:', error);
-
 			return null;
 		}
 	};
@@ -303,30 +306,32 @@ const AdminOrder = () => {
 	return (
 		<div style={{ padding: '20px' }}>
 			<WrapperHeader>Quản lý đơn hàng</WrapperHeader>
-			<div style={{ display: 'flex' }}>
-				<div style={{ height: 200, width: 200 }}>
-					<PieChartComponent data={orders?.data} />
+			<Loading isLoading={isLoadingDetails || isLoadingOrders}>
+				<div style={{ display: 'flex' }}>
+					<div style={{ height: 200, width: 200 }}>
+						<PieChartComponent data={orders?.data} />
+					</div>
+					<div style={{ height: 220, width: 500 }}>
+						<BarChartComponent data={orders?.data} />
+					</div>
 				</div>
-				<div style={{ height: 220, width: 500 }}>
-					<BarChartComponent data={orders?.data} />
+				<div style={{ marginTop: '20px' }}>
+					<TableComponent
+						columns={columns}
+						isLoading={isLoadingOrders}
+						dataTable={dataTable}
+						onRow={(record, rowIndex) => {
+							return {
+								onClick: (event) => {
+									setRowSelected(record._id);
+								},
+							};
+						}}
+					/>
 				</div>
-			</div>
-			<div style={{ marginTop: '20px' }}>
-				<TableComponent
-					columns={columns}
-					isLoading={isLoadingOrders}
-					dataTable={dataTable}
-					onRow={(record, rowIndex) => {
-						return {
-							onClick: (event) => {
-								setRowSelected(record._id);
-							},
-						};
-					}}
-				/>
-			</div>
+			</Loading>
 			<DrawerComponent title="Chi tiết đơn hàng" isOpen={isDrawerOpen} onClose={handleCancelDrawer} width="30%">
-				<Loading isLoading={isLoadingUpdate || isLoadingDetails}>
+				<Loading isLoading={isLoadingUpdate || isLoadingOrdersDetails | isLoadingDetails}>
 					<Form
 						name="AdminOrder"
 						labelCol={{

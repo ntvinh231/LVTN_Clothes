@@ -47,7 +47,7 @@ export const getOrderByAdmin = async (id) => {
 	try {
 		let res;
 		const url = id
-			? `${process.env.REACT_APP_API_URL}/order/get-all-order/?id=${id}`
+			? `${process.env.REACT_APP_API_URL}/order/get-all-order?id=${id}`
 			: `${process.env.REACT_APP_API_URL}/order/get-all-order`;
 		res = await axiosJWT.get(url);
 		return res.data;

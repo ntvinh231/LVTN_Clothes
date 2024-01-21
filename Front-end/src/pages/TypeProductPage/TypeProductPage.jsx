@@ -17,8 +17,8 @@ const TypeProductPage = () => {
 		{ value: '', label: 'Mặc định' },
 		{ value: 'sort=-name', label: 'A -> Z' },
 		{ value: 'sort=name', label: 'Z -> A' },
-		{ value: 'sort=price', label: 'Giá tăng dần' },
-		{ value: 'sort=-price', label: 'Giá giảm dần' },
+		{ value: 'sort=discountedPrice ', label: 'Giá tăng dần' },
+		{ value: 'sort=-discountedPrice ', label: 'Giá giảm dần' },
 	];
 	const searchProduct = useSelector((state) => state.product.search);
 	const searchDebounce = useDebounce(searchProduct, 500);
@@ -75,7 +75,6 @@ const TypeProductPage = () => {
 
 	const fetchProductType = async (state, page, limit, selectValue) => {
 		try {
-			console.log(selectValue);
 			setLoading(true);
 			let res, collectionsId, data;
 			if (state === 'all') {

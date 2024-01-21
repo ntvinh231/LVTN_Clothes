@@ -30,19 +30,8 @@ export const getProductTypePagi = async (req, res, next) => {
 			return false;
 		});
 
-		// Tính toán giảm giá dựa trên phần trăm giảm giá
-		const modifiedProducts = uniqueProducts.map((product) => {
-			if (product.discount && product.price) {
-				const discountAmount = (product.price * product.discount) / 100;
-				const discountedPrice = product.price - discountAmount;
-				return { ...product.toObject(), discountedPrice };
-			} else {
-				return product.toObject();
-			}
-		});
-
 		// Phân trang dữ liệu đã lấy được
-		const paginatedProducts = modifiedProducts.slice(offset, offset + limit);
+		const paginatedProducts = uniqueProducts.slice(offset, offset + limit);
 
 		const totalProductCount = displayedProducts.length; // Đếm số sản phẩm đã hiển thị, không đếm trùng
 
@@ -226,6 +215,7 @@ export const createProduct = async (req, res, next) => {
 
 		validatedData.discount = validatedData.discount || 5;
 		validatedData.size = validatedData.size ? validatedData.size.toUpperCase() : null;
+
 		let updatedProduct;
 		const sizeRegExp = new RegExp(`^${validatedData.size}$`, 'i');
 		const nameRegExp = new RegExp(`^${validatedData.name}$`, 'i');
@@ -246,18 +236,12 @@ export const createProduct = async (req, res, next) => {
 			}
 
 			// Nếu sản phẩm đã tồn tại, cộng dồn quantity
-			updatedProduct = await Product.findOneAndUpdate(
-				{
-					name: nameRegExp,
-					size: sizeRegExp,
-					colors_id: validatedData.colors_id,
-				},
-				{ $inc: { quantity: parseInt(validatedData.quantity) || 0 } },
-				{ new: true } // Trả về sản phẩm sau khi cập nhật
-			);
+			existingProduct.quantity += parseInt(validatedData.quantity) || 0;
+			updatedProduct = await existingProduct.save();
 		} else {
 			// Nếu sản phẩm không tồn tại
-			updatedProduct = await Product.create(validatedData);
+			const newProduct = new Product(validatedData);
+			updatedProduct = await newProduct.save();
 		}
 
 		return res.status(200).json({
@@ -315,10 +299,8 @@ export const updateProduct = async (req, res, next) => {
 		req.body.size = size ? size.toUpperCase() : null;
 		req.body.discount = discount || 5;
 
-		let result = await Product.findByIdAndUpdate(id, req.body, {
-			new: true,
-			runValidators: true,
-		});
+		Object.assign(checkProduct, req.body);
+		let result = await checkProduct.save();
 
 		return res.status(200).json({
 			statusCode: 200,
